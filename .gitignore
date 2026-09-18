@@ -1,0 +1,21 @@
+# Local dependencies and caches
+node_modules/
+.cache/
+__pycache__/
+
+# Temporary runtime output
+*.log
+*.pid
+*.tmp
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+@eaDir/
+\#recycle/

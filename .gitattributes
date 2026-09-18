@@ -1,0 +1,3 @@
+# The Windows launcher verifies exact file sizes and SHA-256 digests.
+# Preserve existing bytes when committing and checking out on any platform.
+* -text

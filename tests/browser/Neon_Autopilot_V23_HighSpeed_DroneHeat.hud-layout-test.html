@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>V23 HUD viewport matrix / HUD 小窗口布局验收</title>
+    <style>
+      body { margin: 0; padding: 12px; background: #17212b; color: #eef5f4; font: 13px system-ui, sans-serif; }
+      h1 { margin: 0 0 8px; font-size: 18px; }
+      iframe { display: block; margin-top: 12px; border: 1px solid #66827c; background: #c6d9d1; }
+      pre { max-width: 1100px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <h1>HUD viewport matrix / HUD 小窗口布局验收</h1>
+    <p>Production HTML and CSS; no game script or WebGL. Gameplay and craft framing need the live-game audit.</p>
+    <pre id="result" role="status">Running / 检查中</pre>
+    <iframe id="fixture" title="Production HUD layout fixture"></iframe>
+    <script>
+      (async () => {
+        const cases = Object.freeze([
+          { id: '320x568', width: 320, height: 568, touch: true },
+          { id: '390x844', width: 390, height: 844, touch: true },
+          { id: '568x320', width: 568, height: 320, touch: true },
+          { id: '700x390', width: 700, height: 390, touch: true },
+          { id: '640x480-desktop', width: 640, height: 480, touch: false },
+          { id: '800x450-desktop', width: 800, height: 450, touch: false },
+          { id: '900x700-desktop', width: 900, height: 700, touch: false },
+          { id: '768x1024', width: 768, height: 1_024, touch: true },
+          { id: '1024x768', width: 1_024, height: 768, touch: true },
+          { id: '1180x820', width: 1_180, height: 820, touch: true }
+        ]);
+        const states = Object.freeze([
+          { id: 'folded-MT', mode: 'manual' },
+          { id: 'folded-AT', mode: 'automatic' },
+          { id: 'map-MT', mode: 'manual', detail: 'navigationBody' },
+          { id: 'telemetry-MT', mode: 'manual', detail: 'hudPrimaryBody' },
+          { id: 'map-AT-Film', mode: 'automatic', detail: 'navigationBody', film: true },
+          { id: 'utilities', mode: 'manual', utilities: true }
+        ]);
+        const query = new URLSearchParams(location.search);
+        const requestedCase = query.get('case');
+        const matrix = requestedCase ? cases.filter((entry) => entry.id === requestedCase) : cases;
+        if (!matrix.length) throw new Error(`Unknown HUD layout case: ${requestedCase}`);
+        const prefix = 'Neon_Autopilot_V23_HighSpeed_DroneHeat';
+        const rootUrl = new URL('../../', location.href);
+        const response = await fetch(new URL(`${prefix}.html`, rootUrl), { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Production HTML returned ${response.status}`);
+        const authored = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const markup = [...authored.querySelectorAll(
+          'body > .hud, body > .mobile-flight-hud, body > .key-tracker, body > .desktop-compass, body > .controls'
+        )].map((element) => element.outerHTML).join('\n');
+        const iframe = document.querySelector('#fixture');
+        const results = [];
+        const rect = (element) => {
+          const box = element.getBoundingClientRect();
+          return { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height };
+        };
+        const inside = (box, fixture) => box.left >= -0.5 && box.top >= -0.5
+          && box.right <= fixture.width + 0.5 && box.bottom <= fixture.height + 0.5;
+        const overlaps = (left, right) => Math.min(left.right, right.right) - Math.max(left.left, right.left) > 0.5
+          && Math.min(left.bottom, right.bottom) - Math.max(left.top, right.top) > 0.5;
+        for (const fixture of matrix) {
+          iframe.style.width = `${fixture.width}px`;
+          iframe.style.height = `${fixture.height}px`;
+          const loaded = new Promise((resolve) => iframe.addEventListener('load', resolve, { once: true }));
+          iframe.srcdoc = `<!doctype html><html lang="zh-CN" data-hud-contrast="on-light"
+            data-mobile-cockpit="true" data-touch-capable="${fixture.touch}" data-mobile-autopilot-visible="true"
+            style="--mobile-vh:${fixture.height}px"><head><base href="${rootUrl.href}">
+            <link rel="stylesheet" href="styles/${prefix}.css"></head><body>${markup}</body></html>`;
+          await loaded;
+          const doc = iframe.contentDocument;
+          const win = iframe.contentWindow;
+          const visible = (element) => {
+            const style = win.getComputedStyle(element);
+            const box = rect(element);
+            return !element.closest('[hidden]') && style.display !== 'none' && style.visibility !== 'hidden'
+              && box.width > 0 && box.height > 0;
+          };
+          for (const element of doc.querySelectorAll('[inert]')) element.removeAttribute('inert');
+          doc.querySelector('#mobileFlightHud').hidden = false;
+          doc.querySelector('#mobileAutopilotCapsule').hidden = false;
+          doc.querySelector('#autoPanel').hidden = true;
+          doc.querySelector('#mobileFlightScore').textContent = '999,999';
+          for (const state of states) {
+            doc.documentElement.dataset.driveTransmissionMode = state.mode;
+            doc.documentElement.dataset.cinematicCamera = state.film ? 'on' : 'off';
+            doc.querySelector('#mobileTransmissionSelector').dataset.transmissionMode = state.mode;
+            doc.querySelector('#mobileFlightHud').dataset.utilitiesExpanded = String(Boolean(state.utilities));
+            doc.querySelector('#mobileFlightHud').dataset.cinematicActive = String(Boolean(state.film));
+            doc.querySelector('#mobileCinematicIndicator').hidden = !state.film;
+            doc.querySelector('#mobileUtilityDrawer').hidden = !state.utilities;
+            doc.querySelector('#hudPrimaryBody').hidden = state.detail !== 'hudPrimaryBody';
+            doc.querySelector('#navigationBody').hidden = state.detail !== 'navigationBody';
+            doc.querySelector('#hudPrimary').dataset.mobileExpanded = String(state.detail === 'hudPrimaryBody');
+            doc.querySelector('#hudNavigation').dataset.mobileExpanded = String(state.detail === 'navigationBody');
+            doc.querySelector('.hud').dataset.primaryExpanded = String(state.detail === 'hudPrimaryBody');
+            doc.querySelector('.hud').dataset.navigationExpanded = String(state.detail === 'navigationBody');
+            for (const id of ['mobileGearDownBtn', 'mobileGearUpBtn']) doc.getElementById(id).hidden = state.mode === 'automatic';
+            await new Promise((resolve) => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+            const errors = [];
+            const surfaces = [...doc.querySelectorAll('[data-camera-hud-occluder]')]
+              .filter(visible).map((element) => ({ id: element.id || element.className, box: rect(element) }));
+            for (const surface of surfaces) if (!inside(surface.box, fixture)) errors.push(`outside viewport: ${surface.id}`);
+            const coreIds = [
+              'mobileTelemetryBtn', 'mobileUtilityBtn', 'mobileAutoPilotBtn', 'mobileSpeedModeBtn',
+              'mobileViewBtn', 'mobilePauseBtn', 'mobileNavigationBtn', 'mobileGearDownBtn',
+              'mobileGearUpBtn', 'mobileTransmissionModeBtn', 'leftBtn', 'rightBtn', 'jumpBtn', 'throttleBtn', 'brakeBtn'
+            ];
+            for (const id of coreIds) {
+              const element = doc.getElementById(id);
+              if (!visible(element)) continue;
+              const box = rect(element);
+              if (box.width < 43.5 || box.height < 43.5) errors.push(`target below 44px: ${id}`);
+            }
+            const gearbox = doc.getElementById('mobileTransmissionSelector');
+            if (!visible(gearbox)) errors.push('gearbox unavailable');
+            if (!fixture.touch && [...doc.querySelectorAll('.touch-btn')].some(visible)) errors.push('virtual pedals on desktop');
+            const gearboxBox = rect(gearbox);
+            const phonePortrait = fixture.width < 700 && fixture.width < fixture.height;
+            const score = doc.getElementById('mobileFlightScore');
+            if (visible(score) && (score.scrollWidth > score.clientWidth + 0.5
+              || rect(score).right > rect(score.parentElement).right + 0.5)) {
+              errors.push('six-digit score is truncated');
+            }
+            const tracker = doc.getElementById('keyTracker');
+            if (visible(tracker) && overlaps(rect(tracker), gearboxBox)) errors.push('gearbox overlaps keyboard tracker');
+            for (const id of ['mobileGearIndicator', 'mobileGearOperatingRange']) {
+              const box = rect(doc.getElementById(id));
+              if (box.left < gearboxBox.left - 0.5 || box.right > gearboxBox.right + 0.5
+                || box.top < gearboxBox.top - 0.5 || box.bottom > gearboxBox.bottom + 0.5) {
+                errors.push(`gearbox content overflow: ${id}`);
+              }
+            }
+            if (state.detail) {
+              const detail = rect(doc.getElementById(state.detail));
+              const blockers = ['mobileNavigationBtn', 'mobileAutopilotCapsule', 'mobileTransmissionSelector',
+                'leftBtn', 'rightBtn', 'jumpBtn', 'throttleBtn', 'brakeBtn'];
+              for (const id of blockers) {
+                const element = doc.getElementById(id);
+                if (visible(element) && overlaps(detail, rect(element))) errors.push(`detail overlaps ${id}`);
+              }
+              if (fixture.width > fixture.height && fixture.height < 700
+                && detail.width > fixture.width * 0.46) errors.push('detail consumes the centre flight corridor');
+              if (detail.height < 44) errors.push('detail has no scrollable reading space');
+              if (state.detail === 'navigationBody') {
+                const map = rect(doc.querySelector('.navigation-body .minimap-viewport'));
+                if (map.bottom > detail.bottom + 0.5 || map.top < detail.top - 0.5) {
+                  errors.push('map preview is cropped instead of scaled');
+                }
+                if (Math.abs(map.width / map.height - 16 / 9) > 0.02) errors.push('map aspect ratio changed');
+              }
+              if (phonePortrait) {
+                // Reserve a useful full-width ship band, not merely a nonzero slit between fixed HUD surfaces.
+                const flightTop = detail.bottom + 6;
+                const flightBottom = gearboxBox.top - 6;
+                if (flightBottom - flightTop < 150) errors.push('portrait detail leaves less than 150px flight height');
+                const flight = { left: 6, right: fixture.width - 6, top: flightTop, bottom: flightBottom };
+                if (surfaces.some((surface) => overlaps(flight, surface.box))) errors.push('portrait flight band is occluded');
+              }
+            }
+            results.push({ case: fixture.id, state: state.id, passed: errors.length === 0, errors, surfaces });
+          }
+        }
+        const failures = results.filter((entry) => !entry.passed);
+        const report = { complete: true, passed: failures.length === 0, cases: matrix.length,
+          stateCount: results.length, failureCount: failures.length, failures, results };
+        window.NeonV23HudLayoutAudit = report;
+        document.querySelector('#result').textContent = JSON.stringify({
+          complete: report.complete, passed: report.passed, cases: report.cases,
+          stateCount: report.stateCount, failureCount: report.failureCount,
+          failures: failures.map(({ case: caseId, state, errors }) => ({ case: caseId, state, errors }))
+        }, null, 2);
+      })().catch((error) => {
+        window.NeonV23HudLayoutAudit = { complete: true, passed: false, error: error.message };
+        document.querySelector('#result').textContent = error.stack || String(error);
+      });
+    </script>
+  </body>
+</html>

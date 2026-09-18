@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>V23 Collision Shield WebGL Regression</title>
+    <!-- Keep the real-WebGL fixture free of an unrelated favicon request. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ffe5a8' d='M32 4 40 24 60 32 40 40 32 60 24 40 4 32 24 24Z'/%3E%3C/svg%3E" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #080d16;
+        color: #f4f1e8;
+        font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      body {
+        display: grid;
+        place-items: start;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      canvas {
+        display: block;
+        width: min(480px, calc(100vw - 24px));
+        height: auto;
+        border: 1px solid #5d756f;
+        background: #101827;
+      }
+
+      output {
+        display: block;
+        width: min(920px, calc(100vw - 24px));
+        max-height: 48vh;
+        overflow: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <output id="status" aria-live="polite">RUNNING</output>
+    <script src="../../vendor/three-0.160.0.min.js?v=0.160.0"></script>
+    <script src="../../src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.modeling.js?v=23-ipad-road-residency-253"></script>
+    <script src="../../src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js?v=23-ipad-road-residency-253"></script>
+    <script>
+      'use strict';
+
+      (() => {
+        const status = document.querySelector('#status');
+        const checks = [];
+        const stages = [];
+        let renderer = null;
+        let ship = null;
+        let contextLost = false;
+
+        /** Publish one machine-readable result for headless and manually opened browser runs. */
+        function publish(result) {
+          const serialized = JSON.stringify(result, null, 2);
+          document.documentElement.dataset.collisionRenderAuditReady = 'true';
+          document.documentElement.dataset.collisionRenderAuditResult = JSON.stringify(result);
+          document.documentElement.dataset.collisionRenderAuditStatus = result.status;
+          document.title = `${result.status} · V23 Collision Shield WebGL Regression`;
+          status.value = serialized;
+          status.textContent = serialized;
+        }
+
+        function requireCheck(name, passed, detail = null) {
+          const check = { name, passed: Boolean(passed) };
+          if (detail !== null) check.detail = detail;
+          checks.push(check);
+          if (!check.passed) {
+            const error = new Error(`Regression check failed: ${name}`);
+            error.check = check;
+            throw error;
+          }
+        }
+
+        function viewportMetadata() {
+          const params = new URLSearchParams(location.search);
+          const query = params.get('viewport') || params.get('case') || '';
+          const match = query.match(/^(\d{2,4})x(\d{2,4})(?:\b|-)/i);
+          return {
+            query: query || null,
+            requested: match
+              ? { width: Number(match[1]), height: Number(match[2]) }
+              : null,
+            actual: { width: innerWidth, height: innerHeight },
+            devicePixelRatio: Number((devicePixelRatio || 1).toFixed(3)),
+            orientation: innerWidth > innerHeight ? 'landscape' : 'portrait',
+            userAgent: navigator.userAgent
+          };
+        }
+
+        function glErrorName(gl, code) {
+          const names = new Map([
+            [gl.INVALID_ENUM, 'INVALID_ENUM'],
+            [gl.INVALID_VALUE, 'INVALID_VALUE'],
+            [gl.INVALID_OPERATION, 'INVALID_OPERATION'],
+            [gl.INVALID_FRAMEBUFFER_OPERATION, 'INVALID_FRAMEBUFFER_OPERATION'],
+            [gl.OUT_OF_MEMORY, 'OUT_OF_MEMORY'],
+            [gl.CONTEXT_LOST_WEBGL, 'CONTEXT_LOST_WEBGL']
+          ]);
+          return names.get(code) || `UNKNOWN_${code}`;
+        }
+
+        /** Drain the finite GL error queue so every recorded stage owns the errors it caused. */
+        function readGlErrors(gl) {
+          const errors = [];
+          for (let index = 0; index < 32; index++) {
+            const code = gl.getError();
+            if (code === gl.NO_ERROR) break;
+            errors.push({ code, name: glErrorName(gl, code) });
+          }
+          return errors;
+        }
+
+        function assertHealthyContext(gl, label) {
+          const errors = readGlErrors(gl);
+          const lost = contextLost || gl.isContextLost();
+          requireCheck(`${label}:context-active`, !lost, { contextLost, isContextLost: gl.isContextLost() });
+          requireCheck(`${label}:gl-no-error`, errors.length === 0, errors);
+          return errors;
+        }
+
+        /** Three may omit successful diagnostics, so LINK_STATUS is the concrete runnable-program authority. */
+        function auditPrograms(gl, label) {
+          const programs = [...(renderer.info.programs || [])];
+          const reports = programs.map((program, index) => {
+            const hasProgram = Boolean(program?.program);
+            return {
+              index,
+              id: Number.isFinite(program?.id) ? program.id : null,
+              name: program?.name || program?.type || '',
+              diagnosticsRunnable: program?.diagnostics?.runnable !== false,
+              linked: hasProgram && gl.getProgramParameter(program.program, gl.LINK_STATUS) === true
+            };
+          });
+          requireCheck(`${label}:programs-present`, reports.length > 0, { count: reports.length });
+          requireCheck(
+            `${label}:all-programs-runnable`,
+            reports.every((report) => report.diagnosticsRunnable && report.linked),
+            reports.filter((report) => !report.diagnosticsRunnable || !report.linked)
+          );
+          assertHealthyContext(gl, `${label}:program-audit`);
+          return reports;
+        }
+
+        function renderStage(gl, label) {
+          let thrown = null;
+          try {
+            renderer.render(renderer.__fixtureScene, renderer.__fixtureCamera);
+            gl.finish();
+          } catch (error) {
+            thrown = String(error?.stack || error);
+          }
+          requireCheck(`${label}:render-no-throw`, thrown === null, thrown);
+          assertHealthyContext(gl, label);
+          const programs = auditPrograms(gl, label);
+          const stage = { label, programCount: programs.length, contextLost: false, glErrors: [] };
+          stages.push(stage);
+          return stage;
+        }
+
+        /** Compile the normally hidden collision ward through the same prepare/finally-reset contract as startup. */
+        async function prewarmShield(gl, qualityId) {
+          ship.prepareInvulnerabilityShieldCompilation();
+          requireCheck(`${qualityId}:prewarm-shield-visible`, ship.shield.visible === true);
+          try {
+            if (typeof renderer.compileAsync === 'function') {
+              await renderer.compileAsync(renderer.__fixtureScene, renderer.__fixtureCamera);
+            } else {
+              renderer.compile(renderer.__fixtureScene, renderer.__fixtureCamera);
+            }
+          } finally {
+            ship.resetInvulnerabilityShieldPresentation();
+          }
+          requireCheck(`${qualityId}:prewarm-reset-hidden`, ship.shield.visible === false);
+          return renderStage(gl, `${qualityId}:post-prewarm-hidden`);
+        }
+
+        async function run() {
+          requireCheck('three-module-loaded', Boolean(window.THREE?.WebGLRenderer));
+          requireCheck('modeling-module-loaded', Boolean(window.NeonV23Modeling?.resolveQualityProfile));
+          requireCheck('ship-module-loaded', Boolean(window.NeonV23Ship?.createShip));
+
+          const width = 480;
+          const height = 300;
+          renderer = new THREE.WebGLRenderer({
+            antialias: false,
+            alpha: false,
+            depth: true,
+            powerPreference: 'default'
+          });
+          renderer.setPixelRatio(1);
+          renderer.setSize(width, height, false);
+          renderer.outputColorSpace = THREE.SRGBColorSpace;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 0.86;
+          renderer.shadowMap.enabled = false;
+          renderer.domElement.addEventListener('webglcontextlost', (event) => {
+            contextLost = true;
+            event.preventDefault();
+          });
+          document.body.insertBefore(renderer.domElement, status);
+
+          const gl = renderer.getContext();
+          requireCheck('real-webgl-context-created', Boolean(gl));
+          requireCheck('webgl-context-starts-active', !gl.isContextLost());
+          requireCheck('webgl-initialization-no-error', readGlErrors(gl).length === 0);
+
+          const scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x18_27_3a);
+          scene.fog = new THREE.Fog(0x18_27_3a, 7, 38);
+          const camera = new THREE.PerspectiveCamera(49, width / height, 0.1, 80);
+          camera.position.set(0, 3.2, 8.4);
+          camera.lookAt(0, 0.72, 0);
+          renderer.__fixtureScene = scene;
+          renderer.__fixtureCamera = camera;
+
+          scene.add(new THREE.HemisphereLight(0xd7_ec_ff, 0x22_18_28, 2.1));
+          const keyLight = new THREE.DirectionalLight(0xff_e5_b7, 2.4);
+          keyLight.position.set(-4, 7, 5);
+          scene.add(keyLight);
+          const road = new THREE.Mesh(
+            new THREE.PlaneGeometry(24, 48),
+            new THREE.MeshStandardMaterial({ color: 0x56_62_70, roughness: 0.78, metalness: 0.04 })
+          );
+          road.rotation.x = -Math.PI / 2;
+          road.position.set(0, -0.02, -12);
+          scene.add(road);
+
+          const state = {
+            lives: 3,
+            speed: 115,
+            shipHeat: 0,
+            handling: { colorProgress: 0 }
+          };
+          ship = window.NeonV23Ship.createShip({
+            THREE,
+            scene,
+            state,
+            normalStartSpeed: 115,
+            roadY: 0,
+            clamp: (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value)),
+            lerp: (start, end, amount) => start + (end - start) * amount,
+            rand: () => 0.5,
+            quality: window.NeonV23Modeling.resolveQualityProfile('mobile'),
+            renderQualityId: 'low'
+          });
+          scene.updateMatrixWorld(true);
+
+          ship.resetInvulnerabilityShieldPresentation();
+          requireCheck('baseline-shield-hidden', ship.shield.visible === false);
+          const baseline = renderStage(gl, 'baseline-hidden-shield');
+
+          const qualityExpectations = Object.freeze({
+            low: Object.freeze({ orbitCount: 1, anchorCount: 1 }),
+            medium: Object.freeze({ orbitCount: 2, anchorCount: 3 }),
+            high: Object.freeze({ orbitCount: 3, anchorCount: 5 })
+          });
+          const qualityResults = [];
+          for (const [qualityId, expected] of Object.entries(qualityExpectations)) {
+            ship.setRenderQuality(qualityId);
+            ship.resetInvulnerabilityShieldPresentation();
+            renderStage(gl, `${qualityId}:hidden-baseline`);
+            const prewarmed = await prewarmShield(gl, qualityId);
+            const programCountBeforeActivation = renderer.info.programs.length;
+            const presentation = ship.updateInvulnerabilityShieldPresentation({
+              remainingSeconds: 1.32,
+              totalSeconds: 1.32,
+              impactFeedbackSeconds: 0.48,
+              presentationDt: 1 / 60,
+              reducedMotion: false,
+              frozen: false,
+              viewMode: 'external'
+            });
+            requireCheck(`${qualityId}:shield-activated`, presentation.active && ship.shield.visible);
+            const shieldPresentation = ship.shield.userData.presentation;
+            const orbitCount = shieldPresentation.orbitArcs.filter((orbit) => orbit.visible).length;
+            const anchorCount = shieldPresentation.anchors.count;
+            requireCheck(`${qualityId}:orbit-detail`, orbitCount === expected.orbitCount, { orbitCount, expected });
+            requireCheck(`${qualityId}:anchor-detail`, anchorCount === expected.anchorCount, { anchorCount, expected });
+            const activated = renderStage(gl, `${qualityId}:first-active-shield-frame`);
+            const programCountAfterActivation = renderer.info.programs.length;
+            requireCheck(
+              `${qualityId}:first-activation-uses-prewarmed-programs`,
+              programCountAfterActivation === programCountBeforeActivation,
+              { programCountBeforeActivation, programCountAfterActivation }
+            );
+            ship.resetInvulnerabilityShieldPresentation();
+            requireCheck(`${qualityId}:activation-reset-hidden`, ship.shield.visible === false);
+            qualityResults.push({
+              qualityId,
+              orbitCount,
+              anchorCount,
+              prewarmProgramCount: prewarmed.programCount,
+              activeProgramCount: activated.programCount,
+              noNewProgramOnFirstActivation: programCountAfterActivation === programCountBeforeActivation
+            });
+          }
+
+          const finalProgramAudit = auditPrograms(gl, 'final');
+          requireCheck('final-context-active', !contextLost && !gl.isContextLost());
+          const result = {
+            status: 'PASS',
+            passed: true,
+            fixture: 'collision-shield-real-webgl',
+            viewport: viewportMetadata(),
+            renderer: {
+              width,
+              height,
+              webglVersion: renderer.capabilities.isWebGL2 ? 2 : 1,
+              vendorThreeRevision: THREE.REVISION,
+              programCount: finalProgramAudit.length,
+              allProgramsRunnable: finalProgramAudit.every(
+                (program) => program.diagnosticsRunnable && program.linked
+              ),
+              contextLost: false,
+              glErrors: []
+            },
+            baselineProgramCount: baseline.programCount,
+            qualities: qualityResults,
+            stages,
+            checks
+          };
+          publish(result);
+        }
+
+        run().catch((error) => {
+          const gl = renderer?.getContext?.();
+          const result = {
+            status: 'FAIL',
+            passed: false,
+            fixture: 'collision-shield-real-webgl',
+            viewport: viewportMetadata(),
+            renderer: gl
+              ? {
+                  webglVersion: renderer.capabilities?.isWebGL2 ? 2 : 1,
+                  programCount: renderer.info?.programs?.length || 0,
+                  contextLost: contextLost || gl.isContextLost(),
+                  remainingGlErrors: readGlErrors(gl)
+                }
+              : null,
+            error: String(error?.stack || error),
+            failedCheck: error?.check || null,
+            stages,
+            checks
+          };
+          publish(result);
+        });
+
+        window.addEventListener('pagehide', () => {
+          ship?.dispose?.();
+          renderer?.dispose?.();
+        }, { once: true });
+      })();
+    </script>
+  </body>
+</html>

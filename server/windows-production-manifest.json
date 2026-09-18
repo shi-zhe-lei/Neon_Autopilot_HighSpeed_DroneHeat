@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 2,
+  "release": "23-ipad-road-residency-253",
+  "files": [
+    {
+      "path": "Neon_Autopilot_V23_HighSpeed_DroneHeat.html",
+      "size": 122001,
+      "sha256": "aaac26ff22bd66d75e91aa81e6cb6b598d985731a996d0fac43a9d061e1db186"
+    },
+    {
+      "path": "Start-V23-Windows.cmd",
+      "size": 1520,
+      "sha256": "9413c9c737accc9dbbc2cf788538035b46bbc727c4c757973d53f99994bb74ef"
+    },
+    {
+      "path": "assets/audio/click3.ogg",
+      "size": 4880,
+      "sha256": "e3e7fc7ccd9c5cfdf77bffa05aee10d4973812076c76dc889ba2b16ea434127f"
+    },
+    {
+      "path": "assets/audio/impactMetal_003.ogg",
+      "size": 17303,
+      "sha256": "ef29c3943ee701616f65e3d596c13eb3ff6b11ca5b3ac01e7bc923366a5c6f76"
+    },
+    {
+      "path": "assets/audio/lowDown.ogg",
+      "size": 5956,
+      "sha256": "e0215fcfd8b9d7877f74d5c46b239a13d7db0d25998da97b80404931ef9eef5d"
+    },
+    {
+      "path": "assets/audio/music_dawn_cloudborne_dream.ogg",
+      "size": 472632,
+      "sha256": "f1b3402f44af98704cb8fa202d9274f2d3a6551c0fd9142862c79c22be69ebd8"
+    },
+    {
+      "path": "assets/audio/music_dawn_first_light.ogg",
+      "size": 2318540,
+      "sha256": "371a78cc69e0fa245a8bbee2a03aaa71d011b4ef08fca778925963dade35edeb"
+    },
+    {
+      "path": "assets/audio/music_eden_last_light.ogg",
+      "size": 1662794,
+      "sha256": "b48ac143fa8e7d188b18b12f4e12a1f090015c0246ce1242f11d89388aad81b4"
+    },
+    {
+      "path": "assets/audio/music_eden_rebirth.ogg",
+      "size": 4114072,
+      "sha256": "344da636656feac8efe783c446c3a8091a34ced6fceb4bc80d072e393ea5c52e"
+    },
+    {
+      "path": "assets/audio/music_prairie_companion_flutes.ogg",
+      "size": 842745,
+      "sha256": "7cfc9a1a5c49e93862fb7ff51a7e82a403d4d7dfd61b1b75e029aeaed062cb6f"
+    },
+    {
+      "path": "assets/audio/music_prairie_meadow_harp.ogg",
+      "size": 1694526,
+      "sha256": "3ce28c79556d52c3286e888e33fa9d2091282b2003fb51b44142ca6a3c47d439"
+    },
+    {
+      "path": "assets/audio/music_rainforest_after_rain.ogg",
+      "size": 683626,
+      "sha256": "71f82df96cbed501205599dd683cd903fa01a0a41d9626e5b5632ba244c3d391"
+    },
+    {
+      "path": "assets/audio/music_rainforest_shelter.ogg",
+      "size": 508997,
+      "sha256": "4d39b83c0a3e6d3bb2ac39334ee476e6191813b9a48351d57b8b83e6e0a29642"
+    },
+    {
+      "path": "assets/audio/music_valley_crescendo.ogg",
+      "size": 3146851,
+      "sha256": "4e538b8690bf6a4647c1112b09e6b3318f3186cb604673015a253af53263ca88"
+    },
+    {
+      "path": "assets/audio/music_valley_flight.ogg",
+      "size": 1399054,
+      "sha256": "81f31056de0885e347edfbbb1a9bfe25487748a687256f1cb0d90e0eb01fd3b8"
+    },
+    {
+      "path": "assets/audio/music_vault_memory_strings.ogg",
+      "size": 470778,
+      "sha256": "339dbae2166c7c8e9cc4c91d22927ce6c00559fc84465745fd80e177a67dd17f"
+    },
+    {
+      "path": "assets/audio/music_vault_silent_bells.ogg",
+      "size": 1366083,
+      "sha256": "de5b6a4f5d2cfd6fab58a1c5afe84cfe884f416c60bc46bc8c0d25e808a887a3"
+    },
+    {
+      "path": "assets/audio/phaseJump3.ogg",
+      "size": 6854,
+      "sha256": "69e25a1b7b0781f57af84eb4424973ec406d34bc48eed8b6964787b2d74093a9"
+    },
+    {
+      "path": "assets/audio/phaserDown2.ogg",
+      "size": 6093,
+      "sha256": "0eaadbbc5c259cc89a1dfbb0c99b61ca07e08710d035cc9bfc805b68cb0bdc9e"
+    },
+    {
+      "path": "assets/audio/phaserUp3.ogg",
+      "size": 7222,
+      "sha256": "d6edcbde2c7190e275ef3eba08a8886129153a361cd0e16dc0fb58206deb5e53"
+    },
+    {
+      "path": "assets/audio/powerUp3.ogg",
+      "size": 9043,
+      "sha256": "59e7591f7a068882767bc1fd61edabf479b78787466d3a70bc49dfa0533777d2"
+    },
+    {
+      "path": "assets/audio/switch2.ogg",
+      "size": 6042,
+      "sha256": "aa8ad6e4745e87c84c24a0335e0e0f8629ccbbc474ccfd544fe07d7f3a1b2280"
+    },
+    {
+      "path": "assets/audio/threeTone1.ogg",
+      "size": 7361,
+      "sha256": "bdf21eb12e65507f091d074886fdac820e1ccae51d060caa168e5567acadb84b"
+    },
+    {
+      "path": "errors/minimap.js",
+      "size": 1371,
+      "sha256": "90a2db68af067940fcf9cc956c0be39721401ca99c1f8cff74d984076829bcc6"
+    },
+    {
+      "path": "errors/startup.js",
+      "size": 29764,
+      "sha256": "d1557e52ecf1c57fda2b60f57fbdd1eff0d3bba026735104d5789200c25a7aa9"
+    },
+    {
+      "path": "server/windows-local-server.ps1",
+      "size": 17021,
+      "sha256": "bdee73d3d9adc3e8c54dd9e20051eee19ce80a187c87caec2f3099e89487c37f"
+    },
+    {
+      "path": "src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.audio.js",
+      "size": 82048,
+      "sha256": "4911b4423de518596ca681ac791fb81ae0035a37bbd8b6f65551955340e2590c"
+    },
+    {
+      "path": "src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.effect-assets.js",
+      "size": 105488,
+      "sha256": "5caffdd7b3859ab15b1ba9240f92f5814664918547282670fe6c0f338f4ce1f5"
+    },
+    {
+      "path": "src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-library.js",
+      "size": 27772,
+      "sha256": "4d31dc731f1674c73cd878a235dfa7184d7af4127fa74f9e84d3a2d3fafe419d"
+    },
+    {
+      "path": "src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-player.js",
+      "size": 26548,
+      "sha256": "7fa155d70b83e477cf0967be8cb1bfb95c3338f9e1a28ce69aebad6897def03a"
+    },
+    {
+      "path": "src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-rhythm.js",
+      "size": 82402,
+      "sha256": "c46bc7d6f65a360a2fcba4bee96b1f1caf86b7af68e304a5a9997b0c495f6de1"
+    },
+    {
+      "path": "src/config/Neon_Autopilot_V23_HighSpeed_DroneHeat.config.js",
+      "size": 21072,
+      "sha256": "375431eb933e954a9bd7086e3546dcf3531dcba4035cae957ac2a9d8dd4b85e2"
+    },
+    {
+      "path": "src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.candlelight.js",
+      "size": 58395,
+      "sha256": "93d94042766beb171f16d9f6ed4acd722917e320eae019a03058457a8d0eb343"
+    },
+    {
+      "path": "src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.obstacles.js",
+      "size": 67066,
+      "sha256": "9354de736ff2f565be30c2f232ed5bce9fa2e2ea6b0528ecb97c6f1d08444c86"
+    },
+    {
+      "path": "src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js",
+      "size": 131279,
+      "sha256": "bb722c36f9dff5989e8dcb8a4b96ee6e08fb71262d0397ea91af00d95c5b8403"
+    },
+    {
+      "path": "src/gameplay/Neon_Autopilot_V23_HighSpeed_DroneHeat.gameplay-core.js",
+      "size": 111257,
+      "sha256": "642b5146755cde50ac73b469b55f9188b9d87f324d5a571f89b0d2c7ab1db6ad"
+    },
+    {
+      "path": "src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-map.js",
+      "size": 132212,
+      "sha256": "8454d64d7eb91fceb7589540ea24b3b8676a359801978e1c59fda232008ec6ee"
+    },
+    {
+      "path": "src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js",
+      "size": 178081,
+      "sha256": "68c5fc35d21e2f13a7ed4cb37ec126cda1f62ff85820cdc00036d27136b3ee4c"
+    },
+    {
+      "path": "src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js",
+      "size": 533669,
+      "sha256": "0591cf60050d04428de7cee4b78411fbba6d1131aa63698f1f7654d256ac9ca0"
+    },
+    {
+      "path": "src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.track.js",
+      "size": 313630,
+      "sha256": "772cdb749c0e5855f331ee80213128f42bc9088f256bd7d2e89199647e749a2a"
+    },
+    {
+      "path": "src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.lighting.js",
+      "size": 87857,
+      "sha256": "b04cb3e9e027f8b38ad32fd64ac63d58a05f33df84d98d2c5b3335ff1222d3ef"
+    },
+    {
+      "path": "src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.modeling.js",
+      "size": 43124,
+      "sha256": "2d3faae96e91f56c99b18f50626bd3d0db88e7e56f59e176fda86a7df9860a8a"
+    },
+    {
+      "path": "src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.postprocessing.js",
+      "size": 30737,
+      "sha256": "27aab25f28ea0063b7849588cf87b38e1d212f683179ff2ff511a0f455ee60b6"
+    },
+    {
+      "path": "src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js",
+      "size": 1331332,
+      "sha256": "def80b58205e938cfa835be5635b531e5630573e58a00e215247f01f6551bb84"
+    },
+    {
+      "path": "src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.fullscreen.js",
+      "size": 7613,
+      "sha256": "1641045d9920f67d06022af39a66763841152e1d7eefdcad66236063e0f900b8"
+    },
+    {
+      "path": "src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js",
+      "size": 203484,
+      "sha256": "48a69ad029f4bb9fd7ee10b99f24be2f67947861fcaa4af002a4ec93af7461de"
+    },
+    {
+      "path": "src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.surface-weather.js",
+      "size": 132975,
+      "sha256": "48fa27281047ae816169a3ebbdeadeff518a8d3ca074a9218ce716a026098751"
+    },
+    {
+      "path": "src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.weather.js",
+      "size": 32068,
+      "sha256": "5144737d789e8a64d742fb313c43f784416a40ef838cffda3c9afd146e4620c2"
+    },
+    {
+      "path": "src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.creatures.js",
+      "size": 57880,
+      "sha256": "3c6916206f6236bd28e17bab138b22ec0be66bcab1c794132694b221571d21bb"
+    },
+    {
+      "path": "src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.region-scenery.js",
+      "size": 72197,
+      "sha256": "67551b57d0b437a6496944ec8fdf97704620475b41e1bc4917dca46d158a4c9b"
+    },
+    {
+      "path": "src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.world.js",
+      "size": 336451,
+      "sha256": "807b63bbfd1b85227d9a11e26fb3e99bb94a7be11124c7ae192cd22dcc48eae6"
+    },
+    {
+      "path": "styles/Neon_Autopilot_V23_HighSpeed_DroneHeat.css",
+      "size": 467466,
+      "sha256": "a7e7a546e4e074be3176b469f3ec808e2877fc90172ffaf0059ede056f66f56b"
+    },
+    {
+      "path": "vendor/three-0.160.0.min.js",
+      "size": 669884,
+      "sha256": "170c6789f43217c96b3170f4b42fafe135de7f7cd48497a4218f9757ee1d49fa"
+    },
+    {
+      "path": "启动Windows本地游戏.cmd",
+      "size": 688,
+      "sha256": "1ae7529ad82a3cf0bf6c07027c69bca44ea6fbe1fb6d56258a0955c1582cfd96"
+    }
+  ]
+}

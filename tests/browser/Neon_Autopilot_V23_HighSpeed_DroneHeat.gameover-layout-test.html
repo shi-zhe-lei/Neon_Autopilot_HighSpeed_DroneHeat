@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V23 Game-over Layout Audit / 结束界面验收</title>
+    <!-- Keep the standalone audit free of an unrelated root-level favicon request. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ffe5a8' d='M32 4 40 24 60 32 40 40 32 60 24 40 4 32 24 24Z'/%3E%3C/svg%3E" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #0a1019;
+        color: #f5f1e7;
+        font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      body {
+        display: grid;
+        width: fit-content;
+        min-width: 100%;
+        gap: 8px;
+        align-content: start;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      header {
+        position: sticky;
+        left: 0;
+        top: 0;
+        z-index: 2;
+        width: fit-content;
+        padding: 7px 10px;
+        border: 1px solid rgba(159, 231, 223, 0.30);
+        border-radius: 8px;
+        background: rgba(6, 12, 20, 0.94);
+      }
+
+      iframe {
+        display: block;
+        border: 0;
+        background: #050816;
+      }
+
+      pre {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        z-index: 3;
+        width: min(620px, calc(100vw - 32px));
+        max-height: 42vh;
+        margin: 0;
+        padding: 8px;
+        overflow: auto;
+        border: 1px solid rgba(159, 231, 223, 0.34);
+        border-radius: 8px;
+        background: rgba(4, 8, 14, 0.94);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="caseLabel">V23 game-over layout audit / V23 结束界面验收</header>
+    <iframe id="gameFrame" title="V23 game-over layout fixture"></iframe>
+    <pre id="auditResult" aria-live="polite">RUNNING</pre>
+    <script>
+      'use strict';
+
+      (() => {
+        const fixtureVersion = '23-ipad-road-residency-253';
+        const cases = Object.freeze({
+          '440x956': Object.freeze({ width: 440, height: 956, orientation: 'portrait' }),
+          '844x390': Object.freeze({ width: 844, height: 390, orientation: 'landscape' }),
+          '820x1180': Object.freeze({ width: 820, height: 1_180, orientation: 'portrait' }),
+          '1180x820': Object.freeze({ width: 1_180, height: 820, orientation: 'landscape' })
+        });
+        const requiredCases = Object.freeze(['440x956', '844x390', '820x1180', '1180x820']);
+        const params = new URLSearchParams(location.search);
+        const requestedCase = params.get('case') || requiredCases[0];
+        const selectedCase = Object.hasOwn(cases, requestedCase) ? requestedCase : requiredCases[0];
+        const guardrailScenario = params.get('damage') === 'guardrail';
+        const fixture = cases[selectedCase];
+        const frame = document.querySelector('#gameFrame');
+        const resultElement = document.querySelector('#auditResult');
+        const checks = [];
+        const metrics = {};
+
+        document.querySelector('#caseLabel').textContent =
+          `${selectedCase} · ${fixtureVersion} · game-over browser fixture / 结束界面浏览器夹具`;
+        frame.style.width = `${fixture.width}px`;
+        frame.style.height = `${fixture.height}px`;
+        frame.src = `../../Neon_Autopilot_V23_HighSpeed_DroneHeat.html?auto=1&seed=2301&quality=mobile&cloverleafEntry=south&cloverleafMove=straight&modelDebug=1&cache=253&fixtureVersion=${fixtureVersion}`;
+
+        /** Publish one machine-readable result for both automated runners and manual browser inspection. */
+        function publish(status, error = null) {
+          const output = {
+            status,
+            fixtureVersion,
+            case: selectedCase,
+            guardrailScenario,
+            viewport: { width: fixture.width, height: fixture.height, orientation: fixture.orientation },
+            checks,
+            metrics,
+            error: error ? String(error.stack || error) : null
+          };
+          const serialized = JSON.stringify(output, null, 2);
+          document.documentElement.dataset.gameOverLayoutAuditReady = 'true';
+          document.documentElement.dataset.gameOverLayoutAuditStatus = status;
+          document.documentElement.dataset.gameOverLayoutAuditResult = JSON.stringify(output);
+          document.title = `${status} · ${selectedCase} · V23 Game-over Layout Audit`;
+          resultElement.textContent = serialized;
+        }
+
+        function requireCheck(name, passed, detail = null) {
+          const check = { name, passed: Boolean(passed) };
+          if (detail !== null) check.detail = detail;
+          checks.push(check);
+          if (!check.passed) {
+            const error = new Error(`Regression check failed: ${name}`);
+            error.check = check;
+            throw error;
+          }
+        }
+
+        const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+        async function waitFor(predicate, label, timeoutMs = 30_000, intervalMs = 50) {
+          const deadline = Date.now() + timeoutMs;
+          let value = predicate();
+          while (!value && Date.now() < deadline) {
+            await wait(intervalMs);
+            value = predicate();
+          }
+          if (!value) throw new Error(`Timed out waiting for ${label}`);
+          return value;
+        }
+
+        function rectangle(element) {
+          if (!element) return null;
+          const box = element.getBoundingClientRect();
+          return {
+            x: Number(box.x.toFixed(2)),
+            y: Number(box.y.toFixed(2)),
+            width: Number(box.width.toFixed(2)),
+            height: Number(box.height.toFixed(2)),
+            right: Number(box.right.toFixed(2)),
+            bottom: Number(box.bottom.toFixed(2))
+          };
+        }
+
+        function visible(win, element) {
+          if (!element || element.hidden) return false;
+          const style = win.getComputedStyle(element);
+          const box = element.getBoundingClientRect();
+          return style.display !== 'none'
+            && style.visibility !== 'hidden'
+            && Number(style.opacity || 1) > 0
+            && box.width > 0
+            && box.height > 0;
+        }
+
+        function inside(outer, inner, tolerance = 1) {
+          return Boolean(outer && inner
+            && inner.x >= outer.x - tolerance
+            && inner.y >= outer.y - tolerance
+            && inner.right <= outer.right + tolerance
+            && inner.bottom <= outer.bottom + tolerance);
+        }
+
+        function overlaps(first, second, tolerance = 0.5) {
+          return Boolean(first && second
+            && Math.min(first.right, second.right) - Math.max(first.x, second.x) > tolerance
+            && Math.min(first.bottom, second.bottom) - Math.max(first.y, second.y) > tolerance);
+        }
+
+        function intersects(first, second, minimumDepth = 1) {
+          return Boolean(first && second
+            && Math.min(first.right, second.right) - Math.max(first.x, second.x) >= minimumDepth
+            && Math.min(first.bottom, second.bottom) - Math.max(first.y, second.y) >= minimumDepth);
+        }
+
+        function scrollOwnerName(element) {
+          if (!element) return null;
+          const className = [...element.classList].join('.');
+          return `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${className ? `.${className}` : ''}`;
+        }
+
+        function readableTextSnapshot(win, element, minimumFontSizePx) {
+          const style = element ? win.getComputedStyle(element) : null;
+          const box = rectangle(element);
+          const fontSizePx = Number.parseFloat(style?.fontSize || '0');
+          const lineHeightPx = style?.lineHeight === 'normal'
+            ? fontSizePx * 1.2
+            : Number.parseFloat(style?.lineHeight || '0');
+          return {
+            text: element?.textContent?.trim() || '',
+            box,
+            fontSizePx: Number(fontSizePx.toFixed(2)),
+            lineHeightPx: Number(lineHeightPx.toFixed(2)),
+            minimumFontSizePx,
+            rendered: visible(win, element),
+            readable: visible(win, element)
+              && Boolean(element.textContent?.trim())
+              && fontSizePx >= minimumFontSizePx
+              && lineHeightPx >= fontSizePx
+          };
+        }
+
+        async function nextPaint(win) {
+          await new Promise((resolve) => {
+            win.requestAnimationFrame(() => win.requestAnimationFrame(resolve));
+          });
+        }
+
+        async function run() {
+          const win = frame.contentWindow;
+          const doc = frame.contentDocument;
+          Object.defineProperty(win.navigator, 'maxTouchPoints', {
+            configurable: true,
+            value: 5
+          });
+          win.dispatchEvent(new win.Event('resize'));
+
+          const startupError = doc.querySelector('#startupError');
+          const updateNotice = doc.querySelector('#updateNotice');
+          const updateContinue = doc.querySelector('#updateContinueBtn');
+          const overlay = doc.querySelector('#overlay');
+          const startButton = doc.querySelector('#startBtn');
+          const startupReady = () => {
+            if (visible(win, startupError)) {
+              throw new Error(doc.querySelector('#startupErrorDetails')?.textContent || 'startup error');
+            }
+            return visible(win, updateNotice)
+              || Boolean(
+                visible(win, overlay)
+                && overlay.dataset.overlayMode === 'launch'
+                && overlay.dataset.overlayPhase === 'ready'
+                && startButton
+                && startButton.disabled === false
+                && startButton.getAttribute('aria-busy') !== 'true'
+              );
+          };
+          await waitFor(startupReady, 'the real launch surface');
+
+          if (visible(win, updateNotice)) {
+            await waitFor(() => updateContinue?.disabled === false, 'the optional update decision');
+            updateContinue.click();
+            await waitFor(() => !visible(win, updateNotice), 'the optional update layer to close');
+          }
+          await waitFor(startupReady, 'the enabled real start action');
+
+          const launchState = {
+            overlayMode: overlay.dataset.overlayMode,
+            overlayPhase: overlay.dataset.overlayPhase,
+            startDisabled: startButton.disabled,
+            startBusy: startButton.getAttribute('aria-busy')
+          };
+          requireCheck(
+            'real-launch-is-ready-before-game-over-audit',
+            launchState.overlayMode === 'launch'
+              && launchState.overlayPhase === 'ready'
+              && launchState.startDisabled === false
+              && launchState.startBusy !== 'true',
+            launchState
+          );
+
+          startButton.click();
+          await waitFor(() => (
+            !visible(win, overlay)
+            && overlay.dataset.overlayPhase === 'ready'
+            && doc.querySelector('#app')?.inert === false
+            && startButton.getAttribute('aria-busy') !== 'true'
+          ), 'the first successful gameplay frame');
+          requireCheck('fixture-enters-real-gameplay-before-ending', true, {
+            overlayHidden: !visible(win, overlay),
+            overlayPhase: overlay.dataset.overlayPhase,
+            appReleased: doc.querySelector('#app')?.inert === false
+          });
+
+          if (guardrailScenario) {
+            const guardrailHook =
+              win.NeonV23Diagnostics?.testHooks?.acceptGuardrailDamageForLayoutAudit;
+            requireCheck(
+              'real-guardrail-damage-layout-hook-is-available',
+              typeof guardrailHook === 'function'
+            );
+            for (let hitIndex = 0; hitIndex < 3; hitIndex++) {
+              const accepted = guardrailHook();
+              requireCheck(`guardrail-life-loss-${hitIndex + 1}-is-accepted`, accepted === true);
+              if (hitIndex === 0) {
+                requireCheck(
+                  'invulnerability-rejects-immediate-guardrail-repeat',
+                  guardrailHook() === false
+                );
+              }
+              if (hitIndex < 2) {
+                await waitFor(() => {
+                  const protection = win.NeonV23Diagnostics?.damageProtection;
+                  return protection?.invulnerable === false
+                    && protection?.acceptedThisRenderFrame === false;
+                }, `guardrail protection ${hitIndex + 1} to expire`);
+              }
+            }
+          } else {
+            const endGameHook = win.NeonV23Diagnostics?.testHooks?.presentGameOverForLayoutAudit;
+            requireCheck('narrow-game-over-layout-hook-is-available', typeof endGameHook === 'function');
+            const endGameAccepted = endGameHook();
+            requireCheck('narrow-game-over-layout-hook-calls-the-real-terminal-boundary', endGameAccepted === true);
+          }
+          await waitFor(() => (
+            visible(win, overlay)
+            && overlay.dataset.overlayMode === 'gameover'
+            && visible(win, doc.querySelector('#flightDebrief'))
+          ), 'the real game-over debrief');
+          // Measure the settled production layout, not the intentional 620ms terminal-card entrance transform.
+          await (doc.fonts?.ready || Promise.resolve());
+          await wait(720);
+          await nextPaint(win);
+
+          const visualViewport = win.visualViewport;
+          const viewport = {
+            x: visualViewport?.offsetLeft || 0,
+            y: visualViewport?.offsetTop || 0,
+            width: visualViewport?.width || win.innerWidth,
+            height: visualViewport?.height || win.innerHeight,
+            right: (visualViewport?.offsetLeft || 0) + (visualViewport?.width || win.innerWidth),
+            bottom: (visualViewport?.offsetTop || 0) + (visualViewport?.height || win.innerHeight)
+          };
+          const actualOrientation = win.innerWidth > win.innerHeight ? 'landscape' : 'portrait';
+          requireCheck(
+            'requested-viewport-and-orientation-are-active',
+            win.innerWidth === fixture.width
+              && win.innerHeight === fixture.height
+              && actualOrientation === fixture.orientation,
+            { requested: fixture, actual: viewport, actualOrientation }
+          );
+          requireCheck(
+            'game-over-mode-is-authoritative-and-modal',
+            overlay.dataset.overlayMode === 'gameover'
+              && overlay.getAttribute('aria-hidden') === 'false'
+              && overlay.inert === false
+              && doc.body.classList.contains('launch-overlay-open')
+              && !visible(win, doc.querySelector('.launch-stage'))
+              && !visible(win, doc.querySelector('.launch-briefing'))
+              && !visible(win, doc.querySelector('.launch-config'))
+              && !visible(win, doc.querySelector('.launch-footer'))
+              && !visible(win, doc.querySelector('#pauseRestartBtn')),
+            {
+              mode: overlay.dataset.overlayMode,
+              ariaHidden: overlay.getAttribute('aria-hidden'),
+              inert: overlay.inert,
+              launchOverlayOpen: doc.body.classList.contains('launch-overlay-open')
+            }
+          );
+
+          const card = doc.querySelector('#overlay .launch-card');
+          const header = doc.querySelector('#overlay .launch-header');
+          const evidenceScroll = doc.querySelector('#overlay[data-overlay-mode="gameover"] .launch-grid');
+          const debrief = doc.querySelector('#flightDebrief');
+          const radar = doc.querySelector('#flightRatingRadar');
+          const radarPlot = doc.querySelector('.flight-rating-radar-plot');
+          const radarSvg = radarPlot?.querySelector('svg');
+          const actions = doc.querySelector('#overlay .launch-actions');
+          const utilities = doc.querySelector('#overlay .launch-utilities');
+          const visibleActions = [...actions.querySelectorAll('button')].filter((button) => visible(win, button));
+          const cardBox = rectangle(card);
+          const headerBoxBeforeScroll = rectangle(header);
+          const evidenceBox = rectangle(evidenceScroll);
+          const actionsBoxBeforeScroll = rectangle(actions);
+          const utilitiesBox = rectangle(utilities);
+          const actionBoxes = visibleActions.map((button) => ({
+            id: button.id,
+            box: rectangle(button),
+            text: button.textContent.trim()
+          }));
+
+          requireCheck(
+            'game-over-card-and-actions-stay-inside-the-viewport',
+            inside(viewport, cardBox)
+              && inside(viewport, headerBoxBeforeScroll)
+              && inside(viewport, utilitiesBox)
+              && inside(viewport, actionsBoxBeforeScroll)
+              && actionBoxes.every((entry) => inside(viewport, entry.box))
+              && actionBoxes.every((entry) => entry.box.width >= 44 && entry.box.height >= 44)
+              && actionBoxes.every((entry, index) => (
+                actionBoxes.slice(index + 1).every((other) => !overlaps(entry.box, other.box))
+              )),
+            {
+              card: cardBox,
+              header: headerBoxBeforeScroll,
+              utilities: utilitiesBox,
+              actions: actionsBoxBeforeScroll,
+              buttons: actionBoxes
+            }
+          );
+
+          const radarState = radar?.dataset.radarState || '';
+          const radarAxes = [...doc.querySelectorAll('[data-rating-radar-axis]')].map((axis) => ({
+            id: axis.dataset.ratingRadarAxis,
+            text: axis.textContent.trim(),
+            box: rectangle(axis),
+            fontSizePx: Number.parseFloat(win.getComputedStyle(axis).fontSize)
+          }));
+          const ratingSnapshot = {
+            grade: doc.querySelector('#flightRatingGrade')?.textContent?.trim() || '',
+            score: doc.querySelector('#flightRatingScore')?.textContent?.trim() || '',
+            evidence: doc.querySelector('#flightRatingEvidence')?.textContent?.trim() || '',
+            radarState,
+            radar: rectangle(radar),
+            radarPlot: rectangle(radarPlot),
+            radarSvg: rectangle(radarSvg),
+            radarAxes
+          };
+          requireCheck(
+            'rating-and-five-axis-radar-are-rendered',
+            visible(win, debrief)
+              && visible(win, radar)
+              && visible(win, radarSvg)
+              && /^[SABCD]$/.test(ratingSnapshot.grade)
+              && /^\d+\s*\/\s*100$/.test(ratingSnapshot.score)
+              && ratingSnapshot.evidence.length > 0
+              && ['complete', 'partial'].includes(radarState)
+              && radarAxes.length === 5
+              && radarAxes.every((axis) => axis.text.length > 0 && axis.box.width > 0 && axis.box.height > 0),
+            ratingSnapshot
+          );
+          if (guardrailScenario) {
+            const safetyEvidence = doc.querySelector('#flightRatingSafetyEvidence')?.textContent?.trim() || '';
+            const damageFact = doc.querySelector('#flightRatingDamage')?.textContent?.trim() || '';
+            const protection = win.NeonV23Diagnostics?.damageProtection;
+            requireCheck(
+              'guardrail-life-loss-is-labelled-on-the-sealed-safety-rating',
+              protection?.damageCount === 3
+                && protection?.guardrailDamageCount === 3
+                && protection?.obstacleDamageCount === 0
+                && protection?.blockedCount >= 1
+                && /护栏扣血\s*3\s*次/.test(safetyEvidence)
+                && /障碍损伤\s*0\s*次/.test(safetyEvidence)
+                && /平均无损航段/.test(safetyEvidence)
+                && /护栏\s*3/.test(damageFact),
+              { protection, safetyEvidence, damageFact }
+            );
+          }
+
+          const readableSamples = [
+            ['debrief-title', doc.querySelector('#flightDebriefTitle'), 10],
+            ['rating-score', doc.querySelector('#flightRatingScore'), 11],
+            ['radar-title', doc.querySelector('#flightRatingRadarTitle'), 10],
+            ...visibleActions.map((button) => [`action-${button.id}`, button, 11])
+          ].map(([name, element, minimumFontSizePx]) => ({
+            name,
+            ...readableTextSnapshot(win, element, minimumFontSizePx)
+          }));
+          const factsColumnCount = win.getComputedStyle(
+            doc.querySelector('.flight-rating-facts')
+          ).gridTemplateColumns.split(/\s+/).filter(Boolean).length;
+          const analysisColumnCount = win.getComputedStyle(
+            doc.querySelector('.flight-rating-analysis')
+          ).gridTemplateColumns.split(/\s+/).filter(Boolean).length;
+          const expectedColumnCount = fixture.width <= 559 ? 1 : 2;
+          requireCheck(
+            'portrait-and-landscape-essential-copy-remains-readable',
+            readableSamples.every((sample) => sample.readable)
+              && radarAxes.every((axis) => Number.isFinite(axis.fontSizePx) && axis.fontSizePx >= 7.5)
+              && factsColumnCount === (fixture.width <= 620 ? 2 : 4)
+              && analysisColumnCount === expectedColumnCount,
+            {
+              orientation: actualOrientation,
+              samples: readableSamples,
+              radarAxes,
+              factsColumnCount,
+              analysisColumnCount,
+              expectedAnalysisColumnCount: expectedColumnCount
+            }
+          );
+
+          const rootOverflow = {
+            html: {
+              clientWidth: doc.documentElement.clientWidth,
+              clientHeight: doc.documentElement.clientHeight,
+              scrollWidth: doc.documentElement.scrollWidth,
+              scrollHeight: doc.documentElement.scrollHeight
+            },
+            body: {
+              clientWidth: doc.body.clientWidth,
+              clientHeight: doc.body.clientHeight,
+              scrollWidth: doc.body.scrollWidth,
+              scrollHeight: doc.body.scrollHeight
+            },
+            overlay: {
+              clientWidth: overlay.clientWidth,
+              clientHeight: overlay.clientHeight,
+              scrollWidth: overlay.scrollWidth,
+              scrollHeight: overlay.scrollHeight
+            }
+          };
+          // An overflow-hidden flex card may report its child's full scrollHeight; the dedicated evidence grid,
+          // not that non-scrollable measurement, is the terminal content authority audited below.
+          const cardOverflowMetrics = {
+            clientWidth: card.clientWidth,
+            clientHeight: card.clientHeight,
+            scrollWidth: card.scrollWidth,
+            scrollHeight: card.scrollHeight
+          };
+          const rootScrollPosition = { x: win.scrollX, y: win.scrollY };
+          const hasNoOverflow = (entry) => entry.scrollWidth <= entry.clientWidth + 1
+            && entry.scrollHeight <= entry.clientHeight + 1;
+          requireCheck(
+            'page-card-and-modal-have-zero-overflow',
+            Object.values(rootOverflow).every(hasNoOverflow)
+              && rootScrollPosition.x === 0
+              && rootScrollPosition.y === 0,
+            { ...rootOverflow, card: cardOverflowMetrics, rootScrollPosition }
+          );
+
+          const visibleOverlayElements = [overlay, ...overlay.querySelectorAll('*')]
+            .filter((element) => visible(win, element));
+          const declaredScrollOwners = visibleOverlayElements.filter((element) => {
+            const overflowY = win.getComputedStyle(element).overflowY;
+            return ['auto', 'scroll', 'overlay'].includes(overflowY);
+          });
+          const activeScrollOwners = declaredScrollOwners.filter((element) => (
+            element.scrollHeight > element.clientHeight + 1
+          ));
+          const evidenceStyle = win.getComputedStyle(evidenceScroll);
+          const overlayStyle = win.getComputedStyle(overlay);
+          const cardStyle = win.getComputedStyle(card);
+          requireCheck(
+            'only-the-rating-evidence-surface-may-scroll',
+            evidenceScroll.contains(debrief)
+              && evidenceScroll.contains(radar)
+              && !evidenceScroll.contains(actions)
+              && ['auto', 'scroll', 'overlay'].includes(evidenceStyle.overflowY)
+              && evidenceStyle.overflowX === 'hidden'
+              && overlayStyle.overflowY === 'hidden'
+              && cardStyle.overflowY === 'hidden'
+              && declaredScrollOwners.every((element) => element === evidenceScroll)
+              && activeScrollOwners.every((element) => element === evidenceScroll),
+            {
+              evidenceOwner: scrollOwnerName(evidenceScroll),
+              overlayOverflowY: overlayStyle.overflowY,
+              cardOverflowY: cardStyle.overflowY,
+              overflowX: evidenceStyle.overflowX,
+              overflowY: evidenceStyle.overflowY,
+              clientHeight: evidenceScroll.clientHeight,
+              scrollHeight: evidenceScroll.scrollHeight,
+              declared: declaredScrollOwners.map(scrollOwnerName),
+              active: activeScrollOwners.map(scrollOwnerName)
+            }
+          );
+
+          const evidenceRectBeforeRadar = evidenceScroll.getBoundingClientRect();
+          const radarRectBeforeScroll = radar.getBoundingClientRect();
+          evidenceScroll.scrollTop += radarRectBeforeScroll.top
+            - evidenceRectBeforeRadar.top
+            - Math.max(0, (evidenceScroll.clientHeight - radarRectBeforeScroll.height) / 2);
+          await nextPaint(win);
+          const radarBoxAfterScroll = rectangle(radar);
+          const evidenceBoxAfterRadarScroll = rectangle(evidenceScroll);
+          const radarVisibleHeight = Math.max(
+            0,
+            Math.min(radarBoxAfterScroll.bottom, evidenceBoxAfterRadarScroll.bottom)
+              - Math.max(radarBoxAfterScroll.y, evidenceBoxAfterRadarScroll.y)
+          );
+          const radarReachable = radarVisibleHeight
+            >= Math.min(radarBoxAfterScroll.height, evidenceBoxAfterRadarScroll.height) - 2
+            && radarBoxAfterScroll.x >= evidenceBoxAfterRadarScroll.x - 1
+            && radarBoxAfterScroll.right <= evidenceBoxAfterRadarScroll.right + 1;
+
+          const maximumEvidenceScroll = Math.max(
+            0,
+            evidenceScroll.scrollHeight - evidenceScroll.clientHeight
+          );
+          evidenceScroll.scrollTop = evidenceScroll.scrollHeight;
+          await nextPaint(win);
+          const finalEvidence = doc.querySelector('.flight-rating-method');
+          const finalEvidenceBox = rectangle(finalEvidence);
+          const evidenceBoxAtEnd = rectangle(evidenceScroll);
+          const headerBoxAfterScroll = rectangle(header);
+          const actionsBoxAfterScroll = rectangle(actions);
+          const rootScrollPositionAfterEvidence = { x: win.scrollX, y: win.scrollY };
+          const anchored = Math.abs(headerBoxAfterScroll.y - headerBoxBeforeScroll.y) <= 1
+            && Math.abs(actionsBoxAfterScroll.y - actionsBoxBeforeScroll.y) <= 1;
+          requireCheck(
+            'radar-and-final-rating-evidence-are-reachable-without-moving-actions',
+            radarReachable
+              && intersects(finalEvidenceBox, evidenceBoxAtEnd, 1)
+              && (maximumEvidenceScroll <= 1 || evidenceScroll.scrollTop > 0)
+              && rootScrollPositionAfterEvidence.x === 0
+              && rootScrollPositionAfterEvidence.y === 0
+              && anchored,
+            {
+              radar: radarBoxAfterScroll,
+              evidenceAtRadar: evidenceBoxAfterRadarScroll,
+              radarVisibleHeight: Number(radarVisibleHeight.toFixed(2)),
+              maximumEvidenceScroll,
+              finalScrollTop: evidenceScroll.scrollTop,
+              rootScrollPositionAfterEvidence,
+              finalEvidence: finalEvidenceBox,
+              evidenceAtEnd: evidenceBoxAtEnd,
+              headerBefore: headerBoxBeforeScroll,
+              headerAfter: headerBoxAfterScroll,
+              actionsBefore: actionsBoxBeforeScroll,
+              actionsAfter: actionsBoxAfterScroll,
+              anchored
+            }
+          );
+
+          metrics.layout = {
+            viewport,
+            card: cardBox,
+            evidence: evidenceBox,
+            actions: actionsBoxBeforeScroll,
+            rating: ratingSnapshot,
+            rootOverflow,
+            activeScrollOwners: activeScrollOwners.map(scrollOwnerName)
+          };
+          publish('PASS');
+        }
+
+        frame.addEventListener('load', () => {
+          run().catch((error) => publish('FAIL', error));
+        }, { once: true });
+      })();
+    </script>
+  </body>
+</html>
