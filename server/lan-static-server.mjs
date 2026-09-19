@@ -6,6 +6,7 @@ import { pipeline } from 'node:stream/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { LanServerConfigurationError } from './errors/configuration.mjs';
+import { discoverMacLanBinding } from './lan-machine.mjs';
 
 const SERVER_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SERVER_DIRECTORY, '..');
@@ -144,12 +145,12 @@ function isWithinRoot(root, candidate) {
  * Parse and freeze the security boundary before listen(). The bind address must itself belong to the allowed subnet.
  */
 export function parseServerConfig(environment = process.env, overrides = {}) {
-  const host = overrides.host ?? environment.NEON_LAN_HOST ?? '10.10.0.250';
+  const host = overrides.host ?? environment.NEON_LAN_HOST;
   const portText = overrides.port ?? environment.NEON_LAN_PORT ?? DEFAULT_PORT;
-  const networkText = overrides.network ?? environment.NEON_LAN_NETWORK ?? '10.10.0.0/24';
+  const networkText = overrides.network ?? environment.NEON_LAN_NETWORK;
   const deniedClientsText = overrides.deniedClients
     ?? environment.NEON_LAN_DENIED_CLIENTS
-    ?? '10.10.0.1';
+    ?? '';
   const staticRootInput = overrides.staticRoot ?? PROJECT_ROOT;
   const port = Number(portText);
   const hostValue = parseIPv4(host);
@@ -486,7 +487,16 @@ export async function startLanStaticServer(config, options = {}) {
 }
 
 async function runMain() {
-  const config = parseServerConfig();
+  // The service discovers the active private interface on every launch, including login and DHCP changes.
+  const discovered = process.platform === 'darwin' ? discoverMacLanBinding() : null;
+  if (!discovered && (!process.env.NEON_LAN_HOST || !process.env.NEON_LAN_NETWORK)) {
+    throw new LanServerConfigurationError('Non-macOS hosts require explicit NEON_LAN_HOST and NEON_LAN_NETWORK.');
+  }
+  const config = parseServerConfig(process.env, {
+    deniedClients: [discovered?.gateway, process.env.NEON_LAN_DENIED_CLIENTS].filter(Boolean).join(','),
+    host: discovered?.host ?? process.env.NEON_LAN_HOST,
+    network: discovered?.network ?? process.env.NEON_LAN_NETWORK
+  });
   const server = await startLanStaticServer(config);
   console.info(`[neon-lan] Listening at http://${config.host}:${config.port}/ for ${config.network.text}`);
 

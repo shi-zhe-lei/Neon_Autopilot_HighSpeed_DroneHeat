@@ -2,38 +2,20 @@
 
 ## 中文
 
-`lan-static-server.mjs` 只把 Neon 生产入口和运行资源发布到指定局域网地址。默认合同为：
+macOS 的 `Start-Neon-LAN.command` 可随项目目录复制到不同电脑。它从本机寻找 Node.js 20+，读取默认物理 `en*` 网卡的私网 IPv4、掩码与网关，在 `8088–8098` 中选择空闲端口，首次启动自动生成当前用户的 `~/Library/LaunchAgents/com.gary.neon-lan.plist`。配置里的 Node 与项目绝对路径来自当前电脑；服务在登录或重启时重新发现网络地址。`Stop-Neon-LAN.command` 禁用并卸载服务，停止状态在下次登录后仍有效。
 
-- 监听 `10.10.0.250:8088`，不监听 `0.0.0.0`、回环地址、Wi-Fi、VPN 或雷雳网桥。
-- 仅接受来源于 `10.10.0.0/24` 的 IPv4 连接，显式拒绝网关 `10.10.0.1`，并只接受 `Host: 10.10.0.250[:8088]`；即使未来误设转发并由网关改写来源，也不能通过应用层检查。
+- 默认物理网卡可为有线或 Wi-Fi；VPN、公共 IPv4、过宽网段和多个无法确定的地址会在监听前失败。VPN 改写默认路由时可用 `NEON_LAN_INTERFACE=en7` 显式选择本机物理网卡。
+- 只绑定选中网卡的一个私网 IPv4；只接受同一实际子网的 IPv4 客户端，拒绝当前网关，并要求精确的 Host。需要固定端口时可设置 `NEON_LAN_PORT`；否则启动器自动选端口。
 - 仅开放 `GET` / `HEAD`、根入口、健康检查和 `assets/`、`errors/`、`src/`、`styles/`、`vendor/`；README、审计、测试、工具、日志与点文件不会发布。
-- 提供单段音频 Range、CSP、同源隔离、禁止嵌入、MIME 嗅探保护，以及关闭摄像头、麦克风、定位、USB、支付等无关浏览器权限。
-- 不提供账号、上传、目录列表、写接口、WebSocket 或反向代理，也不创建路由器端口映射。
+- 提供单段音频 Range、CSP、同源隔离、禁止嵌入和 MIME 防嗅探；不提供账号、上传、目录列表、写接口、WebSocket、反向代理或路由器端口映射。
 
-登录后自动启动需要先安装用户级 LaunchAgent `com.gary.neon-lan`。局域网设备访问：
-
-```text
-http://10.10.0.250:8088/
-```
-
-主 HTML 同一目录提供两个可从 Finder 双击的脚本：
-
-- `Start-Neon-LAN.command`：确认有线网卡仍为安全配置地址，启用并载入 LaunchAgent，通过健康检查后打开游戏。
-- `Stop-Neon-LAN.command`：先禁用再卸载 LaunchAgent，确认端口关闭；关闭状态跨下次登录保留，直到再次运行启动脚本。
-
-健康检查：
-
-```text
-http://10.10.0.250:8088/__health
-```
+启动器通过健康检查后输出当前机器的 `http://<私网地址>:<端口>/` 并打开浏览器。若 Node 未安装、网络不满足限制或端口不可用，会显示具体错误，不会改用 `0.0.0.0`。直接运行 `node server/lan-static-server.mjs` 在 macOS 上也会重新发现网络；非 macOS 服务器必须显式提供 `NEON_LAN_HOST` 与 `NEON_LAN_NETWORK`。只在可信局域网中运行此 HTTP 服务。
 
 运行回归：
 
 ```sh
-node --test server/lan-static-server.test.mjs
+node --test server/lan-machine.test.mjs server/lan-service.test.mjs server/lan-static-server.test.mjs
 ```
-
-服务器不承载凭据或私人数据，因此当前可信局域网使用 HTTP。若未来加入账号、得分上传或其他敏感数据，必须先升级为受信任证书的 HTTPS，再扩大合同。
 
 ### Windows 本地启动
 
@@ -48,38 +30,20 @@ node --test server/windows-local-server.test.mjs
 
 ## English
 
-`lan-static-server.mjs` publishes only the Neon production entry and runtime assets on one explicit LAN address. Its default contract is:
+`Start-Neon-LAN.command` works from a copied project directory on another Mac. It finds Node.js 20+, reads the default physical `en*` interface’s private IPv4 address, mask, and gateway, selects a free port from `8088–8098`, and creates `~/Library/LaunchAgents/com.gary.neon-lan.plist` for the current user on first start. The generated Node and project paths belong to that computer; the server rediscovers the network on login and every restart. `Stop-Neon-LAN.command` disables and unloads the agent, preserving the stopped state across login.
 
-- Listen on `10.10.0.250:8088`, never `0.0.0.0`, loopback, Wi-Fi, VPN, or Thunderbolt bridge addresses.
-- Accept IPv4 clients only from `10.10.0.0/24`, explicitly deny gateway `10.10.0.1`, and require `Host: 10.10.0.250[:8088]`. A future accidental forward whose source is rewritten by the gateway therefore still fails the application boundary.
-- Allow only `GET` / `HEAD`, the root entry, health check, and `assets/`, `errors/`, `src/`, `styles/`, and `vendor/`. READMEs, audits, tests, tools, logs, and dotfiles remain private.
-- Support one audio byte range and send CSP, same-origin isolation, anti-framing, MIME-sniffing protection, and denials for unrelated camera, microphone, location, USB, payment, and similar browser capabilities.
-- Expose no account, upload, directory-listing, write, WebSocket, or reverse-proxy surface, and create no router port forwarding.
+- The default physical interface may be Ethernet or Wi-Fi. VPN routes, public IPv4 addresses, broad subnets, and ambiguous interface addresses fail before listening. If a VPN owns the default route, set `NEON_LAN_INTERFACE=en7` to select a physical interface on that computer.
+- Bind only one private IPv4 address, accept only clients in its actual subnet, reject the current gateway, and require the exact Host. Set `NEON_LAN_PORT` for a fixed port or let the launcher choose one.
+- Publish only `GET` / `HEAD`, the entry, health check, and `assets/`, `errors/`, `src/`, `styles/`, and `vendor/`. READMEs, audits, tests, tools, logs, and dotfiles stay private.
+- Support one audio byte range and restrictive browser headers. There are no accounts, uploads, listings, write endpoints, WebSockets, reverse proxy, or router port mapping.
 
-Login autostart requires installing the user LaunchAgent `com.gary.neon-lan`. LAN devices use:
+After the health check, the launcher prints this computer’s `http://<private-address>:<port>/` and opens it. Missing Node, an unsafe network, or unavailable ports produce a clear error; the server never falls back to `0.0.0.0`. Running `node server/lan-static-server.mjs` directly rediscovers the network on macOS. A non-macOS server requires explicit `NEON_LAN_HOST` and `NEON_LAN_NETWORK`. Run this HTTP service only on a trusted LAN.
 
-```text
-http://10.10.0.250:8088/
-```
-
-Two Finder-double-clickable scripts live beside the main HTML:
-
-- `Start-Neon-LAN.command` verifies that Ethernet still owns the configured address, enables and loads the LaunchAgent, then opens the game only after health succeeds.
-- `Stop-Neon-LAN.command` disables before unloading the LaunchAgent and verifies that the port closes. The stopped state survives the next login until the start script runs again.
-
-Health check:
-
-```text
-http://10.10.0.250:8088/__health
-```
-
-Run the regression suite:
+Regression checks:
 
 ```sh
-node --test server/lan-static-server.test.mjs
+node --test server/lan-machine.test.mjs server/lan-service.test.mjs server/lan-static-server.test.mjs
 ```
-
-HTTP is acceptable on the current trusted LAN because the server handles no credentials or private data. Add trusted-certificate HTTPS before introducing accounts, score uploads, or any other sensitive data.
 
 ### Windows local launch
 
