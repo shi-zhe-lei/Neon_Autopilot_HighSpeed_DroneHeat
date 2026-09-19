@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="UTF-8">
+  <title>Desktop HUD readability / 桌面仪表可读性</title>
+  <style>
+    body { margin: 0; background: #101722; color: #edf7f5; font: 13px monospace; }
+    iframe { display: block; border: 0; }
+    pre { position: fixed; right: 8px; bottom: 8px; max-width: 45vw; max-height: 35vh; overflow: auto; background: #101722; }
+  </style>
+  <iframe id="fixture" title="Production desktop HUD / 生产桌面仪表"></iframe>
+  <pre id="result">pending</pre>
+  <script>
+    (async () => {
+      // Real production markup, CSS and translations prove geometry; no gameplay state is fabricated by this fixture.
+      const sizes = [[921, 561], [1_024, 600], [1_056, 680], [1_280, 720], [1_440, 900], [1_600, 1_000]];
+      const query = new URLSearchParams(location.search);
+      const requested = query.get('case');
+      const cases = requested ? sizes.filter(([w, h]) => `${w}x${h}` === requested) : sizes;
+      if (!cases.length) throw new Error('Unknown desktop HUD case: ' + requested);
+      const root = new URL('../../', location.href);
+      const prefix = 'Neon_Autopilot_HighSpeed_DroneHeat';
+      const response = await fetch(new URL(prefix + '.html', root), { cache: 'no-store' });
+      if (!response.ok) throw new Error('Production HTML: ' + response.status);
+      const authored = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const markup = [...authored.querySelectorAll('body > .hud, body > .desktop-compass, body > .key-tracker')]
+        .map((element) => element.outerHTML).join('\n');
+      const frame = document.getElementById('fixture');
+      const results = [];
+      const overlap = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1
+        && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1;
+      for (const [width, height] of cases) {
+        frame.style.width = width + 'px';
+        frame.style.height = height + 'px';
+        const loaded = new Promise((resolve) => frame.addEventListener('load', resolve, { once: true }));
+        frame.srcdoc = `<!doctype html><html lang="zh-CN" data-mobile-cockpit="false"
+          data-cinematic-camera="off" data-hud-contrast="on-light"><head><base href="${root.href}">
+          <link rel="stylesheet" href="styles/${prefix}.css"></head><body data-i18n-root>${markup}</body></html>`;
+        await loaded;
+        const doc = frame.contentDocument;
+        const win = frame.contentWindow;
+        const script = doc.createElement('script');
+        script.src = new URL('src/ui/' + prefix + '.i18n.js', root).href;
+        const translated = new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
+        doc.head.append(script);
+        await translated;
+        doc.querySelectorAll('[inert]').forEach((element) => element.removeAttribute('inert'));
+        const get = (selector) => doc.querySelector(selector);
+        const box = (selector) => get(selector).getBoundingClientRect();
+        const visible = (element) => element.getClientRects().length > 0 && !element.closest('[hidden]');
+        for (const language of ['zh-CN', 'en']) {
+          win.NeonI18n.setLanguage(language, { persist: false });
+          get('#zoneName').textContent = win.NeonI18n.t('realm.valleyTwilight');
+          get('#score').textContent = '999,999';
+          get('#best').textContent = '999,999';
+          get('#distance').textContent = language === 'en' ? '99,999 m' : '99,999 米';
+          get('#speedValue').textContent = '280';
+          get('#fpsDisplay').textContent = language === 'en' ? '60 FPS' : '60 帧/秒';
+          get('#fpsDisplay').dataset.fpsLabel = language === 'en' ? 'Smooth' : '流畅';
+          get('#weatherEtaText').textContent = language === 'en' ? 'About 41 sec' : '约 41 秒';
+          get('#weatherDurationText').textContent = language === 'en' ? 'About 1 min' : '约 1 分钟';
+          get('.minimap-panel').classList.add('is-cloverleaf');
+          for (const automatic of [false, true]) {
+            doc.documentElement.dataset.driveTransmissionMode = automatic ? 'automatic' : 'manual';
+            get('#transmissionSelector').dataset.transmissionMode = automatic ? 'automatic' : 'manual';
+            get('#transmissionRangePanel').dataset.transmissionMode = automatic ? 'automatic' : 'manual';
+            for (const id of ['#gearDownBtn', '#gearUpBtn']) get(id).hidden = automatic;
+            get('#transmissionModeState').textContent = win.NeonI18n.t(automatic ? 'gear.mode.automatic' : 'gear.mode.manual');
+            get('#gearOperatingRange').textContent = language === 'en'
+              ? (automatic ? 'G2 · Auto ↓70 / ↑140' : 'G1 · Band 0–90 · E→2 ≥70')
+              : (automatic ? '2挡 · 自动 ↓70 / ↑140' : '1挡 · 推荐 0–90 · E→2 ≥70');
+            get('#modeBadge').textContent = win.NeonI18n.translateSource(automatic ? '自动领航' : '手动');
+            get('#autoPanel').hidden = !automatic;
+            get('#autoPanel').classList.toggle('is-on', automatic);
+            get('.hud-navigation').scrollTop = 0;
+            get('#hudPrimaryBody').scrollTop = 0;
+            await new Promise((resolve) => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+            const errors = [];
+            const check = (condition, message) => { if (!condition) errors.push(message); };
+            for (const selector of ['.hud-primary', '.hud-navigation', '.desktop-compass', '.key-tracker']) {
+              const r = box(selector);
+              check(r.left >= 0 && r.top >= 0 && r.right <= width + 1 && r.bottom <= height + 1,
+                'outside viewport: ' + selector);
+            }
+            const surfaces = ['.hud-primary', '.hud-navigation', '.desktop-compass', '.key-tracker'];
+            for (let a = 0; a < surfaces.length; a++) for (let b = a + 1; b < surfaces.length; b++) {
+              check(!overlap(box(surfaces[a]), box(surfaces[b])), 'surface collision: ' + surfaces[a] + '/' + surfaces[b]);
+            }
+            const header = ['#zoneName', '#modeBadge', '#audioBtn', '#musicLibraryBtn'];
+            for (let a = 0; a < header.length; a++) for (let b = a + 1; b < header.length; b++) {
+              check(!overlap(box(header[a]), box(header[b])), 'header collision: ' + header[a] + '/' + header[b]);
+            }
+            const copy = [...doc.querySelectorAll('.hud-top .badge, .hud-audio-controls button, .metric strong, '
+              + '.speedometer-heading > small, .gear-operating-range, .gear-range-bands em, '
+              + '.weather-timing b, .hud-toggle-label, .hud-toggle-meta b, .minimap-guidance-copy strong')];
+            for (const element of copy.filter(visible)) {
+              check(element.scrollWidth <= element.clientWidth + 1, 'clipped text: ' + (element.id || element.className));
+              check(parseFloat(win.getComputedStyle(element).fontSize) >= 10,
+                'text below 10px: ' + (element.id || element.className));
+            }
+            check(parseFloat(win.getComputedStyle(get('#speedValue')).fontSize) >= 32, 'speed lacks readable prominence');
+            for (const id of ['#audioBtn', '#musicLibraryBtn']) {
+              check(box(id).height >= 44 && box(id).width >= 44, 'audio target below 44px: ' + id);
+            }
+            check(!visible(get('.metric.auto')), 'legacy duplicate autopilot metric is visible');
+            check(box('.hud-navigation').left - box('.hud-primary').right >= width * 0.3, 'flight corridor too narrow');
+            check(!overlap(box('.minimap-panel'), box('.hud-actions')), 'map overlaps command deck');
+            const map = box('.minimap-viewport');
+            check(Math.abs(map.width / map.height - 16 / 9) < 0.02, 'map aspect ratio changed');
+            const detail = get('#hudPrimaryBody');
+            detail.scrollTop = detail.scrollHeight;
+            check(box('#surfaceContactStatus').bottom <= box('#hudPrimaryBody').bottom + 1,
+              'weather details cannot be scrolled into view');
+            if (automatic) {
+              const navigation = get('.hud-navigation');
+              navigation.scrollTop = navigation.scrollHeight;
+              check(box('#autoPanel').bottom <= box('.hud-navigation').bottom + 1, 'autopilot details unreachable');
+            }
+            results.push({ size: width + 'x' + height, language, automatic, passed: !errors.length, errors });
+          }
+        }
+      }
+      const failures = results.filter((item) => !item.passed);
+      window.NeonDesktopHudAudit = { complete: true, passed: !failures.length, stateCount: results.length, failures };
+      document.getElementById('result').textContent = JSON.stringify(window.NeonDesktopHudAudit, null, 2);
+    })().catch((error) => {
+      window.NeonDesktopHudAudit = { complete: true, passed: false, error: String(error.stack || error) };
+      document.getElementById('result').textContent = JSON.stringify(window.NeonDesktopHudAudit, null, 2);
+    });
+  </script>
+</html>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="title desc">
+  <title id="title">Neon Autopilot — Sky Dawnflight</title>
+  <desc id="desc">A gold flight emblem above a cyan horizon, with the Neon Autopilot wordmark on a dark sky.</desc>
+  <defs>
+    <linearGradient id="sky" x2="1" y2="1">
+      <stop stop-color="#0b1424"/>
+      <stop offset="0.55" stop-color="#122b39"/>
+      <stop offset="1" stop-color="#29414d"/>
+    </linearGradient>
+    <linearGradient id="horizon">
+      <stop stop-color="#82c8cf" stop-opacity="0"/>
+      <stop offset="0.62" stop-color="#86d4db" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#f1cc86" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="gold" x2="0.8" y2="1">
+      <stop stop-color="#fff1ce"/>
+      <stop offset="1" stop-color="#c89652"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop stop-color="#90bfc6" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#90bfc6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="320" rx="18" fill="url(#sky)"/>
+  <circle cx="1030" cy="153" r="210" fill="url(#halo)"/>
+  <g fill="#cedfdc" opacity="0.5">
+    <circle cx="762" cy="43" r="1.2"/><circle cx="857" cy="88" r="1"/>
+    <circle cx="1122" cy="42" r="1.4"/><circle cx="1210" cy="119" r="1"/>
+    <circle cx="685" cy="126" r="1"/><circle cx="1160" cy="195" r="1"/>
+  </g>
+  <path d="M630 228 790 189 887 218 986 174 1130 216 1212 184 1280 208V320H630Z" fill="#74a4b4" opacity="0.08"/>
+  <path d="M460 271 672 224 810 252 998 216 1158 250 1280 229V320H460Z" fill="#8ebabc" opacity="0.08"/>
+  <path d="M550 256H1240" stroke="url(#horizon)"/>
+  <g stroke="#85c7cc" fill="none" opacity="0.15">
+    <path d="M1014 256 856 320M1046 256 1204 320M1030 256V320"/>
+    <path d="M790 281H1260M730 308H1280"/>
+  </g>
+  <g transform="translate(1030 142)">
+    <circle r="76" fill="none" stroke="#e7d9b2" stroke-opacity="0.2"/>
+    <circle r="63" fill="none" stroke="#e7d9b2" stroke-opacity="0.12" stroke-dasharray="2 9"/>
+    <path d="M0-78V-67M0 67V78M-78 0H-67M67 0H78" stroke="#e7d9b2" stroke-opacity="0.55"/>
+    <path d="M0-49 11-8 88 16 24 23 0 8-24 23-88 16-11-8Z" fill="url(#gold)"/>
+    <path d="M0 17 9 34 0 49-9 34Z" fill="#b6e2e4"/>
+    <path d="M0-40V5M-73 16-22 13M73 16 22 13" fill="none" stroke="#fff4d6" stroke-opacity="0.65"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="64" y="63" fill="#8bc7cd" font-size="14" letter-spacing="5">SKY DAWNFLIGHT</text>
+    <text x="61" y="145" fill="#f3f4ed" font-size="62" font-weight="700" letter-spacing="-1.5">NEON AUTOPILOT</text>
+    <text x="65" y="191" fill="#b9cdd0" font-size="21" letter-spacing="0.6">Follow the light. Find your own horizon.</text>
+    <path d="M65 227H97" stroke="#ebcc8a" stroke-width="2"/>
+    <text x="65" y="269" fill="#99b4bd" font-size="12" letter-spacing="2.8">BROWSER FLIGHT · SIX REALMS · YOUR JOURNEY</text>
+  </g>
+</svg>

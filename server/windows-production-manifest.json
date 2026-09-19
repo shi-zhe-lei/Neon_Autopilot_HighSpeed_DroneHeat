@@ -264,8 +264,8 @@
     },
     {
       "path": "styles/Neon_Autopilot_HighSpeed_DroneHeat.css",
-      "size": 467468,
-      "sha256": "5d2d987525266524501093811cd5f9aff29c920ff3357edf681a41e7385d9d9d"
+      "size": 484478,
+      "sha256": "5c6aa583ee0ca3f9e06e54d3f4c67841913d49285a479a47dbc9a1a97286aaf7"
     },
     {
       "path": "vendor/three-0.160.0.min.js",

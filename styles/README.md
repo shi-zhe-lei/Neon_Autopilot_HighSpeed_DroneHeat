@@ -2,6 +2,8 @@
 
 ## 中文
 
+- 普通桌面横屏 `≥921px × 561–1,079px` 的最终样式使用 `296–320px` 仪表宽度；身份和音频分行，主要文案至少 `10px`，速度为 `36px`，音频按钮保持 `44px` 高。`.hud-primary-body` 从 `display:contents` 恢复独立滚动盒；右侧地图、操作区、领航详情按内容流排序并可内部滚动，防止翻译换行后固定偏移互相覆盖。此断点的地图使用相对定位，其他桌面布局保留固定地图合同；不改变移动端或 Film，也不修改玩法状态。
+
 保存生产入口的响应式样式。布局、无障碍和 HUD 合同由浏览器夹具与静态测试共同验证。
 
 - Neon 飞行 HUD 使用分区 Liquid Glass：透明且无 backdrop/filter/transform/perspective/containment 的定位祖先保留固定小地图合同；`.hud-primary::before` 承载左侧薄玻璃包络，`.hud-actions` 承载七键连续玻璃，小地图保持高密度但无祖先滤镜。`left / right / position / compass / input` 宿主继承运行时量化的透明度、边缘、高光、阴影、太阳反射颜色与位置，并由各自 `data-hud-contrast` 选择局部文字、边缘与表面安全 token。大包络的实际背景 alpha 限制在 `0.45–0.90` 验收区间，暗模式同亮度至少更通透 `0.015`；分数、距离、最高、成长、生命、FPS、横向位置、天气时间、地表接触与顶部身份标签统一使用同一自适应轻量单元格深度，不再混入孤立纯黑卡。只有指令、指南、罗盘和输入等独立文字承载层使用 `0.90 / 0.88`，白色高光与状态渐变保持低强度，内部单元格和按钮不重复创建 backdrop 层。系统配色不拥有游戏内权威；降低透明度、增强对比度、减少动态、强制颜色及无滤镜能力均有实色或系统色降级。
@@ -28,6 +30,8 @@
 - 自动挡由运行时把桌面/触控 Q/E 设为语义 `hidden`，样式用 `[hidden] { display:none !important; }` 保证网格声明不能留下透明占位。桌面挡位标题轨从四列收成“挡位标签 + 当前挡”两列；移动端保留 T、当前挡、自动升降阈值与三挡工作带，并统一从 MT 的 `44/44/20px` 三行收成 AT 的 `34/20/20px` 三行，不牺牲换挡范围信息。根级 `data-drive-transmission-mode` 同步把移动详情的底部预留从 `128px` 降至保守 `96px`，因此竖屏内容区会实际增高而不是仅缩短可见外框。
 
 ## English
+
+- The final normal-desktop landscape rules at `≥921px × 561–1,079px` use a `296–320px` telemetry wing, separate identity/audio rows, at least `10px` primary copy, a `36px` speed value, and `44px` audio targets. `.hud-primary-body` becomes a real scroll box instead of `display:contents`; map, commands, and autopilot details use ordered content flow with internal scrolling so translation wrapping cannot collide with fixed offsets. This breakpoint uses a relatively positioned map; other desktop layouts retain the fixed-map contract. Mobile, Film, and gameplay state remain independently owned.
 
 - Tall-gear low-speed styling consumes runtime data attributes only. Partial lugging uses steady amber across the complete speedometer, gear area, propulsion core, and available Q control; complete stall raises this to a stronger orange-red boundary and zero-thrust hierarchy. Central `speed-limit-alert` and the phone route slot reuse one safe advisory position through `data-alert-kind="lugging|stalled"` instead of adding a sightline-blocking card. Neither state may flash or loop an animation, and `hidden` must leave layout. Reduced Motion retains the static hierarchy, while Forced Colors uses dashed Highlight versus double Mark as a non-colour distinction.
 

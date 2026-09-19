@@ -2,6 +2,8 @@
 
 ## 中文
 
+桌面可读性回归入口为 `browser/Neon_Autopilot_HighSpeed_DroneHeat.desktop-hud-layout-test.html`。它加载真实 HTML/CSS/翻译，覆盖 `921×561 / 1024×600 / 1056×680 / 1280×720 / 1440×900 / 1600×1000` 的中英文、手动/自动挡共 `24` 个状态，测量身份与按钮无重叠、文本宽度与最小字号、音频点击区域、地图比例、中央留白及滚动详情可达性；不替代生产 WebGL 画面检查。
+
 船体隧道受光回归分别验证驻留道路采样、运行时传递和真实船体材质扩展：路线/profile 失配、不可见与处置后的照度必须清零，洞口连续，Low/Medium 不枚举 High 灯具；所有实体材质及损伤变体共享稳定 uniform，经 PBR 漫反射接收且不改自发光或高光。浏览器仍须观察灯下船体颜色与轮廓，不能把 shader 文本检查当成实际画面验收。
 
 道路边缘相机回归必须连续执行生产跟随阻尼、FOV、侧倾与入镜保护顺序，覆盖左右边缘停留、往返横移及不同帧率。固定道路、船体与 HUD 后，观察角度和 FOV 必须收敛，不能在仍然 `fits=true` 时周期性跳变；独立验证最终纠偏不污染下一帧跟随状态，侧倾也不得逐帧累积。
@@ -104,6 +106,8 @@ iPad 专项回归不再只验证 `≥44px`：静态合同精确锁定驾驶键 `
 高挡低速回归同时锁定物理与呈现：3挡在 `140 / 115 / 100 / 90 / 7km/h` 的线性 RPM 耦合必须为 `1 / 0.5 / 0.2 / 0 / 0`，平方扭矩可用度为 `1 / 0.25 / 0.04 / 0 / 0`；基础 `12_000 RPM` 与成长 `15_000 RPM` 都要在满油门完全失速时单调回落，零推力和真实阻力把速度降至 `0`，且 `30 / 60 / 120Hz` 结果一致，1挡静止起步不受影响。运行时夹具分别覆盖部分拖挡与完全失速、建议恢复挡、`Q×N` 文案、中央警告优先级、桌面/移动数据状态、live-region 去抖、音频负载与尾焰负载透传。音频测试还要求不新增节点或事件，飞船测试要求普通动态有界喘振、降低动态只保留静态衰减；Node 证明状态和数值合同，最终显著性与听感仍需真实 Chrome 目视/试听。
 
 ## English
+
+The desktop readability fixture is `browser/Neon_Autopilot_HighSpeed_DroneHeat.desktop-hud-layout-test.html`. It loads real HTML, CSS, and translations across `921×561 / 1024×600 / 1056×680 / 1280×720 / 1440×900 / 1600×1000`, Chinese/English, and manual/automatic transmission for `24` states. It measures header/control separation, text width and font floors, audio targets, map aspect ratio, flight clearance, and scroll reachability. It does not replace a production WebGL visual check.
 
 Ship tunnel-light regressions separately cover resident-road sampling, runtime forwarding, and production material extensions. Route/profile mismatches, hidden visuals, and disposal must clear the probe, portal transitions remain continuous, and Low/Medium do not enumerate High fixtures. Opaque and damaged variants share stable PBR diffuse uniforms without changing emission or highlights. Browser checks must still inspect the craft's color and silhouette under lamps; shader text checks do not establish visual quality.
 
