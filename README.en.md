@@ -24,9 +24,9 @@
   <code>中文 / English</code>
 </p>
 
-![A caped craft on a skyway beneath the sunset](docs/showcase/sunset-flight.png)
+![A craft approaching an interchange ramp entrance, with elevated decks and a lower passage](docs/showcase/interchange-entrance.png)
 
-<p align="center"><sub>In-game capture · High quality · HUD hidden for the scenery</sub></p>
+<p align="center"><sub>In-game capture · Interchange and ramp entrance · High quality · HUD hidden</sub></p>
 
 **Neon Autopilot** is a 3D flight and driving game that runs in your browser. Guide a caped craft through elevated roads, interchanges and tunnels, collect candlelight, and respond to changing weather. Turn on autopilot and the cinematic camera to take in the journey.
 
@@ -104,11 +104,11 @@ Hold the left mouse button and drag to look around; release it to return smoothl
 
 ## A glimpse of the journey
 
-| Dawn clouds | Starlit vault |
+| Entering the ramp | Flying beneath the bridge |
 | :---: | :---: |
-| ![A golden craft beneath the dawn clouds](docs/showcase/dawn-flight.png) | ![A craft and skyway under the starlit vault](docs/showcase/starlight-flight.png) |
+| ![A craft following a curved ramp toward the interchange](docs/showcase/interchange-ramp.png) | ![A craft flying beneath an elevated bridge between its piers](docs/showcase/interchange-underpass.png) |
 
-<sub>Captured from the current game at High quality, with the HUD hidden. See the [capture notes](docs/showcase/README.md) for reproducible scene parameters.</sub>
+<sub>Captured during actual flights through the interchange at High quality, with the HUD hidden. See the [capture notes](docs/showcase/README.md) for scene parameters and route positions.</sub>
 
 <a name="development"></a>
 

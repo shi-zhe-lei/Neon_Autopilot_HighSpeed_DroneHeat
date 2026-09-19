@@ -24,9 +24,9 @@
   <code>中文 / English</code>
 </p>
 
-![霞谷暮光中的飞船与天际航路](docs/showcase/sunset-flight.png)
+![飞船驶向立交桥下的匝道入口，上层桥面与下层通道清晰可见](docs/showcase/interchange-entrance.png)
 
-<p align="center"><sub>实机画面 · 高画质 · 为展示场景隐藏了 HUD</sub></p>
+<p align="center"><sub>实机画面 · 立交桥与匝道入口 · 高画质 · 已隐藏 HUD</sub></p>
 
 **Neon Autopilot** 是一款在浏览器里运行的 3D 飞行驾驶游戏。驾驶披风飞船穿过高架、互通与隧道，收集烛光、应对天气，也可以开启自动领航，跟随电影镜头欣赏沿途风景。
 
@@ -104,11 +104,11 @@ cd Neon_Autopilot_HighSpeed_DroneHeat
 
 ## 场景一瞥
 
-| 晨岛云海 | 禁阁星穹 |
+| 驶入匝道 | 桥下穿行 |
 | :---: | :---: |
-| ![晨岛的云海与金色飞船](docs/showcase/dawn-flight.png) | ![禁阁星穹下的飞船与航路](docs/showcase/starlight-flight.png) |
+| ![飞船沿转弯匝道驶向立交桥](docs/showcase/interchange-ramp.png) | ![飞船从上层桥面和桥墩之间穿行](docs/showcase/interchange-underpass.png) |
 
-<sub>以上为当前游戏的实机截图，使用高画质并隐藏 HUD；原始取景参数见 [截图说明](docs/showcase/README.md)。</sub>
+<sub>以上均为在实际航程中驶入立交桥区域后截取的画面，使用高画质并隐藏 HUD；取景参数与位置见 [截图说明](docs/showcase/README.md)。</sub>
 
 <a name="development"></a>
 
