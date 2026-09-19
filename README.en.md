@@ -128,6 +128,7 @@ This checks JavaScript syntax, entry and resource consistency, and runs the Node
 | :--- | :--- |
 | Modules and runtime flow | [Source overview](src/README.md) |
 | Windows launch and macOS LAN service | [Server guide](server/README.md) |
+| Planned Unity migration with Codex on Windows | [TODO and next-session reminder](TODO.md) · [Setup and migration guide](docs/UNITY_WINDOWS_MIGRATION.md) |
 | Verification, manifests and maintenance | [Tools](tools/README.md) |
 | Design notes, audits and visual evidence | [Documentation index](docs/README.md) |
 | Original complete README and implementation notes | [Preserved README](README.legacy.md) |

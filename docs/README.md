@@ -2,6 +2,7 @@
 
 ## 中文
 
+- [Windows + Codex → Unity 教程](UNITY_WINDOWS_MIGRATION.md) 记录环境准备、模块迁移与验收步骤；实际进度在根目录 [TODO.md](../TODO.md)，下次会话提醒在 [AGENTS.md](../AGENTS.md)。目前为计划，Windows 环境与 Unity 工程尚未验证。
 - `showcase/` 保存 GitHub 首页封面与实机截图；旧版完整首页保留在根目录 [README.legacy.md](../README.legacy.md)。
 
 - `audits/` 保存按日期冻结的审计、计划和设计记录；正文中的旧根目录文件名属于历史证据，不回写为当前源码路径。
@@ -12,6 +13,7 @@
 
 ## English
 
+- The [Windows + Codex → Unity guide](UNITY_WINDOWS_MIGRATION.md) covers setup, module migration and acceptance. Track actual progress in [TODO.md](../TODO.md); [AGENTS.md](../AGENTS.md) provides the next-session reminder. This is a plan; the Windows environment and Unity project are not yet verified.
 - `showcase/` contains the GitHub README cover and in-game captures; the original full README is preserved at [README.legacy.md](../README.legacy.md).
 
 - `audits/` stores date-frozen audits, plans, and design records. Legacy root filenames inside historical prose remain historical evidence rather than current source paths.

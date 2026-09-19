@@ -128,6 +128,7 @@ node tools/verify-node.mjs
 | :--- | :--- |
 | 模块划分与运行流程 | [源码说明](src/README.md) |
 | Windows 启动与 macOS 局域网服务 | [服务说明](server/README.md) |
+| Windows 上用 Codex 迁移到 Unity（计划） | [TODO 与下次开工提醒](TODO.md) · [环境准备与迁移教程](docs/UNITY_WINDOWS_MIGRATION.md) |
 | 自动检查、资源清单与维护工具 | [工具说明](tools/README.md) |
 | 设计记录、审计与截图证据 | [文档目录](docs/README.md) |
 | 旧版完整 README 与详细实现记录 | [保留的旧 README](README.legacy.md) |
