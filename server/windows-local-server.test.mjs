@@ -27,7 +27,7 @@ function assertCrlfOnly(bytes, label) {
 
 describe('Windows local launcher contracts', () => {
   const launcherBytes = readFileSync(join(PROJECT_DIRECTORY, 'Start-Neon-Windows.cmd'));
-  const aliasBytes = readFileSync(join(PROJECT_DIRECTORY, '启动Windows本地游戏.cmd'));
+  const aliasBytes = readFileSync(join(PROJECT_DIRECTORY, 'Launch-Neon-Windows.cmd'));
   const serverBytes = readFileSync(join(PROJECT_DIRECTORY, 'server/windows-local-server.ps1'));
   const launcher = launcherBytes.toString('ascii');
   const alias = aliasBytes.toString('ascii');
@@ -36,7 +36,7 @@ describe('Windows local launcher contracts', () => {
   const manifestSource = readFileSync(join(PROJECT_DIRECTORY, WINDOWS_MANIFEST_FILE), 'utf8');
 
   test('ships native Windows text bytes for cmd.exe and Windows PowerShell 5.1', () => {
-    for (const [label, bytes] of [['canonical CMD', launcherBytes], ['Chinese-name CMD alias', aliasBytes]]) {
+    for (const [label, bytes] of [['canonical CMD', launcherBytes], ['English-name CMD alias', aliasBytes]]) {
       assert.equal(bytes.subarray(0, UTF8_BOM.length).equals(UTF8_BOM), false, `${label} must not have a BOM`);
       assert.ok([...bytes].every((byte) => byte < 0x80), `${label} must stay ASCII-only`);
       assertCrlfOnly(bytes, label);
@@ -89,7 +89,7 @@ describe('Windows local launcher contracts', () => {
       'Neon_Autopilot_HighSpeed_DroneHeat.html',
       'Start-Neon-Windows.cmd',
       'server/windows-local-server.ps1',
-      '启动Windows本地游戏.cmd'
+      'Launch-Neon-Windows.cmd'
     ]) {
       assert.equal(manifest.files.filter((file) => file.path === bootPath).length, 1);
     }

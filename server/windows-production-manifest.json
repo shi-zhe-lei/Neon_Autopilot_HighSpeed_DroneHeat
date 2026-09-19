@@ -3,6 +3,11 @@
   "release": "neon-ipad-road-residency-253",
   "files": [
     {
+      "path": "Launch-Neon-Windows.cmd",
+      "size": 701,
+      "sha256": "737d1ef4aebb1549d89da74f1f826520097642c89d482595294b9cd881d8c6df"
+    },
+    {
       "path": "Neon_Autopilot_HighSpeed_DroneHeat.html",
       "size": 121964,
       "sha256": "4b0f2f0bc1167f820b8907b71dcad19b8fc41af51a70990861724e4e1b051eb6"
@@ -124,8 +129,8 @@
     },
     {
       "path": "errors/startup.js",
-      "size": 29698,
-      "sha256": "d0e752339e8be794c91722861850a8cdabdf7f8de637e0e07fde81a01a0964d2"
+      "size": 29686,
+      "sha256": "26904d43d4534104af1930b937c354cba8192374184fa28272f39b7819b27ece"
     },
     {
       "path": "server/windows-local-server.ps1",
@@ -229,8 +234,8 @@
     },
     {
       "path": "src/ui/Neon_Autopilot_HighSpeed_DroneHeat.i18n.js",
-      "size": 203538,
-      "sha256": "e8fa9406f884107b0cdf713f6c66785d15c7a292186aa8a0f1d94354e16f023b"
+      "size": 203532,
+      "sha256": "901fc3239c3b079e965f96da1876687a5afd8ba7db600351275d7d3e7c5db610"
     },
     {
       "path": "src/weather/Neon_Autopilot_HighSpeed_DroneHeat.surface-weather.js",
@@ -266,11 +271,6 @@
       "path": "vendor/three-0.160.0.min.js",
       "size": 669884,
       "sha256": "170c6789f43217c96b3170f4b42fafe135de7f7cd48497a4218f9757ee1d49fa"
-    },
-    {
-      "path": "启动Windows本地游戏.cmd",
-      "size": 701,
-      "sha256": "737d1ef4aebb1549d89da74f1f826520097642c89d482595294b9cd881d8c6df"
     }
   ]
 }

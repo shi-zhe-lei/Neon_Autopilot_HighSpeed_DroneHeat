@@ -15,7 +15,7 @@ const WINDOWS_BOOT_FILES = Object.freeze([
   'Neon_Autopilot_HighSpeed_DroneHeat.html',
   'Start-Neon-Windows.cmd',
   'server/windows-local-server.ps1',
-  '启动Windows本地游戏.cmd'
+  'Launch-Neon-Windows.cmd'
 ]);
 
 function collectProductionFiles(directory) {

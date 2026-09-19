@@ -59,5 +59,5 @@ if /usr/sbin/lsof -nP -iTCP:"${lan_port}" -sTCP:LISTEN >/dev/null 2>&1; then
 fi
 
 printf '\n局域网宇宙飞船已关闭；下次登录也不会自动启动。\n'
-printf '需要恢复时，双击“启动局域网游戏.command”。\n'
+printf '需要恢复时，双击“Start-Neon-LAN.command”。\n'
 pause_if_interactive

@@ -139,7 +139,7 @@
     if (error?.code === 'file-script-opaque-error') {
       return Object.freeze({
         key: 'error.windowsLocalFile',
-        fallback: 'Windows 浏览器隔离了直接打开的本地脚本，真实错误无法可靠读取。请在游戏目录双击“启动Windows本地游戏.cmd”；启动器会先检查文件完整性，再仅在本机打开游戏。'
+        fallback: 'Windows 浏览器隔离了直接打开的本地脚本，真实错误无法可靠读取。请在游戏目录双击“Launch-Neon-Windows.cmd”；启动器会先检查文件完整性，再仅在本机打开游戏。'
       });
     }
     if (/webgl|context|renderer/i.test(message)) {
@@ -642,7 +642,7 @@
     if (sanitizedFileScriptError) {
       return Object.freeze({
         error: new NeonStartupError(
-          'Windows local-file script failure was hidden by browser origin isolation; use 启动Windows本地游戏.cmd.',
+          'Windows local-file script failure was hidden by browser origin isolation; use Launch-Neon-Windows.cmd.',
           { code: 'file-script-opaque-error' }
         ),
         options: activeScriptSource ? { filename: activeScriptSource } : {}

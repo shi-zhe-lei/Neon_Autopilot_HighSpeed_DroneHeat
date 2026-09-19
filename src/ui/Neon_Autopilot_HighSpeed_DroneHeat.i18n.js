@@ -1030,7 +1030,7 @@
     'error.reload': '重新加载',
     'error.webgl': '浏览器无法创建网页三维图形环境。请开启硬件加速、更新浏览器或更换支持网页三维图形的设备后重试。',
     'error.dependency': '游戏核心依赖未能加载。请确认游戏目录完整，然后重新加载页面。',
-    'error.windowsLocalFile': 'Windows 浏览器隔离了直接打开的本地脚本，真实错误无法可靠读取。请在游戏目录双击“启动Windows本地游戏.cmd”；启动器会先检查文件完整性，再仅在本机打开游戏。',
+    'error.windowsLocalFile': 'Windows 浏览器隔离了直接打开的本地脚本，真实错误无法可靠读取。请在游戏目录双击“Launch-Neon-Windows.cmd”；启动器会先检查文件完整性，再仅在本机打开游戏。',
     'error.initialization': '游戏初始化未完成。请重新加载页面；若问题持续，请检查浏览器图形能力和游戏文件完整性。',
     'error.runtimeTitle': '游戏已安全停止',
     'error.runtimeMessage': '游戏运行时遇到错误并已停止。请重新加载页面后重试。',
