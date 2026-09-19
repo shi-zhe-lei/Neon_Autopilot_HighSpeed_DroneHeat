@@ -4,7 +4,7 @@
 
 本模块保存中英文切换、全屏等独立界面能力。能力不可用时必须安全降级，不得改变玩法状态。
 
-`Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js` 是所有玩家可见文案的双语权威，只支持 `zh-CN` 与 `en`，默认使用简体中文。初始语言按“网址中的 `lang` 参数 → `NeonV23Startup.readString()` 保存值 → 简体中文”解析；玩家切换后的选择通过 `NeonV23Startup.writeString()` 保存到 `cc-v23-ui-language`，界面层不得直接访问浏览器存储。
+`Neon_Autopilot_HighSpeed_DroneHeat.i18n.js` 是所有玩家可见文案的双语权威，只支持 `zh-CN` 与 `en`，默认使用简体中文。初始语言按“网址中的 `lang` 参数 → `NeonStartup.readString()` 保存值 → 简体中文”解析；玩家切换后的选择通过 `NeonStartup.writeString()` 保存到 `cc-neon-ui-language`，界面层不得直接访问浏览器存储。
 
 `startup.loading.*` 是唯一初始加载层的双语命名空间，提供“模块 / 世界 / 道路 / 图形 / 首帧”真实阶段，以及 `tipLabel` 和 `tip.steering / view / ramps / candlelight / damage / weather` 六条稳定提示。中英文键必须一一对应，且阶段与提示都不得包含百分比、剩余时间或 ETA。运行时只能在对应工作真实完成时更换阶段，提示也只能随严格前进的真实阶段同步换条；语言切换按当前 tip ID 重绘，不能推进提示、就绪状态或启动。加载外层是非 live 容器，阶段状态是唯一 `aria-live="polite"` 通道；提示使用不可聚焦的 `role="note"` 与 `aria-live="off"`，没有“下一条”等操作。开始页在此期间保持 `hidden + inert`，开始按钮保持原生禁用。普通就绪发布必须先启用开始按钮、再显示开始页、最后关闭加载状态；更新提示和致命恢复可按各自优先级覆盖它，显式 `autostart=1` 则可在玩家确认后直接启航而不短暂显示开始页。
 
@@ -32,7 +32,7 @@
 
 `hud.hoodCollisionGuide.*` 在 `hood-collision-guide-v3` 中只本地化桌面视口下缘的真实宽度读数；移动端隐藏该读数，四个短角标、两条下侧导轨以及常态/琥珀警戒/红色危险都不依赖可见文案。覆盖层保持 `aria-hidden`、无 `role`、无 `tabindex` 且不接收指针。语言切换只能重写当前桌面读数，不得重算由真实伤害 `colliderHalf`、已提交 `PathPlan` 和只读有界探针决定的投影或 TTC 状态；它不拥有未来跳台 lip/活动腾空、地面/顶棚预测，不得发起物理扫掠、解除无效状态的 `hidden`，也不能写路线、跳跃、碰撞、玩法或物理。
 
-所有 `[data-language-toggle]` 按钮共用同一语言状态；带 `[data-language-compact]` 的窄按钮在中文界面显示“英”，在英文界面显示“ZH”，同时同步可访问名称。`setLanguage()` 先完成文档、静态节点和按钮更新，再通知 `subscribe()` 订阅者并派发 `neonv23:languagechange`，让动态界面和画布按现有状态重绘。
+所有 `[data-language-toggle]` 按钮共用同一语言状态；带 `[data-language-compact]` 的窄按钮在中文界面显示“英”，在英文界面显示“ZH”，同时同步可访问名称。`setLanguage()` 先完成文档、静态节点和按钮更新，再通知 `subscribe()` 订阅者并派发 `neonneon:languagechange`，让动态界面和画布按现有状态重绘。
 
 `launch.restartConfirm.*` 与 `guide.feature.pauseRestart.*` 是暂停重开二级确认及其手册说明的双语权威。确认层打开时切换语言只刷新文本、文档语言和可访问名称，不得关闭弹层、恢复游戏或改变本局状态。
 
@@ -48,7 +48,7 @@
 
 This module owns isolated UI capabilities such as Chinese/English switching and fullscreen. Unsupported capabilities must degrade safely without changing gameplay state.
 
-`Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js` is the bilingual authority for all player-facing copy. It supports only `zh-CN` and `en`, with Simplified Chinese as the default. Initial language resolves in this order: the URL `lang` parameter, the value returned by `NeonV23Startup.readString()`, then Simplified Chinese. Player choices are saved as `cc-v23-ui-language` through `NeonV23Startup.writeString()`; the UI layer must not access browser storage directly.
+`Neon_Autopilot_HighSpeed_DroneHeat.i18n.js` is the bilingual authority for all player-facing copy. It supports only `zh-CN` and `en`, with Simplified Chinese as the default. Initial language resolves in this order: the URL `lang` parameter, the value returned by `NeonStartup.readString()`, then Simplified Chinese. Player choices are saved as `cc-neon-ui-language` through `NeonStartup.writeString()`; the UI layer must not access browser storage directly.
 
 `startup.loading.*` is the sole bilingual namespace for the initial loading surface. It provides the real Modules / World / Routes / Graphics / First frame stages plus `tipLabel` and the six stable `tip.steering / view / ramps / candlelight / damage / weather` entries. Chinese and English keys remain one-to-one, and neither stages nor tips may contain a percentage, remaining-time estimate, or ETA. Runtime may change stage only when that work actually completes, while a tip may change only with strict real-stage progress. Language changes redraw the current tip ID without advancing tips, readiness, or launch. The loader shell is non-live, the stage status is the sole `aria-live="polite"` channel, and the unfocusable tip uses `role="note"` with `aria-live="off"` and no Next control. While loading is active, the launch surface stays `hidden + inert` and Start stays natively disabled. Normal readiness enables Start first, reveals launch second, and closes the loading state last. Update notice and fatal recovery may supersede it according to their priorities, while explicit `autostart=1` may launch directly after confirmation without flashing Start.
 
@@ -76,7 +76,7 @@ The lives card and candle-growth card own mutually exclusive semantic namespaces
 
 In `hood-collision-guide-v3`, `hud.hoodCollisionGuide.*` localizes only the authoritative-width readout at the lower desktop viewport edge. Mobile hides that readout, while the four short corner marks, two lower rails, and normal/amber-warning/red-danger states require no visible copy. The overlay remains `aria-hidden`, has no `role` or `tabindex`, and accepts no pointer input. Language changes may rewrite only the current desktop readout; they cannot recompute projection or TTC derived from the real damage `colliderHalf`, committed `PathPlan`, and read-only bounded probe. Localization owns none of the future ramp-lip/already-active airborne or ground/ceiling prediction, cannot initiate physics sweeps or undo `hidden` for invalid state, and cannot write route, jump, collision, gameplay, or physics.
 
-Every `[data-language-toggle]` button shares one language state. Narrow controls marked `[data-language-compact]` show “英” in Chinese and “ZH” in English while keeping their accessible names synchronized. `setLanguage()` updates document metadata, static nodes, and controls before notifying `subscribe()` listeners and dispatching `neonv23:languagechange`, allowing dynamic UI and Canvas owners to redraw from current state.
+Every `[data-language-toggle]` button shares one language state. Narrow controls marked `[data-language-compact]` show “英” in Chinese and “ZH” in English while keeping their accessible names synchronized. `setLanguage()` updates document metadata, static nodes, and controls before notifying `subscribe()` listeners and dispatching `neonneon:languagechange`, allowing dynamic UI and Canvas owners to redraw from current state.
 
 `launch.restartConfirm.*` and `guide.feature.pauseRestart.*` are the bilingual authority for secondary paused-restart confirmation and its manual entry. Switching language while that dialog is open only refreshes text, document language, and accessible names; it must not close the dialog, resume play, or change the current run.
 

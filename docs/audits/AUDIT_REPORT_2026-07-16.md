@@ -1,9 +1,9 @@
-# V23 宇宙飞船游戏彻底审计报告
+# Neon 宇宙飞船游戏彻底审计报告
 
 - 审计日期：2026-07-16
-- 审计对象：`Neon_Autopilot_V23_HighSpeed_DroneHeat`
-- 最新入口：`Neon_Autopilot_V23_HighSpeed_DroneHeat.html`
-- 主运行时：`Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
+- 审计对象：`Neon_Autopilot_HighSpeed_DroneHeat`
+- 最新入口：`Neon_Autopilot_HighSpeed_DroneHeat.html`
+- 主运行时：`Neon_Autopilot_HighSpeed_DroneHeat.js`
 - 审计方式：静态代码审计、Node 回归、重复稳定性测试、Chrome 硬件 WebGL 布局矩阵、故障注入、真实交互、300m/s 长跑
 - 代码修改：无；本次只新增审计报告和证据截图
 
@@ -91,11 +91,11 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:1365-1372`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:6987-6995`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:7030-7041`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:10128-10142`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js:1116`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:1365-1372`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:6987-6995`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:7030-7041`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:10128-10142`
+- `Neon_Autopilot_HighSpeed_DroneHeat.ship.js:1116`
 
 现状：
 
@@ -122,11 +122,11 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:1277-1288`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:1345-1416`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:4403-4456`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:4536-4576`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:6886-6907`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:1277-1288`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:1345-1416`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:4403-4456`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:4536-4576`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:6886-6907`
 
 现状：
 
@@ -153,8 +153,8 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:6892-6911`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:8981-8986`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:6892-6911`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:8981-8986`
 
 现状：
 
@@ -181,9 +181,9 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html:1567-1607`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html:1567-1607`
 
 浏览器实测：
 
@@ -217,10 +217,10 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js:1165-1237`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js:1475-1535`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:9515-9535`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html:1611-1659`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js:1165-1237`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js:1475-1535`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:9515-9535`
+- `Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html:1611-1659`
 
 现状：
 
@@ -255,10 +255,10 @@
 
 位置：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.html:243`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:457`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:1898-1904`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js:6357-6363`
+- `Neon_Autopilot_HighSpeed_DroneHeat.html:243`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:457`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:1898-1904`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js:6357-6363`
 
 故障注入结果：
 
@@ -302,7 +302,7 @@
 
 ### P2-02 生产页面无条件导出可写权威状态
 
-- `window.NeonV23Diagnostics.state` 直接指向 live state。
+- `window.NeonDiagnostics.state` 直接指向 live state。
 - 控制台可修改 speed、lives、invincibleTimer。
 - 这削弱“no-cheat 证明”的可信度。
 
@@ -478,4 +478,4 @@ Chrome Metal 本轮：
 
 ## English summary
 
-The latest V23 build can fairly accelerate from the normal 32m/s start to more than 300m/s, but it is not release-ready under its own quality contracts. The main blockers are frame-discrete high-speed collision tunneling, route-dependent obstacle-pressure loss, frame-rate-dependent spawn pressure, an open road-shell batch, an excessive straight-fork support gap, broken tile-pool diagnostics, and missing startup error boundaries. No gameplay code was changed during this audit.
+The latest Neon build can fairly accelerate from the normal 32m/s start to more than 300m/s, but it is not release-ready under its own quality contracts. The main blockers are frame-discrete high-speed collision tunneling, route-dependent obstacle-pressure loss, frame-rate-dependent spawn pressure, an open road-shell batch, an excessive straight-fork support gap, broken tile-pool diagnostics, and missing startup error boundaries. No gameplay code was changed during this audit.

@@ -1,7 +1,7 @@
-# V23 审计测试矩阵与证据
+# Neon 审计测试矩阵与证据
 
 - 日期：2026-07-16
-- 目录：`Neon_Autopilot_V23_HighSpeed_DroneHeat`
+- 目录：`Neon_Autopilot_HighSpeed_DroneHeat`
 - 运行环境：
   - macOS
   - Apple M4
@@ -14,28 +14,28 @@
 
 运行时代码：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.config.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.modeling.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.track.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-map.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.world.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.audio.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.fullscreen.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.config.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.modeling.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.track.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-map.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.ship.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.world.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.audio.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.fullscreen.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
 
 Node 测试：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.audio.test.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.test.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.track.test.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-map.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.audio.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.ship.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.track.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-map.test.js`
 
 浏览器测试：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html`
+- `Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html`
 
 当前无 `package.json`，无统一 npm test 入口。
 

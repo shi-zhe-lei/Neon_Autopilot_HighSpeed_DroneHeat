@@ -1,4 +1,4 @@
-# V23 Player Ship Model Audit / V23 玩家飞船建模审查
+# Neon Player Ship Model Audit / Neon 玩家飞船建模审查
 
 Date / 日期：2026-07-21  
 Status / 状态：implemented and browser-accepted / 已实现并通过浏览器验收

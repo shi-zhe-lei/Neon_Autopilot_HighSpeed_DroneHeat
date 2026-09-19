@@ -1,9 +1,9 @@
-# V23 宇宙飞船审计修复报告 / V23 Spaceship Audit Remediation Report
+# Neon 宇宙飞船审计修复报告 / Neon Spaceship Audit Remediation Report
 
 - 修复日期 / Remediation date: `2026-07-17`
 - 原始审计 / Source audit: [AUDIT_REPORT_2026-07-16.md](../audits/AUDIT_REPORT_2026-07-16.md)
-- 修复对象 / Target: `Neon_Autopilot_V23_HighSpeed_DroneHeat`
-- 生产入口 / Production entry: `Neon_Autopilot_V23_HighSpeed_DroneHeat.html`
+- 修复对象 / Target: `Neon_Autopilot_HighSpeed_DroneHeat`
+- 生产入口 / Production entry: `Neon_Autopilot_HighSpeed_DroneHeat.html`
 - 当前首方 JS/CSS 代次 / Current first-party JS/CSS generation: `23-speed-perception-117`
 
 ## 1. 结论 / Conclusion
@@ -34,7 +34,7 @@ Code changes for all six P1 release blockers have been implemented, together wit
 | ID | 关闭方式 / Closure | 状态 / Status |
 |---|---|---|
 | P2-01 | 每局按 `runSeed` 重建 gameplay RNG，预览与效果使用独立流；重开同 seed 不继承上一局消费位置。 / Rebuild gameplay RNG from `runSeed` each run and isolate preview/effect entropy. | PASS |
-| P2-02 | 删除生产 `NeonV23Diagnostics.state`；公开面冻结，只在 `modelDebug=1` 提供不含速度/生命/无敌等权威写入口的窄测试钩子。 / Removed the live production state export; the public facade is frozen and debug hooks cannot mutate speed, lives, invulnerability, or other physics authority. | PASS |
+| P2-02 | 删除生产 `NeonDiagnostics.state`；公开面冻结，只在 `modelDebug=1` 提供不含速度/生命/无敌等权威写入口的窄测试钩子。 / Removed the live production state export; the public facade is frozen and debug hooks cannot mutate speed, lives, invulnerability, or other physics authority. | PASS |
 | P2-03 | 真实障碍更新与预测共用 lateral-drift 积分合同。 / Real obstacle motion and prediction share the same lateral-drift integration contract. | PASS |
 | P2-04 | 门户扫掠使用本帧输入、加速度和半隐式横向步进，不再只按旧位置线性外推。 / Portal sweeping includes current input, acceleration, and the shared semi-implicit lateral step. | PASS |
 | P2-05 | 同帧 emergency/planner/guardian 共享一次感知；完整规划以 `30Hz` 为 target/cap，保留 cadence overshoot，但在持续 `45ms` 慢帧下每帧最多执行一次（约 `22.2Hz`）；rollout 使用有界预分配 TypedArray scratch，飞船颜色、路线指示、HUD CSS 和碰撞热路径复用 scratch/缓存。 / Emergency, planner, and guardian share one perception per frame; full planning targets and caps at `30Hz`, but sustained `45ms` slow frames can run only once per frame (about `22.2Hz`); rollouts use bounded preallocated TypedArray scratch, and other hot paths reuse scratch or cached values. Runtime/source tests cover cadence and overwrite safety, but a Chrome allocation profile has not been executed. | CODE PASS / BROWSER EVIDENCE IN §3 / ALLOCATION PROFILE PENDING |
@@ -146,14 +146,14 @@ In-app 自动化层报告的单个 `MutationObserver` 错误来自宿主注入�
 
 ## 4. 主要修改文件 / Principal changed files
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`: gameplay fairness, deterministic runs, planner/input lifecycle, diagnostics, reduced motion, fatal stop, renderer handling.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.gameplay-core.js`: swept collision, spawn-timer, branch-traffic, and portal-physics pure contracts.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js`: closed road-shell boundaries, resumable indexed merging, lens audits, and runtime-support planning.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js`: bounded outer/child warm budgets, resumable variant initialization, support continuity, atomic reveal, and scoped tile diagnostics.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js`: complete reduced-motion speed/ship cues.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.audio.js` / `fullscreen.js`: explicit-intent loading and capability/error semantics.
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`: gameplay fairness, deterministic runs, planner/input lifecycle, diagnostics, reduced motion, fatal stop, renderer handling.
+- `Neon_Autopilot_HighSpeed_DroneHeat.gameplay-core.js`: swept collision, spawn-timer, branch-traffic, and portal-physics pure contracts.
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js`: closed road-shell boundaries, resumable indexed merging, lens audits, and runtime-support planning.
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js`: bounded outer/child warm budgets, resumable variant initialization, support continuity, atomic reveal, and scoped tile diagnostics.
+- `Neon_Autopilot_HighSpeed_DroneHeat.ship.js`: complete reduced-motion speed/ship cues.
+- `Neon_Autopilot_HighSpeed_DroneHeat.audio.js` / `fullscreen.js`: explicit-intent loading and capability/error semantics.
 - `errors/startup.js` / `vendor/three-0.160.0.min.js`: categorized recovery boundary and pinned renderer dependency.
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.html` / `.css` / `.layout-test.html`: cache contract, responsive layout, accessibility, and runtime fixtures.
+- `Neon_Autopilot_HighSpeed_DroneHeat.html` / `.css` / `.layout-test.html`: cache contract, responsive layout, accessibility, and runtime fixtures.
 - `*.test.js`, `*.benchmark.mjs`, `verify-node.mjs`: deterministic regression and isolated performance observation.
 - Root, runner, module, error, vendor, and audio `README.md`; runner `WORKLOG.md`: bilingual contracts and handoff.
 

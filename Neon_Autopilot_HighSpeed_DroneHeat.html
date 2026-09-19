@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="zh-CN" data-language="zh-CN" data-hud-contrast="on-light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <title>3D CC Runner · Neon Sky Dawnflight</title>
+    <!-- Publish this bounded lease as `updating` before multi-file edits and restore `stable` only after the full gate passes. -->
+    <script id="releaseStatus" type="application/json">
+      {"schemaVersion":1,"state":"stable","noticeId":"neon-ipad-road-residency-253","issuedAt":null,"expiresAt":null}
+    </script>
+    <!-- An inline icon keeps standalone/static deployments free of an irrelevant favicon 404. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ffe5a8' d='M32 4 40 24 60 32 40 40 32 60 24 40 4 32 24 24Z'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles/Neon_Autopilot_HighSpeed_DroneHeat.css?v=neon-ipad-road-residency-253" />
+  </head>
+  <body class="startup-loading-open" data-i18n-root>
+    <!-- Startup exposes only verified milestones; teaching tips are non-live and never imply readiness. -->
+    <section class="startup-loading" id="startupLoading" data-loading-stage="modules" aria-busy="true" aria-labelledby="startupLoadingTitle" aria-describedby="startupLoadingNote">
+      <div class="startup-loading-card">
+        <span class="startup-loading-orbit" aria-hidden="true"><i></i><i></i><i></i></span>
+        <p class="startup-loading-eyebrow" aria-hidden="true">Neon · SKY DAWNFLIGHT</p>
+        <h1 id="startupLoadingTitle" data-i18n="startup.loading.title">正在准备天际航线</h1>
+        <p class="startup-loading-status" id="startupLoadingStatus" role="status" aria-live="polite" aria-atomic="true" data-i18n="startup.loading.modules">正在载入飞行系统与场景模块……</p>
+        <div class="startup-loading-progress" id="startupLoadingProgress" role="progressbar" aria-label="启动准备进度" data-i18n-aria-label="startup.loading.progressAria" aria-valuetext="正在载入飞行系统与场景模块……">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <aside class="startup-loading-tip" id="startupLoadingTip" data-tip-id="steering" role="note" aria-live="off" aria-labelledby="startupLoadingTipLabel startupLoadingTipText">
+          <span class="startup-loading-tip-label" id="startupLoadingTipLabel" data-i18n="startup.loading.tipLabel">飞行提示</span>
+          <p class="startup-loading-tip-text" id="startupLoadingTipText" data-i18n="startup.loading.tip.steering">A / D、方向键或触控左右键持续横移；松开即停止输入。</p>
+        </aside>
+        <p class="startup-loading-note" id="startupLoadingNote" data-i18n="startup.loading.note">加载完成后，开始界面中的“点火启航”会立即可用。</p>
+      </div>
+    </section>
+    <div id="app" inert></div>
+
+    <!-- One centre-clear impact layer works in every camera; it never captures input or owns protection timing. -->
+    <div class="damage-impact-feedback" id="damageImpactFeedback" data-active="false" aria-hidden="true"></div>
+    <p class="sr-only" id="damageAnnouncement" role="status" aria-live="assertive" aria-atomic="true"></p>
+
+    <!-- Hood view keeps the authoritative collider measurable without covering the central driving sightline. -->
+    <div class="hood-collision-guide" id="hoodCollisionGuide" data-guide-state="inactive" data-guide-alert="clear" data-guide-debug="false" data-invincible="false" hidden aria-hidden="true">
+      <svg class="hood-collision-guide-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+        <path class="hood-collision-guide-underlay" id="hoodCollisionGuideUnderlay"></path>
+        <path class="hood-collision-guide-rails" id="hoodCollisionGuideRails"></path>
+        <path class="hood-collision-guide-volume" id="hoodCollisionGuideVolume"></path>
+        <path class="hood-collision-guide-front" id="hoodCollisionGuideFront"></path>
+        <path class="hood-collision-guide-sweep" id="hoodCollisionGuideSweep"></path>
+        <path class="hood-collision-guide-axis" id="hoodCollisionGuideAxis"></path>
+      </svg>
+      <span class="hood-collision-guide-range hood-collision-guide-range-near" id="hoodCollisionGuideNearRange">—</span>
+      <span class="hood-collision-guide-range hood-collision-guide-range-far" id="hoodCollisionGuideFarRange">—</span>
+      <div class="hood-collision-guide-label" id="hoodCollisionGuideLabel">
+        <span data-i18n="hud.hoodCollisionGuide.label">真实碰撞边界</span>
+        <strong id="hoodCollisionGuideWidth">—</strong>
+        <b id="hoodCollisionGuideDimensions">—</b>
+        <small id="hoodCollisionGuideProjection">—</small>
+      </div>
+    </div>
+
+    <div class="hud" inert>
+      <!-- Thin glass envelopes group related instruments without closing the central flight corridor. -->
+      <div class="hud-wing hud-primary" id="hudPrimary" data-hud-zone="left" data-hud-contrast="on-light" data-mobile-expanded="false" role="region" aria-labelledby="hudPrimaryRegionTitle" data-camera-hud-occluder>
+        <span class="sr-only" id="hudPrimaryRegionTitle" data-i18n="hud.mobile.telemetryRegion">飞行仪表</span>
+        <div class="hud-top">
+          <span class="badge" id="zoneName">晨岛云海</span>
+          <span class="badge hot" id="modeBadge">手动</span>
+          <div class="hud-audio-controls">
+            <!-- Live-deck buttons remain pointer/touch surfaces; keyboard focus belongs to the driving canvas. -->
+            <button class="hud-audio-toggle is-on" id="audioBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="true" aria-label="声音已开启，点击关闭">
+              <span class="hud-audio-symbol" aria-hidden="true">◖</span>
+              <span>声音</span>
+              <b id="audioBtnState">开</b>
+              <kbd aria-hidden="true">V</kbd>
+            </button>
+            <button class="hud-music-library" id="musicLibraryBtn" type="button" data-flight-deck-control tabindex="-1" aria-haspopup="dialog" aria-controls="musicLibraryOverlay" aria-expanded="false" aria-label="打开天空主题背景音乐库">
+              <span aria-hidden="true">♫</span><b>曲库</b>
+            </button>
+          </div>
+          <button class="mobile-disclosure" id="hudPrimaryDisclosure" type="button" data-flight-deck-control tabindex="-1" aria-controls="hudPrimaryBody" aria-expanded="false" aria-label="展开详细飞行仪表">
+            <span data-i18n="hud.mobile.telemetry">仪表</span>
+            <i aria-hidden="true"></i>
+          </button>
+        </div>
+        <!-- Touch layouts keep four safety-critical values visible even while the detailed rail is folded. -->
+        <div class="mobile-glance-strip" id="mobileGlanceStrip" role="group" aria-label="关键飞行信息" data-i18n-aria-label="hud.mobile.glanceAria">
+          <span class="mobile-glance-speed">
+            <small data-i18n="hud.mobile.speed">速度</small>
+            <strong id="mobileGlanceSpeed">0</strong>
+            <em aria-hidden="true">km/h</em>
+          </span>
+          <span>
+            <small data-i18n="hud.score">得分</small>
+            <strong id="mobileGlanceScore">0</strong>
+          </span>
+          <span class="mobile-glance-candlelight" id="mobileGlanceCandlelightMetric" data-handling-level="base" data-handling-progress="0.000000">
+            <small data-i18n="hud.candlelight">烛光</small>
+            <strong id="mobileGlanceCandlelight">0</strong>
+            <i class="mobile-candle-rail" aria-hidden="true"><b></b></i>
+          </span>
+          <span class="mobile-glance-life" id="mobileGlanceLifeMetric" data-life-state="healthy" data-damage-impact="false" data-invincible="false">
+            <small data-i18n="hud.lives">生命</small>
+            <strong id="mobileGlanceLives">3/3</strong>
+            <i class="mobile-life-shield" aria-hidden="true"></i>
+            <i class="mobile-life-rail" aria-hidden="true"><b></b><b></b><b></b></i>
+          </span>
+        </div>
+        <div class="hud-primary-body" id="hudPrimaryBody" data-camera-hud-occluder>
+        <div class="hud-grid">
+          <div class="metric score-metric"><small>得分</small><strong id="score">0</strong></div>
+          <!-- The gold 79% tick marks P's ordinary 120km/h reference; uncapped M may use the remaining real three-gear arc, while Film changes only the lens. -->
+          <div class="metric speedometer-metric" id="speedometer" data-testid="speedometer" data-speed-state="launch" data-over-target="false" data-speed-digits="1" data-target-kmh="120" data-target-progress="0.790000" data-scale-mode="segmented-target" role="group" aria-labelledby="speedometerLabel speed" aria-describedby="speedometerScaleHelp">
+            <div class="speedometer-heading">
+              <small id="speedometerLabel">速度仪表</small>
+              <span>领航巡航 <b id="speedometerTarget">120</b></span>
+              <!-- MT exposes adjacent Q/E requests; AT removes both manual controls from layout and interaction while retaining the live gear. -->
+              <div class="transmission-selector" id="transmissionSelector" role="group" aria-labelledby="gearSelectorLabel" aria-describedby="gearHelp" data-current-gear="1" data-transmission-mode="manual" data-lugging="false" data-stalled="false">
+                <small class="gear-selector-label" id="gearSelectorLabel" data-i18n="gear.indicator">挡位</small>
+                <button class="gear-shift-button" id="gearDownBtn" type="button" data-flight-deck-control tabindex="-1" aria-keyshortcuts="Q" aria-label="降挡（Q）" data-i18n-aria-label="gear.downAria" data-shift-state="engaged" disabled><kbd aria-hidden="true">Q</kbd><span aria-hidden="true">−</span></button>
+                <output class="gear-indicator" id="gearIndicator" role="status" aria-live="polite" aria-atomic="true" aria-label="推进挡位，当前1挡，已接合" data-i18n-ignore data-gear="1" data-pending-gear="" data-shift-state="engaged">1挡</output>
+                <button class="gear-shift-button" id="gearUpBtn" type="button" data-flight-deck-control tabindex="-1" aria-keyshortcuts="E" aria-label="升挡（E）" data-i18n-aria-label="gear.upAria" data-shift-state="engaged"><span aria-hidden="true">+</span><kbd aria-hidden="true">E</kbd></button>
+              </div>
+            </div>
+            <div class="speedometer-body">
+              <svg class="speedometer-dial" viewBox="0 0 116 58" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <path class="speedometer-track" d="M 10 52 A 48 48 0 0 1 106 52"></path>
+                <!-- The value path is rebuilt to the shared needle endpoint; dash scaling cannot distort progress. -->
+                <path class="speedometer-value-arc" id="speedometerValueArc" d="M 10 52"></path>
+                <g class="speedometer-ticks">
+                  <path d="M 10 52 L 18 52"></path>
+                  <path d="M 24 18 L 30 24"></path>
+                  <path d="M 58 4 L 58 12"></path>
+                  <path class="speedometer-target-tick" d="M 95.927 22.580 L 89.606 27.484"></path>
+                  <path d="M 106 52 L 98 52"></path>
+                </g>
+                <!-- The 48-unit needle radius reaches the value arc centerline, making endpoint equality visible and testable. -->
+                <line class="speedometer-needle" id="speedometerNeedle" x1="58" y1="52" x2="58" y2="4" transform="rotate(-90 58 52)"></line>
+                <circle class="speedometer-hub" cx="58" cy="52" r="4"></circle>
+              </svg>
+              <strong class="speedometer-readout" id="speed" aria-label="0 km/h">
+                <span id="speedValue">0</span>
+                <small aria-hidden="true">km/h</small>
+                <em id="speedometerStatus">起步</em>
+              </strong>
+              <!-- Propulsion telemetry projects pedal thrust and independent first-gear idle torque from one physical core. -->
+              <div class="propulsion-core" id="propulsionCore" data-propulsion-state="idle" role="group" aria-labelledby="propulsionCoreLabel" aria-describedby="propulsionCoreHelp">
+                <div class="propulsion-core-head">
+                  <small id="propulsionCoreLabel" data-i18n="hud.propulsion.label">推进核心</small>
+                  <b id="propulsionCoreState" data-i18n="hud.propulsion.state.idle">待机</b>
+                </div>
+                <div class="propulsion-core-tach">
+                  <div class="propulsion-core-rpm-meter" id="propulsionCoreRpmMeter" role="meter" aria-labelledby="propulsionCoreLabel propulsionCoreRpmLabel" aria-describedby="propulsionCoreHelp" aria-valuemin="1800" aria-valuemax="12000" aria-valuenow="1800" aria-valuetext="推进核心转速 1,800 转/分" data-i18n-aria-valuetext="hud.propulsion.rpmInitialAria">
+                    <span id="propulsionCoreRpmFill" aria-hidden="true"></span>
+                    <i id="propulsionCoreRpmNeedle" aria-hidden="true"></i>
+                  </div>
+                  <strong class="propulsion-core-rpm">
+                    <span id="propulsionCoreRpmValue">1,800</span>
+                    <small id="propulsionCoreRpmLabel" data-i18n="hud.propulsion.rpm">转速</small>
+                  </strong>
+                </div>
+                <div class="propulsion-core-values">
+                  <span>
+                    <small id="propulsionThrustLabel" data-i18n="hud.propulsion.thrust">推力</small>
+                    <b id="propulsionThrustValue">0%</b>
+                  </span>
+                  <span>
+                    <small id="propulsionAccelerationLabel" data-i18n="hud.propulsion.netAcceleration">净加速度</small>
+                    <b><span id="propulsionAccelerationValue">+0.0</span><em>m/s²</em></b>
+                  </span>
+                </div>
+                <p class="sr-only" id="propulsionCoreHelp" data-i18n="hud.propulsion.help">转速、踏板推力、1挡怠速扭矩与净加速度来自同一推进状态；尾焰还读取权威核心余转形成自然残焰，不会根据按键或速度反推。当前转速上限会随烛光成长。</p>
+              </div>
+            </div>
+            <!-- T changes transmission ownership only; M remains the independent automatic-throttle control. -->
+            <div class="transmission-range-panel" id="transmissionRangePanel" data-current-gear="1" data-transmission-mode="manual" data-lugging="false" data-stalled="false" role="group" aria-label="变速箱模式与换挡范围" data-i18n-aria-label="gear.panelAria" aria-describedby="gearHelp">
+              <button class="transmission-mode-toggle" id="transmissionModeBtn" type="button" data-flight-deck-control tabindex="-1" aria-keyshortcuts="T" aria-pressed="false" aria-label="手动变速箱已启用，按 T 切换自动挡" data-i18n-aria-label="gear.mode.manualAria" data-transmission-mode="manual"><kbd aria-hidden="true">T</kbd><span id="transmissionModeState" data-i18n="gear.mode.manual">MT 手动</span></button>
+              <span class="gear-operating-range" id="gearOperatingRange" data-i18n-ignore aria-label="1挡，推荐每小时0至90公里；每小时70公里以上可升入2挡">1挡 · 推荐 0–90 · E→2 ≥70</span>
+              <div class="gear-range-bands" role="img" aria-label="推荐工作带：1挡每小时0至90公里；2挡每小时70至140公里；3挡每小时140至280公里" data-i18n-aria-label="gear.rangeBandsAria">
+                <span data-gear-band="1"><b>1</b><em>0–90</em></span>
+                <span data-gear-band="2"><b>2</b><em>70–140</em></span>
+                <span data-gear-band="3"><b>3</b><em>140–280</em></span>
+              </div>
+            </div>
+            <p class="sr-only" id="speedometerScaleHelp">金色刻度标记 P 领航的 120 km/h 普通巡航参考；P 关闭且 M 开启时持续满油门，不受该参考限制；数字始终显示真实速度。</p>
+            <p class="sr-only" id="gearHelp" data-i18n="gear.help">T 独立切换手动挡与自动挡；MT 显示 Q / E 手动换挡键，AT 接管三挡并隐藏这些键以回收空间，同时保留当前挡、自动阈值与三挡工作带；电影模式只换镜头并服从当前 MT / AT 权限。</p>
+          </div>
+          <div class="metric distance-metric"><small>距离</small><strong id="distance">0 m</strong></div>
+          <!-- Candlelight count and its shared growth profile remain one compact instrument with unambiguous labels. -->
+          <div class="metric xp handling-metric" id="handlingMetric" data-handling-level="base" data-handling-progress="0.000000" data-candle-count="0">
+            <div class="handling-summary">
+              <span class="handling-stat handling-candle">
+                <small>烛光</small>
+                <strong id="expCount">0</strong>
+              </span>
+              <span class="handling-stat handling-control">
+                <small id="handlingLabel">成长</small>
+                <strong id="handlingValue">55.0%</strong>
+              </span>
+            </div>
+            <div class="handling-gauge" id="handlingGauge" role="meter" aria-labelledby="handlingLabel" aria-describedby="handlingHelp" aria-valuemin="55" aria-valuemax="100" aria-valuenow="55.0" aria-valuetext="已收集 0 份烛光，成长能力 55.0%">
+              <span id="handlingFill" aria-hidden="true"></span>
+            </div>
+            <p class="sr-only" id="handlingHelp">收集烛光会以递减增益让飞船由暖金渐变至紫青，并提升横向操控、推进核心转速上限与升转速度；手动驾驶与自动领航共享同一成长能力。</p>
+          </div>
+          <div class="metric best-metric"><small>最高</small><strong id="best">0</strong></div>
+          <div class="metric heart life-metric" id="lifeMetric" data-life-state="healthy" data-life-count="3" data-damage-impact="false" data-invincible="false">
+            <small>生命</small>
+            <strong id="lives" aria-label="3 / 3 生命">
+              <span class="life-slots" id="livesHearts" aria-hidden="true">
+                <i class="life-slot" data-life-slot="1" data-life-active="true">❤</i>
+                <i class="life-slot" data-life-slot="2" data-life-active="true">❤</i>
+                <i class="life-slot" data-life-slot="3" data-life-active="true">❤</i>
+              </span>
+              <span class="life-count" id="livesCount">3/3</span>
+            </strong>
+            <span class="life-protection" aria-hidden="true">
+              <i class="life-protection-glyph">✦</i>
+              <b data-i18n="hud.damage.shield">无敌护盾</b>
+              <em id="lifeProtectionTime">1.3s</em>
+            </span>
+            <span class="life-integrity-rail" aria-hidden="true"><i></i><i></i><i></i></span>
+          </div>
+          <div class="metric fps-metric" aria-label="实时帧率"><small>帧率</small><strong id="fpsDisplay" data-fps-level="pending" data-fps-label="采样中" aria-label="等待首次采样">-- FPS</strong></div>
+          <div class="metric auto"><small>领航</small><strong id="autoState">OFF</strong></div>
+          <!-- Lateral position is a centred instrument: the pointer moves around an explicit zero datum instead of filling from the left edge. -->
+          <div class="steer-instrument" id="steerInstrument" data-hud-zone="position" data-hud-contrast="on-light" role="meter" aria-labelledby="steerInstrumentLabel" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" aria-valuetext="居中">
+            <div class="steer-instrument-head">
+              <small id="steerInstrumentLabel" data-i18n="hud.lateralPosition">横向位置</small>
+              <b id="steerValueText" data-i18n="hud.lateralPosition.center">居中</b>
+            </div>
+            <div class="steer-scale" aria-hidden="true">
+              <span data-i18n="hud.lateralPosition.left">左</span>
+              <div class="steer-bar" id="steerBar">
+                <i class="steer-tick steer-tick-left"></i>
+                <i class="steer-tick steer-tick-center"></i>
+                <i class="steer-tick steer-tick-right"></i>
+                <i class="steer-marker" id="steerMarker"></i>
+              </div>
+              <span data-i18n="hud.lateralPosition.right">右</span>
+            </div>
+          </div>
+        </div>
+        <!-- Forecast and rendering share one pausable weather clock; every percentage is labelled by its real meaning. -->
+        <section class="weather-forecast" id="weatherForecast" aria-labelledby="weatherForecastTitle" data-weather-current="clear" data-weather-next="partly-cloudy" data-weather-phase="steady">
+          <div class="weather-forecast-head">
+            <span id="weatherForecastTitle">天气预报</span>
+            <b id="weatherTrendText">稳定</b>
+          </div>
+          <div class="weather-timeline">
+            <div class="weather-now">
+              <span class="weather-icon" id="weatherCurrentIcon" aria-hidden="true">☀</span>
+              <span><small>当前</small><strong id="weatherCurrentText">晴朗</strong></span>
+            </div>
+            <span class="weather-route-arrow" aria-hidden="true">→</span>
+            <div class="weather-next">
+              <small>下一天气</small>
+              <strong id="weatherNextText">少云</strong>
+            </div>
+          </div>
+          <div class="weather-meta">
+            <div class="weather-timing"><small>预计切换</small><b id="weatherEtaText">计算中</b></div>
+            <div class="weather-timing"><small>下阶段时长</small><b id="weatherDurationText">计算中</b></div>
+          </div>
+          <div class="weather-strength-row">
+            <small id="weatherStrengthLabel">天气强度</small>
+            <div class="weather-strength" id="weatherStrengthMeter" role="meter" aria-labelledby="weatherStrengthLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span id="weatherStrengthFill" aria-hidden="true"></span>
+            </div>
+            <b id="weatherStrengthText">0%</b>
+          </div>
+          <div class="surface-contact-status" id="surfaceContactStatus" data-surface-kind="dry" data-contact-active="false" data-contact-intensity="0.00" role="status" aria-live="polite" aria-atomic="true" aria-label="地表接触：干燥">
+            <i aria-hidden="true"></i>
+            <small>地表接触</small>
+            <strong id="surfaceContactText">干燥</strong>
+          </div>
+        </section>
+        <!-- Developer-only weather forcing is opt-in through `manualTest=1`; normal players never carry test UI. -->
+        <fieldset class="manual-weather-test" id="manualWeatherTestPanel" aria-describedby="manualWeatherTestStatus" hidden>
+          <legend><span>人工天气测试</span><small>纯视觉</small></legend>
+          <label for="manualWeatherSelect">
+            <span>即时天气</span>
+            <select id="manualWeatherSelect" aria-label="人工测试即时天气">
+              <option value="">自动生命周期</option>
+            </select>
+          </label>
+          <p id="manualWeatherTestStatus" role="status" aria-live="polite" aria-atomic="true">自动生命周期</p>
+        </fieldset>
+        </div>
+        <!-- Live weather announcements remain available when the visual details rail is folded. -->
+        <p class="sr-only" id="weatherAnnouncement" role="status" aria-live="polite" aria-atomic="true">当前晴朗，下一天气少云。</p>
+      </div>
+      <div class="hud-wing hud-navigation" id="hudNavigation" data-hud-zone="right" data-hud-contrast="on-light" data-mobile-expanded="false" role="region" aria-labelledby="minimapTitle" data-camera-hud-occluder>
+        <div class="hud-actions" id="controlDock" role="group" aria-label="飞行快捷操作" data-i18n-aria-label="hud.mobile.controlDockAria" data-camera-hud-occluder>
+          <button class="hud-toggle" id="autoPilotBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-controls="autoPanel" aria-keyshortcuts="P" aria-label="自动领航已关闭，点击开启">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 16 12 4l8 12-8-3-8 3Zm8-3v7"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label">领航</span><span class="hud-toggle-meta"><b id="autoPilotBtnState">关闭</b><kbd aria-hidden="true">P</kbd></span></span>
+          </button>
+          <button class="hud-toggle" id="speedModeBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-keyshortcuts="M" aria-label="满油门保持已关闭；P 关闭时由 W 控制油门，点击开启" data-automatic-throttle-enabled="false" data-automatic-throttle-preference-enabled="false" data-longitudinal-authority="player">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3v9m0 0 4-4m-4 4L8 8M5 17h14v4H5z"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label">自动油门</span><span class="hud-toggle-meta"><b id="speedModeBtnState">关闭</b><kbd aria-hidden="true">M</kbd></span></span>
+          </button>
+          <!-- C keeps the four stable driving views; F changes only the camera and never leases driving authority. -->
+          <button class="hud-toggle" id="viewBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="当前追尾视角，按 C 切换视角" aria-keyshortcuts="C">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label">视角</span><span class="hud-toggle-meta"><b id="viewBtnState">追尾</b><kbd aria-hidden="true">C</kbd></span></span>
+          </button>
+          <button class="hud-toggle hud-cinematic-toggle" id="cinematicBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-keyshortcuts="F" aria-label="电影模式已关闭，点击开启" data-i18n-aria-label="cinematic.initialAria">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5.5h16v13H4zM8 5.5v13m8-13v13M4 10h4m8 0h4M4 14h4m8 0h4"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label" data-i18n="hud.cinematic">电影</span><span class="hud-toggle-meta"><b id="cinematicBtnState" data-i18n="cinematic.state.off">关闭</b><kbd aria-hidden="true">F</kbd></span></span>
+          </button>
+          <button class="hud-toggle hud-toggle-primary" id="pauseBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-keyshortcuts="O" aria-label="游戏运行中，点击暂停">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label" id="pauseBtnLabel">暂停</span><span class="hud-toggle-meta"><b id="pauseBtnState">运行中</b><kbd aria-hidden="true">O</kbd></span></span>
+          </button>
+          <button class="hud-toggle is-on" id="lightingBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="true" aria-label="真实光影已开启，点击关闭" data-lighting-enabled="true">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label">光影</span><span class="hud-toggle-meta"><b id="lightingBtnState">开启</b></span></span>
+          </button>
+          <button class="hud-toggle" id="fullscreenBtn" type="button" data-flight-deck-control tabindex="-1" data-fullscreen-toggle aria-pressed="false" aria-label="进入全屏显示" data-testid="fullscreen-toggle">
+            <span class="hud-toggle-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5"></path></svg>
+            </span>
+            <span class="hud-toggle-copy"><span class="hud-toggle-label">全屏</span><span class="hud-toggle-meta"><b id="fullscreenBtnState" data-fullscreen-state>进入</b></span></span>
+          </button>
+        </div>
+        <!-- Fixed/absolute desktop panes can overhang their narrower anchor; each actual surface owns an occlusion marker. -->
+        <section class="minimap-panel" data-map-mode="standard" data-orientation="heading-up" data-threat-level="clear" aria-labelledby="minimapTitle" aria-describedby="minimapLegendHelp minimapStatus" data-camera-hud-occluder>
+          <div class="minimap-head">
+            <div class="minimap-title-group">
+              <span class="minimap-eyebrow" aria-hidden="true">NAV / LIVE</span>
+              <strong id="minimapTitle">航路导航</strong>
+              <span id="minimapRouteText">主干 · 前方 620m</span>
+            </div>
+            <div class="minimap-head-state" aria-label="地图显示模式">
+              <b id="minimapModeText">局部导航</b>
+              <span id="minimapOrientationText">航向朝上</span>
+            </div>
+            <button class="mobile-disclosure" id="navigationDisclosure" type="button" data-flight-deck-control tabindex="-1" aria-controls="navigationBody" aria-expanded="false" aria-label="展开航路地图与完整操作">
+              <span data-i18n="hud.mobile.navigation">地图</span>
+              <i aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="minimap-guidance" aria-label="当前航路指令">
+            <span class="minimap-guidance-icon" id="minimapInstructionIcon" aria-hidden="true">↑</span>
+            <span class="minimap-guidance-copy">
+              <small>航路指令</small>
+              <strong id="minimapInstructionText">保持路线</strong>
+            </span>
+            <span class="minimap-guidance-meta" id="minimapGuidanceMeta">路线保持</span>
+          </div>
+          <div class="navigation-body" id="navigationBody" data-camera-hud-occluder>
+          <div class="minimap-viewport">
+            <!-- One hidden surface receives the complete frame; only a successful copy swaps presentation ownership. -->
+            <canvas class="minimap-canvas is-presented" id="minimapCanvas" width="400" height="225" data-presented="true" aria-hidden="true"></canvas>
+            <canvas class="minimap-canvas" id="minimapCanvasStandby" width="400" height="225" data-presented="false" aria-hidden="true"></canvas>
+            <span class="minimap-viewport-frame" aria-hidden="true"></span>
+          </div>
+          <div class="minimap-legend" aria-hidden="true">
+            <span><i class="is-selected"></i>已选</span>
+            <span><i class="is-proposed"></i>候选</span>
+            <span><i class="is-hazard"></i>障碍</span>
+            <span><i class="is-pickup"></i>烛光</span>
+            <span><i class="is-traffic"></i>船流</span>
+          </div>
+          <div class="cloverleaf-status" aria-label="苜蓿叶互通导航状态">
+            <div class="cloverleaf-status-item"><small>目标出口</small><b id="cloverleafExitText">—</b></div>
+            <div class="cloverleaf-status-item"><small>距分流</small><b id="cloverleafSplitDistanceText">—</b></div>
+            <div class="cloverleaf-status-item"><small>刹车</small><b id="cloverleafBrakeStateText">待命</b></div>
+          </div>
+          </div>
+          <p class="sr-only" id="minimapLegendHelp">地图以金白实线表示已选路线，金色虚线表示候选路线，红色表示障碍，蓝色表示烛光，灰蓝箭头表示环境船流；虚线路段可能位于隧道或下层道路。</p>
+          <p class="sr-only" id="minimapHeadingStatus" role="img" aria-label="实时航向 000 度，北"></p>
+          <p class="sr-only" id="minimapStatus" role="status" aria-live="polite" aria-atomic="true">当前位于主干</p>
+        </section>
+        <!-- Continuous telemetry stays non-live; only discrete authority transitions use the sibling announcement. -->
+        <div class="auto-panel" id="autoPanel" role="region" aria-labelledby="autoPanelTitle" aria-describedby="autoAuthoritySummary" data-camera-hud-occluder>
+          <div class="auto-panel-reveal">
+            <div class="auto-panel-head">
+              <span class="auto-panel-heading">
+                <span class="auto-panel-link" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="auto-panel-heading-copy">
+                  <small class="auto-panel-eyebrow" data-i18n="autopilot.panelEyebrow">航迹控制</small>
+                  <strong id="autoPanelTitle" data-i18n="autopilot.panelTitle">自动领航</strong>
+                </span>
+              </span>
+              <span class="auto-pill" id="autoModeText" data-i18n="autopilot.status.idle">待机</span>
+            </div>
+            <div class="auto-authority-overview" role="group" aria-label="自动领航摘要" data-i18n-aria-label="autopilot.summaryAria">
+              <div class="auto-overview-item auto-overview-intent">
+                <small data-i18n="autopilot.intent">意图</small>
+                <b id="autoIntentText" data-i18n="autopilot.intent.manualHold">手动保持</b>
+              </div>
+              <div class="auto-overview-item auto-overview-risk">
+                <small data-i18n="autopilot.risk">风险</small>
+                <b><span id="autoRiskLabel" data-i18n="autopilot.risk.clear">安全</span> <span id="autoRiskText">0%</span></b>
+              </div>
+              <p class="auto-authority-summary" id="autoAuthoritySummary" aria-label="横向手动，纵向手动，制动待命" data-i18n="autopilot.authoritySummary.initial" data-i18n-aria-label="autopilot.authoritySummary.initialAria">横向手动 · 纵向手动 · 制动待命</p>
+            </div>
+            <div class="auto-status-grid">
+              <div class="auto-status-item auto-status-lateral"><small data-i18n="autopilot.lateralAuthority">横向权威</small><b id="autoLateralAuthorityText" data-i18n="autopilot.authority.manual">手动</b></div>
+              <div class="auto-status-item auto-status-longitudinal"><small data-i18n="autopilot.longitudinalAuthority">纵向权威</small><b id="autoLongitudinalAuthorityText" data-i18n="autopilot.longitudinal.manual">手动油门</b></div>
+              <div class="auto-status-item auto-status-brake"><small data-i18n="autopilot.brakeReason">制动原因</small><b id="autoBrakeText" data-i18n="autopilot.brake.standby">待命</b></div>
+              <div class="auto-status-item auto-status-threat"><small data-i18n="autopilot.nearestThreat">最近威胁 / TTC</small><b id="autoNextObstacleText" data-i18n="autopilot.threat.none">无 · TTC —</b></div>
+            </div>
+            <div class="auto-bar" id="autoRiskMeter" role="meter" aria-label="自动领航风险" data-i18n-aria-label="autopilot.riskMeterAria" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="安全，0%" data-i18n-aria-valuetext="autopilot.risk.initialAria">
+              <div class="auto-bar-fill" id="autoRiskFill" aria-hidden="true"></div>
+              <!-- Marks mirror the base 30 / 58 / 82 percent entry bands; runtime hysteresis remains authoritative. -->
+              <span class="auto-bar-thresholds" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+          </div>
+        </div>
+        <p class="sr-only" id="autoAuthorityAnnouncement" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+    </div>
+
+    <!-- Mobile owns a purpose-built flight deck: desktop panels become optional drawers instead of permanent shells. -->
+    <section class="mobile-flight-hud" id="mobileFlightHud" role="region" aria-label="手机飞行仪表" data-i18n-aria-label="hud.mobile.flightDeckAria" hidden inert aria-hidden="true">
+      <div class="mobile-flight-head">
+        <div class="mobile-flight-left">
+          <button class="mobile-flight-glance" id="mobileTelemetryBtn" type="button" data-flight-deck-control tabindex="-1" aria-controls="hudPrimaryBody" aria-expanded="false" aria-label="展开详细飞行仪表" data-camera-hud-occluder>
+            <span class="mobile-flight-mode" id="mobileFlightMode" data-i18n="common.manual">手动</span>
+            <!-- Film reuses the protected telemetry title lane instead of placing another panel over the road. -->
+            <span class="mobile-cinematic-indicator" id="mobileCinematicIndicator" hidden aria-hidden="true">
+              <span aria-hidden="true">▣</span>
+              <b data-i18n="cinematic.hud.mode">电影模式</b>
+              <small id="mobileCinematicStatusText">稳定构图</small>
+            </span>
+            <span class="mobile-flight-value mobile-flight-speed">
+              <small data-i18n="hud.mobile.speed">速度</small>
+              <strong id="mobileFlightSpeed">0</strong>
+              <em aria-hidden="true">km/h</em>
+            </span>
+            <span class="mobile-flight-value mobile-flight-score">
+              <small data-i18n="hud.score">得分</small>
+              <strong id="mobileFlightScore">0</strong>
+            </span>
+            <span class="mobile-flight-value mobile-flight-candle" id="mobileFlightCandleMetric" data-handling-level="base" data-handling-progress="0.000000">
+              <small data-i18n="hud.candlelight">烛光</small>
+              <strong id="mobileFlightCandlelight">0</strong>
+            </span>
+            <span class="mobile-flight-value mobile-flight-life" id="mobileFlightLifeMetric" data-life-state="healthy" data-damage-impact="false" data-invincible="false">
+              <small data-i18n="hud.lives">生命</small>
+              <strong id="mobileFlightLives">3/3</strong>
+            </span>
+          </button>
+          <button class="mobile-utility-toggle" id="mobileUtilityBtn" type="button" data-flight-deck-control tabindex="-1" aria-controls="mobileUtilityDrawer" aria-expanded="false" aria-label="展开显示与声音工具" data-i18n-aria-label="hud.mobile.utilities.expandAria" data-camera-hud-occluder>
+            <span aria-hidden="true">•••</span>
+          </button>
+          <div class="mobile-utility-drawer" id="mobileUtilityDrawer" role="group" aria-label="显示与声音工具" data-i18n-aria-label="hud.mobile.utilitiesAria" hidden inert aria-hidden="true" data-camera-hud-occluder>
+            <button class="mobile-utility-action is-on" id="mobileAudioBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="true" aria-label="声音已开启，点击关闭">
+              <span aria-hidden="true">◖</span><b data-i18n="hud.sound">声音</b><small id="mobileAudioBtnState" data-i18n="common.on">开</small>
+            </button>
+            <button class="mobile-utility-action" id="mobileMusicBtn" type="button" data-flight-deck-control tabindex="-1" aria-haspopup="dialog" aria-controls="musicLibraryOverlay" aria-expanded="false" aria-label="打开天空主题背景音乐库">
+              <span aria-hidden="true">♫</span><b data-i18n="hud.musicLibrary">曲库</b>
+            </button>
+            <button class="mobile-utility-action is-on" id="mobileLightingBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="true" aria-label="真实光影已开启，点击关闭">
+              <span aria-hidden="true">☼</span><b data-i18n="hud.lighting">光影</b><small id="mobileLightingBtnState" data-i18n="common.enabled">开启</small>
+            </button>
+            <button class="mobile-utility-action mobile-cinematic-action" id="mobileCinematicBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-label="电影模式已关闭，点击开启" data-i18n-aria-label="cinematic.initialAria">
+              <span aria-hidden="true">▣</span><b data-i18n="hud.cinematic">电影</b><small id="mobileCinematicBtnState" data-i18n="cinematic.state.off">关闭</small>
+            </button>
+            <button class="mobile-utility-action" id="mobileFullscreenBtn" type="button" data-flight-deck-control tabindex="-1" data-fullscreen-toggle aria-pressed="false" aria-label="进入全屏显示">
+              <span aria-hidden="true">⛶</span><b data-i18n="hud.fullscreen">全屏</b><small id="mobileFullscreenBtnState" data-fullscreen-state data-i18n="common.enter">进入</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="mobile-flight-actions" role="group" aria-label="飞行快捷操作" data-i18n-aria-label="hud.mobile.controlDockAria" data-camera-hud-occluder>
+          <button class="mobile-flight-action" id="mobileAutoPilotBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-controls="mobileAutopilotCapsule" aria-label="自动领航已关闭，点击开启">
+            <span aria-hidden="true">↑</span><small data-i18n="hud.autopilot">领航</small><b id="mobileAutoPilotBtnState" data-i18n="common.disabled">关闭</b>
+          </button>
+          <button class="mobile-flight-action" id="mobileSpeedModeBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-label="满油门保持已关闭；P 关闭时由 W 控制油门，点击开启" data-automatic-throttle-enabled="false" data-automatic-throttle-preference-enabled="false" data-longitudinal-authority="player">
+            <span aria-hidden="true">⇣</span><small data-i18n="hud.throttle">自动油门</small><b id="mobileSpeedModeBtnState" data-i18n="common.disabled">关闭</b>
+          </button>
+          <button class="mobile-flight-action" id="mobileViewBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="当前追尾视角，按 C 切换视角">
+            <span aria-hidden="true">◉</span><small data-i18n="hud.view">视角</small><b id="mobileViewBtnState">追尾</b>
+          </button>
+          <button class="mobile-flight-action mobile-flight-action-primary" id="mobilePauseBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-label="游戏运行中，点击暂停">
+            <span aria-hidden="true">Ⅱ</span><small id="mobilePauseBtnLabel" data-i18n="hud.pause">暂停</small><b id="mobilePauseBtnState" data-i18n="hud.pause.running">运行中</b>
+          </button>
+        </div>
+      </div>
+
+      <!-- Route guidance and curve limits share one top-safe slot, so warnings replace navigation instead of covering it. -->
+      <button class="mobile-route-cue" id="mobileNavigationBtn" type="button" data-flight-deck-control tabindex="-1" aria-controls="navigationBody" aria-expanded="false" aria-label="展开航路地图与完整操作" data-alert-level="none" data-camera-hud-occluder>
+        <span class="mobile-route-icon" id="mobileRouteIcon" aria-hidden="true">↑</span>
+        <span class="mobile-route-copy">
+          <small id="mobileRouteLabel" data-i18n="hud.mobile.route">航路</small>
+          <strong id="mobileRouteInstruction">保持路线</strong>
+          <em id="mobileRouteMeta">路线保持</em>
+        </span>
+      </button>
+
+      <!-- This capsule exists only while P owns lateral guidance; manual and M-only flight leave no empty status bar. -->
+      <section class="mobile-autopilot-capsule" id="mobileAutopilotCapsule" role="region" aria-label="自动领航状态" data-i18n-aria-label="hud.mobile.autopilotAria" data-risk-level="clear" data-brake-mode="standby" hidden inert aria-hidden="true" data-camera-hud-occluder>
+        <strong id="mobileAutopilotMode" data-i18n="autopilot.status.idle">待机</strong>
+        <span id="mobileAutopilotIntent" data-i18n="autopilot.intent.manualHold">手动保持</span>
+        <b id="mobileAutopilotPriority" data-i18n="autopilot.risk.clear">安全 0%</b>
+      </section>
+      <p class="sr-only" id="mobileRouteAnnouncement" role="status" aria-live="polite" aria-atomic="true"></p>
+    </section>
+
+    <!-- The read-only tracker lives outside the route-map canvas so every map mode keeps the same control feedback. -->
+    <aside class="key-tracker" id="keyTracker" data-hud-zone="input" data-hud-contrast="on-light" data-mode="manual" data-input-source="idle" aria-label="实时驾驶输入：当前无输入" inert data-camera-hud-occluder>
+      <span class="key-tracker-title" aria-hidden="true">实时输入</span>
+      <span class="key-tracker-key" data-control-key="left" data-active="false" data-input-source="idle" aria-hidden="true">A</span>
+      <span class="key-tracker-key" data-control-key="right" data-active="false" data-input-source="idle" aria-hidden="true">D</span>
+      <span class="key-tracker-key" data-control-key="throttle" data-active="false" data-input-source="idle" aria-hidden="true">W</span>
+      <span class="key-tracker-key is-wide" data-control-key="jump" data-active="false" data-input-source="idle" aria-hidden="true">SPACE</span>
+      <span class="key-tracker-key" data-control-key="brake" data-active="false" data-input-source="idle" aria-hidden="true">S</span>
+      <span class="key-tracker-mode" id="keyTrackerMode" aria-hidden="true">手动</span>
+    </aside>
+
+    <!-- Desktop separates the fixed compass card from its live heading pointer; compact maps retain their in-canvas direction cue. -->
+    <aside class="desktop-compass" id="desktopCompass" data-hud-zone="compass" data-hud-contrast="on-light" data-testid="desktop-compass" aria-hidden="true" inert data-camera-hud-occluder>
+      <div class="desktop-compass-bezel" aria-hidden="true">
+        <div class="desktop-compass-face" id="desktopCompassFace">
+          <span class="desktop-compass-cardinal is-north">N</span>
+          <span class="desktop-compass-cardinal is-east">E</span>
+          <span class="desktop-compass-cardinal is-south">S</span>
+          <span class="desktop-compass-cardinal is-west">W</span>
+          <span class="desktop-compass-ordinal is-northeast">NE</span>
+          <span class="desktop-compass-ordinal is-southeast">SE</span>
+          <span class="desktop-compass-ordinal is-southwest">SW</span>
+          <span class="desktop-compass-ordinal is-northwest">NW</span>
+        </div>
+        <!-- Sibling layers are intentional: heading updates must rotate the pointer without carrying the dial. -->
+        <div class="desktop-compass-pointer" id="desktopCompassPointer">
+          <span class="desktop-compass-pointer-forward"></span>
+          <span class="desktop-compass-pointer-aft"></span>
+        </div>
+        <span class="desktop-compass-hub"></span>
+      </div>
+      <div class="desktop-compass-readout" aria-hidden="true">
+        <small>航向</small>
+        <strong id="desktopCompassBearing">000°</strong>
+        <span id="desktopCompassDirection">北</span>
+      </div>
+    </aside>
+
+    <!-- Speed guidance owns the unobstructed top-center lane and stays out of the DOM flow when no curve limit applies. -->
+    <div class="speed-limit-alert" id="speedLimitAlert" data-alert-kind="speed" role="status" aria-live="polite" aria-atomic="true" hidden inert data-camera-hud-occluder>
+      <small id="speedLimitAlertLabel">前方限速</small>
+      <strong id="cloverleafSuggestedSpeedText">—</strong>
+    </div>
+
+    <!-- The launch dialog owns pre-flight interaction while the live WebGL airframe remains the visual stage behind it. -->
+    <div class="overlay" id="overlay" data-overlay-mode="launch" data-overlay-phase="ready" role="dialog" aria-modal="true" aria-labelledby="launchTitle" aria-describedby="status" aria-hidden="true" hidden inert style="display:none">
+      <aside class="launch-stage" aria-hidden="true">
+        <div class="launch-reticle">
+          <span class="launch-reticle-axis launch-reticle-axis-horizontal"></span>
+          <span class="launch-reticle-axis launch-reticle-axis-vertical"></span>
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <div class="launch-stage-copy">
+          <p>AIRFRAME / VISUAL LOCK</p>
+          <strong>Neon · SKY DAWNFLIGHT</strong>
+          <div class="launch-stage-specs">
+            <span><small>CLASS</small><b>高机动翼身飞行器</b></span>
+            <span><small>SPAN</small><b>5.24 M</b></span>
+            <span><small>CORE</small><b>CANDLELIGHT</b></span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel launch-card" data-testid="intro-card">
+        <!-- Display utilities stay outside run actions so fullscreen never competes with the primary launch decision. -->
+        <div class="launch-utilities">
+          <button class="language-toggle language-toggle-dialog" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+          <button class="launch-fullscreen-toggle" id="launchFullscreenBtn" type="button" data-fullscreen-toggle aria-pressed="false" aria-label="进入全屏显示" data-testid="launch-fullscreen-toggle">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5"></path></svg>
+            <span class="sr-only" id="launchFullscreenBtnState" data-fullscreen-state>进入</span>
+          </button>
+        </div>
+        <span class="launch-corner launch-corner-nw" aria-hidden="true"></span>
+        <span class="launch-corner launch-corner-se" aria-hidden="true"></span>
+        <header class="launch-header">
+          <p class="launch-eyebrow">
+            <span class="launch-ready-dot" aria-hidden="true"></span>
+            <strong id="launchModeLabel">PRE-FLIGHT / 待启航</strong>
+            <span>NEON AUTOPILOT · Neon</span>
+          </p>
+          <h1 class="launch-title" id="launchTitle"><span>Neon · SKY</span><strong>DAWNFLIGHT</strong></h1>
+          <div class="launch-status-row">
+            <span class="launch-status-code" id="launchStatusCode" aria-hidden="true">READY / 01</span>
+            <p class="launch-summary" id="status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">从静止出发；P 关闭时 M 保持满油门，P 开启时领航统一调速；F 只切换安全电影镜头，驾驶权不变。</p>
+          </div>
+        </header>
+
+        <div class="launch-grid">
+          <section class="launch-briefing" aria-labelledby="launchBriefingTitle">
+            <div class="launch-section-heading">
+              <span>MISSION PROFILE</span>
+              <strong id="launchBriefingTitle">航线简报</strong>
+            </div>
+            <ul class="launch-points" aria-label="核心玩法">
+              <li class="launch-point">
+                <span class="launch-point-index" aria-hidden="true">01</span>
+                <span><strong>烛光强化</strong><small>飞船由暖金渐变至紫青，并同步提升操控、转速上限与升转速度</small></span>
+              </li>
+              <li class="launch-point">
+                <span class="launch-point-index" aria-hidden="true">02</span>
+                <span><strong>立体导航</strong><small>主路、山体廊桥与地下隧道真实分流</small></span>
+              </li>
+              <li class="launch-point">
+                <span class="launch-point-index" aria-hidden="true">03</span>
+                <span><strong data-i18n="launch.point.speed.title">真实三挡</strong><small data-i18n="launch.point.speed.body">1挡约每小时 110 公里、2挡约每小时 160 公里；高速道路/跳台3挡约每小时 280 公里，MT 与 AT 均可进入</small></span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="launch-config" aria-labelledby="launchConfigTitle">
+            <div class="launch-section-heading">
+              <span>RUN CONFIG</span>
+              <strong id="launchConfigTitle">本局配置</strong>
+            </div>
+            <fieldset class="weather-mode-picker" id="weatherModePicker" data-testid="weather-mode-picker" aria-describedby="weatherModeHelp" disabled>
+              <legend>天气分类 <small>选择本局</small></legend>
+              <div class="weather-mode-options">
+                <label class="weather-mode-option" for="weatherModeDry">
+                  <input id="weatherModeDry" type="radio" name="weatherMode" value="dry">
+                  <span class="weather-mode-icon" aria-hidden="true">晴</span>
+                  <span><strong>无降水版</strong><small>晴空 · 云层 · 雾霭</small></span>
+                </label>
+                <label class="weather-mode-option" for="weatherModeSevere">
+                  <input id="weatherModeSevere" type="radio" name="weatherMode" value="severe">
+                  <span class="weather-mode-icon" aria-hidden="true">暴</span>
+                  <span><strong>雨雪风暴版</strong><small>雨雪 · 冰雹 · 沙尘暴</small></span>
+                </label>
+                <label class="weather-mode-option" for="weatherModeMixed">
+                  <input id="weatherModeMixed" type="radio" name="weatherMode" value="mixed" checked>
+                  <span class="weather-mode-icon" aria-hidden="true">混</span>
+                  <span><strong>混合版</strong><small>晴雨按气候自然轮换</small></span>
+                </label>
+              </div>
+              <p id="weatherModeHelp" role="status" aria-live="polite" aria-atomic="true"><strong id="weatherModeStatus">混合版</strong><span id="weatherModeDescription">晴朗、云雾与强天气按当地气候自然轮换。</span></p>
+            </fieldset>
+            <div class="quality-mode-picker" id="qualityModePicker" data-testid="quality-mode-picker">
+              <label for="qualityModeSelect"><span><strong>渲染画质</strong><small>开局或暂停时可切换</small></span>
+                <select id="qualityModeSelect" data-testid="quality-mode-select" aria-describedby="qualityModeHelp" disabled>
+                  <option value="low">低质量 · 优先流畅</option>
+                  <option value="medium" selected>中质量 · 平衡清晰度</option>
+                  <option value="high">高质量 · 电脑超高动态光影</option>
+                </select>
+              </label>
+              <p id="qualityModeHelp" role="status" aria-live="polite" aria-atomic="true"><strong id="qualityModeStatus">中质量</strong><span id="qualityModeDescription">平衡清晰度与性能；隧道灯罩、扩散片和静态基础照度保持常亮，但不启用动态聚光或局部阴影。</span></p>
+            </div>
+          </section>
+
+          <!-- Debrief facts are populated only from the immutable end-of-run snapshot; no rolling event log is used. -->
+          <section class="flight-debrief" id="flightDebrief" aria-labelledby="flightDebriefTitle" hidden>
+            <div class="launch-section-heading flight-debrief-heading">
+              <span data-i18n="rating.eyebrow">FLIGHT REVIEW</span>
+              <strong id="flightDebriefTitle" data-i18n="rating.title">本次飞行评级</strong>
+            </div>
+            <div class="flight-rating-hero">
+              <div class="flight-rating-grade" id="flightRatingGradeGroup" role="group" aria-label="D">
+                <strong id="flightRatingGrade" data-i18n-ignore>D</strong>
+                <span id="flightRatingGradeName" data-i18n-ignore>失衡</span>
+              </div>
+              <div class="flight-rating-summary">
+                <div>
+                  <strong id="flightRatingScore" data-i18n-ignore>0 / 100</strong>
+                  <span id="flightRatingEvidence" data-i18n-ignore>—</span>
+                </div>
+                <p id="flightRatingReason" data-i18n-ignore>—</p>
+              </div>
+            </div>
+
+            <dl class="flight-rating-facts" aria-label="整局实测数据" data-i18n-aria-label="rating.facts.aria">
+              <div><dt data-i18n="rating.fact.distance">真实航程</dt><dd id="flightRatingDistance" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.duration">有效时长</dt><dd id="flightRatingDuration" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.averageSpeed">平均速度</dt><dd id="flightRatingAverageSpeed" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.maximumSpeed">最高速度</dt><dd id="flightRatingMaximumSpeed" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.totalAirTime">累计腾空</dt><dd id="flightRatingTotalAirTime" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.longestAirTime">最长单次</dt><dd id="flightRatingLongestAirTime" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.candles">收集烛光</dt><dd id="flightRatingCandles" data-i18n-ignore>0</dd></div>
+              <div><dt data-i18n="rating.fact.damage">有效扣血</dt><dd id="flightRatingDamage" data-i18n-ignore>0</dd></div>
+            </dl>
+
+            <div class="flight-rating-analysis">
+              <!-- The radar mirrors raw sealed dimension scores; weighted grading remains owned by the evidence cards and V1 contract. -->
+              <figure class="flight-rating-radar" id="flightRatingRadar" role="img" aria-labelledby="flightRatingRadarTitle flightRatingRadarDescription" data-radar-state="partial">
+                <figcaption class="flight-rating-radar-heading">
+                  <strong id="flightRatingRadarTitle" data-i18n="rating.radar.title">五维表现</strong>
+                  <span id="flightRatingRadarNote" data-i18n="rating.radar.note">顶点为各项原始 0–100 分；图形面积不代表加权总分。</span>
+                </figcaption>
+                <div class="flight-rating-radar-plot">
+                  <svg viewBox="0 0 220 200" aria-hidden="true" focusable="false">
+                    <g class="flight-rating-radar-grid">
+                      <polygon points="110,85.5 125.69,96.9 119.7,115.35 100.3,115.35 94.31,96.9"></polygon>
+                      <polygon points="110,69 141.38,91.8 129.4,128.7 90.6,128.7 78.62,91.8"></polygon>
+                      <polygon points="110,52.5 157.08,86.7 139.1,142.05 80.9,142.05 62.92,86.7"></polygon>
+                      <polygon class="flight-rating-radar-grid-outer" points="110,36 172.77,81.6 148.79,155.4 71.21,155.4 47.23,81.6"></polygon>
+                    </g>
+                    <g class="flight-rating-radar-axes">
+                      <line x1="110" y1="102" x2="110" y2="36"></line>
+                      <line x1="110" y1="102" x2="172.77" y2="81.6"></line>
+                      <line x1="110" y1="102" x2="148.79" y2="155.4"></line>
+                      <line x1="110" y1="102" x2="71.21" y2="155.4"></line>
+                      <line x1="110" y1="102" x2="47.23" y2="81.6"></line>
+                    </g>
+                    <g class="flight-rating-radar-data" id="flightRatingRadarData" data-complete="false">
+                      <polygon class="flight-rating-radar-area" id="flightRatingRadarArea" points=""></polygon>
+                      <line data-rating-radar-segment="safety:pace" data-visible="false" x1="110" y1="102" x2="110" y2="102"></line>
+                      <line data-rating-radar-segment="pace:endurance" data-visible="false" x1="110" y1="102" x2="110" y2="102"></line>
+                      <line data-rating-radar-segment="endurance:collection" data-visible="false" x1="110" y1="102" x2="110" y2="102"></line>
+                      <line data-rating-radar-segment="collection:airborne" data-visible="false" x1="110" y1="102" x2="110" y2="102"></line>
+                      <line data-rating-radar-segment="airborne:safety" data-visible="false" x1="110" y1="102" x2="110" y2="102"></line>
+                      <circle data-rating-radar-point="safety" data-available="false" cx="110" cy="102" r="3.4"></circle>
+                      <circle data-rating-radar-point="pace" data-available="false" cx="110" cy="102" r="3.4"></circle>
+                      <circle data-rating-radar-point="endurance" data-available="false" cx="110" cy="102" r="3.4"></circle>
+                      <circle data-rating-radar-point="collection" data-available="false" cx="110" cy="102" r="3.4"></circle>
+                      <circle data-rating-radar-point="airborne" data-available="false" cx="110" cy="102" r="3.4"></circle>
+                    </g>
+                  </svg>
+                  <div class="flight-rating-radar-labels" aria-hidden="true">
+                    <span data-rating-radar-axis="safety"><span data-i18n="rating.dimension.safety">安全</span><b data-rating-radar-score="safety" data-i18n-ignore>—</b></span>
+                    <span data-rating-radar-axis="pace"><span data-i18n="rating.dimension.pace">真实速度</span><b data-rating-radar-score="pace" data-i18n-ignore>—</b></span>
+                    <span data-rating-radar-axis="endurance"><span data-i18n="rating.dimension.endurance">航程耐力</span><b data-rating-radar-score="endurance" data-i18n-ignore>—</b></span>
+                    <span data-rating-radar-axis="collection"><span data-i18n="rating.dimension.collection">烛光收集</span><b data-rating-radar-score="collection" data-i18n-ignore>—</b></span>
+                    <span data-rating-radar-axis="airborne"><span data-i18n="rating.dimension.airborne">腾空与落地</span><b data-rating-radar-score="airborne" data-i18n-ignore>—</b></span>
+                  </div>
+                </div>
+                <p class="sr-only" id="flightRatingRadarDescription" data-i18n-ignore>—</p>
+              </figure>
+
+              <div class="flight-rating-dimensions" aria-label="五项评级维度" data-i18n-aria-label="rating.dimensions.aria">
+                <article class="flight-rating-dimension" data-rating-dimension="safety">
+                  <header><strong data-i18n="rating.dimension.safety">安全</strong><span>30%</span><b id="flightRatingSafetyScore" data-i18n-ignore>—</b></header>
+                  <div class="flight-rating-meter" id="flightRatingSafetyMeter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                  <p id="flightRatingSafetyEvidence" data-i18n-ignore>—</p>
+                </article>
+                <article class="flight-rating-dimension" data-rating-dimension="pace">
+                  <header><strong data-i18n="rating.dimension.pace">真实速度</strong><span>25%</span><b id="flightRatingPaceScore" data-i18n-ignore>—</b></header>
+                  <div class="flight-rating-meter" id="flightRatingPaceMeter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                  <p id="flightRatingPaceEvidence" data-i18n-ignore>—</p>
+                </article>
+                <article class="flight-rating-dimension" data-rating-dimension="endurance">
+                  <header><strong data-i18n="rating.dimension.endurance">航程耐力</strong><span>15%</span><b id="flightRatingEnduranceScore" data-i18n-ignore>—</b></header>
+                  <div class="flight-rating-meter" id="flightRatingEnduranceMeter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                  <p id="flightRatingEnduranceEvidence" data-i18n-ignore>—</p>
+                </article>
+                <article class="flight-rating-dimension" data-rating-dimension="collection">
+                  <header><strong data-i18n="rating.dimension.collection">烛光收集</strong><span>15%</span><b id="flightRatingCollectionScore" data-i18n-ignore>—</b></header>
+                  <div class="flight-rating-meter" id="flightRatingCollectionMeter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                  <p id="flightRatingCollectionEvidence" data-i18n-ignore>—</p>
+                </article>
+                <article class="flight-rating-dimension" data-rating-dimension="airborne">
+                  <header><strong data-i18n="rating.dimension.airborne">腾空与落地</strong><span>15%</span><b id="flightRatingAirborneScore" data-i18n-ignore>—</b></header>
+                  <div class="flight-rating-meter" id="flightRatingAirborneMeter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                  <p id="flightRatingAirborneEvidence" data-i18n-ignore>—</p>
+                </article>
+              </div>
+            </div>
+
+            <aside class="flight-rating-weakness">
+              <small data-i18n="rating.weakness.label">本局短板</small>
+              <strong id="flightRatingWeaknessTitle" data-i18n-ignore>—</strong>
+              <p id="flightRatingWeaknessAdvice" data-i18n-ignore>—</p>
+            </aside>
+            <p class="flight-rating-method" data-i18n="rating.method">固定合同 V2：安全 30%、真实速度 25%、耐力 15%、烛光 15%、腾空 15%；无样本维度按其余项目重新分配。S / A / B / C / D 边界为 90 / 80 / 70 / 60 分；这是游戏工程指标，不是玩家百分位。</p>
+          </section>
+        </div>
+
+        <div class="launch-actions">
+          <button class="launch-start" id="startBtn" data-testid="intro-start" type="button" disabled aria-disabled="true" aria-busy="true">点火启航</button>
+          <button class="launch-restart" id="pauseRestartBtn" data-testid="pause-restart" type="button" aria-keyshortcuts="R" aria-haspopup="dialog" aria-controls="pauseRestartConfirmation" aria-expanded="false" data-i18n="launch.action.pauseRestart" hidden>重新开始本局</button>
+          <button class="launch-details" id="guideBtn" data-testid="intro-details-open" type="button" aria-haspopup="dialog" aria-controls="guideOverlay" aria-expanded="false" disabled>
+            飞行手册 <span aria-hidden="true">G-01</span>
+          </button>
+        </div>
+        <footer class="launch-footer" aria-hidden="true">
+          <span>静止起步</span><i></i><span>真实阻力</span><i></i><span>P 统一调速 · M 满油门 · F 电影镜头</span>
+        </footer>
+      </section>
+    </div>
+
+    <!-- Stable feature IDs form the player-facing synchronization ledger: prior shipped abilities stay covered when later guide copy changes. -->
+    <section class="guide-overlay" id="guideOverlay" data-testid="intro-details" data-guide-contract-version="18" data-guide-view="essential" role="dialog" aria-modal="true" aria-labelledby="guideTitle" aria-describedby="guideDescription" hidden>
+      <div class="guide-shell">
+        <header class="guide-header">
+          <div class="guide-header-copy">
+            <p class="guide-eyebrow">FLIGHT MANUAL · Neon</p>
+            <h2 id="guideTitle">飞行手册</h2>
+            <p id="guideDescription">先掌握真正影响飞行结果的规则，再按需展开完整系统说明；这里不会改动航程、路线或控制状态。</p>
+            <div class="guide-header-meta" aria-hidden="true">
+              <span><b>04</b> 任务章节</span>
+              <span><b>43</b> 规则条目</span>
+              <span class="guide-sync-state"><i></i> 关键 / 完整双层</span>
+            </div>
+          </div>
+          <div class="guide-header-actions">
+            <button class="language-toggle language-toggle-header" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+            <button class="guide-close" id="guideCloseBtn" data-testid="intro-details-close" type="button" aria-label="关闭玩法详情并返回上一界面">×</button>
+          </div>
+        </header>
+
+        <div class="guide-content">
+          <div class="guide-tabs" role="tablist" aria-label="玩法详情章节" aria-orientation="vertical">
+            <div class="guide-tabs-heading" aria-hidden="true"><span>MISSION INDEX</span><b>章节导航</b></div>
+            <button class="guide-tab" id="guideTabControls" type="button" role="tab" aria-label="操作" aria-selected="true" aria-controls="guidePanelControls" tabindex="0" data-guide-tab="controls">
+              <span class="guide-tab-index" aria-hidden="true">01</span>
+              <span class="guide-tab-copy"><b>操作</b><small>驾驶 · 视角 · 设置</small></span>
+              <span class="guide-tab-mark" aria-hidden="true">↗</span>
+            </button>
+            <button class="guide-tab" id="guideTabNavigation" type="button" role="tab" aria-label="导航" aria-selected="false" aria-controls="guidePanelNavigation" tabindex="-1" data-guide-tab="navigation">
+              <span class="guide-tab-index" aria-hidden="true">02</span>
+              <span class="guide-tab-copy"><b>导航</b><small>路线 · 立交 · 领航</small></span>
+              <span class="guide-tab-mark" aria-hidden="true">↗</span>
+            </button>
+            <button class="guide-tab" id="guideTabFairness" type="button" role="tab" aria-label="目标与规则" aria-selected="false" aria-controls="guidePanelFairness" tabindex="-1" data-guide-tab="fairness">
+              <span class="guide-tab-index" aria-hidden="true">03</span>
+              <span class="guide-tab-copy"><b>目标与规则</b><small>得分 · 生命 · 公平</small></span>
+              <span class="guide-tab-mark" aria-hidden="true">↗</span>
+            </button>
+            <button class="guide-tab" id="guideTabWorld" type="button" role="tab" aria-label="天气与世界" aria-selected="false" aria-controls="guidePanelWorld" tabindex="-1" data-guide-tab="world">
+              <span class="guide-tab-index" aria-hidden="true">04</span>
+              <span class="guide-tab-copy"><b>天气与世界</b><small>生态 · 气候 · 光影</small></span>
+              <span class="guide-tab-mark" aria-hidden="true">↗</span>
+            </button>
+            <div class="guide-tabs-hint" aria-hidden="true"><span>↑ ↓ / ← →</span> 键盘切换</div>
+          </div>
+
+          <div class="guide-panels">
+            <!-- This snapshot is read-only: opening the manual may explain the current run but never mutates authority. -->
+            <aside class="guide-context" id="guideContext" aria-label="当前航程与阅读范围" data-i18n-aria-label="guide.context.aria">
+              <div class="guide-context-head">
+                <div class="guide-context-copy">
+                  <small data-i18n="guide.context.eyebrow">CURRENT FLIGHT</small>
+                  <strong id="guideContextTitle" data-i18n="guide.context.title.preflight">起飞前准备</strong>
+                  <p id="guideViewSummary" data-i18n="guide.view.essentialSummary">当前显示会直接影响操控、路线、生命、得分和落地的关键规则。</p>
+                </div>
+                <div class="guide-view-switch" role="group" aria-label="玩法详情阅读范围" data-i18n-aria-label="guide.view.aria">
+                  <button class="guide-view-option" id="guideEssentialViewBtn" type="button" data-guide-view-option="essential" aria-pressed="true">
+                    <b data-i18n="guide.view.essential">必会</b>
+                    <small data-i18n="guide.view.essentialHint">关键规则</small>
+                  </button>
+                  <button class="guide-view-option" id="guideAllViewBtn" type="button" data-guide-view-option="all" aria-pressed="false">
+                    <b data-i18n="guide.view.all">完整</b>
+                    <small data-i18n="guide.view.allHint">全部说明</small>
+                  </button>
+                </div>
+              </div>
+              <p class="guide-context-compact" id="guideContextCompact" data-i18n-ignore>手动转向 + 手动油门 · 0 公里/小时 · 3 命 / 0 烛 · 待命</p>
+              <dl class="guide-context-grid">
+                <div><dt data-i18n="guide.context.phase">阶段</dt><dd id="guideContextPhase" data-i18n="guide.context.phase.preflight">起飞前</dd></div>
+                <div><dt data-i18n="guide.context.authority">驾驶</dt><dd id="guideContextAuthority" data-i18n="guide.context.authority.manual">手动驾驶</dd></div>
+                <div><dt data-i18n="guide.context.speed">速度</dt><dd id="guideContextSpeed" data-i18n="guide.context.speedInitial">0 公里/小时</dd></div>
+                <div><dt data-i18n="guide.context.survival">状态</dt><dd id="guideContextSurvival" data-i18n="guide.context.survivalInitial">3 条生命 · 0 份烛光</dd></div>
+                <div><dt data-i18n="guide.context.brake">制动</dt><dd id="guideContextBrake" data-i18n="guide.context.brake.standby">待命</dd></div>
+                <div class="guide-context-next"><dt data-i18n="guide.context.next">下一步</dt><dd id="guideContextNext" data-i18n="guide.context.next.preflight">先熟悉横移与油门，再点火启航。</dd></div>
+              </dl>
+            </aside>
+            <section class="guide-panel" id="guidePanelControls" role="tabpanel" aria-labelledby="guideTabControls" tabindex="0" data-guide-panel="controls">
+              <div class="guide-section-heading"><span class="guide-section-index" aria-hidden="true">01</span><div><span class="guide-section-kicker" aria-hidden="true">FLIGHT CONTROL</span><h3>操作、飞船与设置</h3><p>键盘、鼠标和触控共用同一套驾驶权威；体感反馈不会偷偷改变物理。</p></div></div>
+              <section class="guide-quickstart" aria-labelledby="guideQuickstartTitle">
+                <header>
+                  <div>
+                    <small data-i18n="guide.quickstart.eyebrow">首次飞行 · 60 秒掌握</small>
+                    <h4 id="guideQuickstartTitle" data-i18n="guide.quickstart.title">先完成一次稳定飞行</h4>
+                  </div>
+                  <p data-i18n="guide.quickstart.intro">不需要先读完全部说明；按下面顺序操作，就能理解本局最重要的因果关系。</p>
+                </header>
+                <ol>
+                  <li><span aria-hidden="true">01</span><div><b data-i18n="guide.quickstart.steer.title">先控制车道</b><p data-i18n="guide.quickstart.steer.body">A / D 或左右触控横移；先看道路边缘，再追烛光。</p></div></li>
+                  <li><span aria-hidden="true">02</span><div><b data-i18n="guide.quickstart.speed.title">再建立速度</b><p data-i18n="guide.quickstart.speed.body">P 关闭时 M 在 W 手动与持续满油门间切换；P 开启时领航统一调油、滑行和制动。</p></div></li>
+                  <li><span aria-hidden="true">03</span><div><b data-i18n="guide.quickstart.route.title">提前选择路线</b><p data-i18n="guide.quickstart.route.body">看右侧指令与地图，在分流前进入目标车道，不要到岔口才猛打方向。</p></div></li>
+                  <li><span aria-hidden="true">04</span><div><b data-i18n="guide.quickstart.ramp.title">跳台靠3挡与真实坡面起飞</b><p data-i18n="guide.quickstart.ramp.body">接近跳台时把速度建立到约每小时 260 公里：MT 可手动升至3挡，AT 会在满油门加速至 140 km/h 时自动升入3挡。不按 SPACE 会在坡唇按真实坡度自然起飞。坡面也可主动起飞，但不会获得跳台专属的跨车道落地权限。</p></div></li>
+                  <li><span aria-hidden="true">05</span><div><b data-i18n="guide.quickstart.survive.title">用生命换经验，不要赌第二撞</b><p data-i18n="guide.quickstart.survive.body">普通撞击扣一命并提供至少 1.3 秒护盾；生命耗尽或腾空落空都会结束本局。</p></div></li>
+                </ol>
+              </section>
+              <div class="guide-key-grid">
+                <article data-guide-feature="controls-steering"><div><span class="kbd">A</span><span class="kbd">D</span></div><strong>左右横移</strong><p>按住可连续移动，方向键和移动端左右键使用同一横移能力。</p></article>
+                <article data-guide-feature="throttle-modes"><div><span class="kbd">W</span><span class="kbd">S</span><span class="kbd">T</span><span class="kbd">Q</span><span class="kbd">E</span></div><strong data-i18n="guide.feature.throttleModes.title">真实阻力与三挡推进</strong><p data-i18n="guide.feature.throttleModes.body">P 关闭时 M 满油门无目标上限；P 开启时领航拥有唯一纵向权威。</p></article>
+                <article data-guide-feature="launch-and-ramps"><div><span class="kbd wide">Space</span><span class="kbd">E</span></div><strong>主动起飞与3挡随机跳台</strong><p>SPACE / 触控起飞可在平路、桥梁纵坡和实体跳台承载面上主动起飞；坡上起跳会保留当前坡面切向速度并叠加主动离地冲量。若不按 SPACE，跳台前仍需进入3挡并把接近速度建立到约 260 km/h：MT 用 E 手动升挡，AT 则在满油门加速至 140 km/h 时自动升入3挡。飞船会在坡唇按真实坡度和速度自然离地。只有这种坡唇自然腾空才获得道路中心左右各约 42 米的跨车道落地范围；主动起飞仍只使用当前路线护栏范围。空中操控仍在横移速度 10 米/秒、横向加速度 17 米/秒² 达到饱和；四种跳台已按约 260 km/h 验证，可跨越约 24 米道路间距并落入对向道路。船体必须完整落在当前路线、可选岔路或对向道路的真实承载面上；落入缝隙、道路外或路线接入失败会直接坠毁并结束本局。</p></article>
+                <article data-guide-feature="free-look"><div><span class="mouse-icon" aria-hidden="true"></span></div><strong>自由观察</strong><p>按住主画布鼠标左键拖动，松开后平滑回正；观察不改变路线和飞船输入。</p></article>
+              </div>
+              <div class="guide-feature-list guide-secondary-list">
+                <article data-guide-feature="view-and-fullscreen"><span aria-hidden="true">C / F</span><div><strong data-i18n="guide.feature.viewFullscreen.title">四驾驶视角、电影模式与全屏</strong><p data-i18n="guide.feature.viewFullscreen.body">F 只启用电影镜头而不改变 MT / AT：MT 继续显示并允许 Q / E，AT 继续隐藏手动换挡键并自动接管；其余驾驶输入照常可用，普通接触不扣生命。</p></div></article>
+                <article data-guide-feature="live-input-authority"><span aria-hidden="true">HUD</span><div><strong>实时输入来源</strong><p>左下 A / D / W / SPACE / S 会持续显示最终命令：金色代表领航，青绿色代表键盘或触控，玩家介入时标记“手动接管”。</p></div></article>
+                <article data-guide-feature="fps-display"><span aria-hidden="true">FPS</span><div><strong>实时帧率</strong><p>主 HUD 每秒更新一次实际渲染帧率：青绿色表示流畅，金色提示波动，红色表示低帧；它只显示性能，不改变游戏速度。</p></div></article>
+                <article data-guide-feature="lighting-toggle"><span aria-hidden="true">☀</span><div><strong>光影开关</strong><p>HUD 的“光影 开 / 关”可随时停用真实灯光、HDR 环境反射与投影阴影；关闭后保留无投影阴影的均匀底光和轻微接地提示，让露天与隧道路面仍清楚可见。开启时仍遵守画质边界：低和中画质不启用动态隧道或桥底聚光，高画质才启用这些局部灯与阴影。切换只改变画面与渲染开销，不修改速度、路线、碰撞、生命或领航。</p></div></article>
+                <article data-guide-feature="render-quality"><span aria-hidden="true">HD</span><div><strong>低 / 中 / 高画质</strong><p>开始页可先选择画质；飞行中按 O / Esc 暂停后也能切换。低和中画质保留原有直接渲染、全段常亮的隧道灯罩与扩散片，以及道路、墙顶和灯壳的静态基础照度；它们不扫描、不选择也不预热动态隧道或桥底聚光，局部阴影开销为零。高画质除启用电脑超高分辨率预算、程序化物理材质、空间遮蔽、显式辉光与电影级色调外，还独享六盏原生动态聚光、两盏局部阴影，以及按路线边和隧道剖面匹配的电影镜头灯组交接。高画质地貌的颗粒和明暗斑块锁定绝对世界坐标，飞船前进时会相对向后掠过，不会粘住镜头。道路、障碍、可视距离、碰撞、速度与本局进度保持不变。</p></div></article>
+                <article data-guide-feature="pause-restart"><span aria-hidden="true">R</span><div><strong data-i18n="guide.feature.pauseRestart.title">暂停后重新开始</strong><p data-i18n="guide.feature.pauseRestart.body">按 O / Esc 暂停后，可继续当前航程，也可按 R 或点击“重新开始本局”打开二级确认；取消会保持原局暂停，只有明确确认才会完整清理旧航程并沿用玩家在本页选择的设置建立新局。</p></div></article>
+                <article data-guide-feature="ship-feedback"><span aria-hidden="true">FX</span><div><strong>飞船动态反馈</strong><p>直道有细微姿态、抬升和镜头惯性；转向改变左右尾焰，刹车点亮翼肩反推焰，高速加入光流和视野变化。</p></div></article>
+                <article data-guide-feature="dynamic-audio"><span aria-hidden="true">V</span><div><strong>动态声景</strong><p data-i18n="guide.feature.audio.body">电驱核心、谐波与风噪已压低到配乐之后；刹车、转向、领航、自动油门、视角、光影、暂停与重启各有独立提示，雷暴按远近发出雷声，雨、风雪、冰雹与沙尘会随露天强度连续变化。普通高架下雨声保持，山体廊道与地下隧道仍能听到压暗、变远的外部雨声，不会完全消失。V 会同时控制并记住全部声音。</p></div></article>
+                <article data-guide-feature="music-library"><span aria-hidden="true">♫</span><div><strong>六境主题曲库</strong><p data-i18n="guide.feature.music.body">十二首逐曲授权的无人声配乐按六境真实内涵组成两章：晨岛苏醒、云野相遇、雨林成长、霞谷竞翔、禁阁回望、伊甸牺牲与重生；母带响度统一，随境模式只在当前地图切换叙事章节。</p></div></article>
+              </div>
+              <aside class="guide-callout" data-guide-feature="reduced-motion-pause"><b>暂停与舒适性</b><span>O / Esc 暂停会冻结路线、物理与天气时钟；系统“减少动态效果”会收敛镜头、脉冲和强闪电，但不会停止真实障碍或改写碰撞。</span></aside>
+              <div class="guide-shortcuts"><span><b>MT Q / E</b> 降挡 / 升挡</span><span><b>M</b> 满油门偏好</span><span><b>P</b> 自动领航</span><span><b>C</b> 视角</span><span><b>F</b> 电影模式</span><span><b>V</b> 声音</span><span><b>O / Esc</b> 暂停</span><span><b>R</b> 重新开始</span></div>
+            </section>
+
+            <section class="guide-panel" id="guidePanelNavigation" role="tabpanel" aria-labelledby="guideTabNavigation" tabindex="0" data-guide-panel="navigation" hidden>
+              <div class="guide-section-heading"><span class="guide-section-index" aria-hidden="true">02</span><div><span class="guide-section-kicker" aria-hidden="true">ROUTE INTELLIGENCE</span><h3>路线、地图与立交</h3><p>路线图、道路标识、限速提示和飞船位置共享同一份实时导航数据。</p></div></div>
+              <section class="guide-authority-matrix" aria-labelledby="guideAuthorityMatrixTitle">
+                <header>
+                  <div><small data-i18n="guide.authority.eyebrow">CONTROL AUTHORITY</small><h4 id="guideAuthorityMatrixTitle" data-i18n="guide.authority.title">P 优先接管，M 保存满油门偏好</h4></div>
+                  <p data-i18n="guide.authority.intro">P 关闭时 M 切换 W 手动或持续满油门；P 开启时由领航统一拥有纵向权威。</p>
+                </header>
+                <div>
+                  <article><span><b data-i18n="guide.authority.steering.manual">手动转向</b><i>+</i><b data-i18n="guide.authority.throttle.manual">手动油门</b></span><strong data-i18n="guide.authority.mode.manual">全手动驾驶</strong><p data-i18n="guide.authority.mode.manualBody">玩家同时负责车道、路线、加速与刹车。</p></article>
+                  <article><span><b data-i18n="guide.authority.steering.auto">领航转向</b><i>+</i><b data-i18n="guide.authority.throttle.preferenceOff">M 关偏好</b></span><strong data-i18n="guide.authority.mode.guided">领航接管 · M 关偏好</strong><p data-i18n="guide.authority.mode.guidedBody">系统统一选路、转向、调油与制动。</p></article>
+                  <article><span><b data-i18n="guide.authority.steering.manual">手动转向</b><i>+</i><b data-i18n="guide.authority.throttle.fullThrottle">M 满油门</b></span><strong data-i18n="guide.authority.mode.cruise">持续满油门</strong><p data-i18n="guide.authority.mode.cruiseBody">P 关闭时油门保持 100%，不追踪 120。</p></article>
+                  <article><span><b data-i18n="guide.authority.steering.auto">领航转向</b><i>+</i><b data-i18n="guide.authority.throttle.preferenceOn">M 开偏好</b></span><strong data-i18n="guide.authority.mode.full">领航接管 · M 开偏好</strong><p data-i18n="guide.authority.mode.fullBody">系统统一选路、转向、调油与制动。</p></article>
+                </div>
+                <aside data-i18n="guide.authority.brakeNote">只要 P 开启，障碍、弯道和道路边界制动都由同一领航纵向权威处理，与 M 偏好无关。</aside>
+              </section>
+              <div class="guide-feature-list">
+                <article data-guide-feature="route-map-modes"><span aria-hidden="true">A</span><div><strong>看懂路线图</strong><p>地图会按场景切换路线细节、立交总览和分流引导。金白实线是已选路线，金色虚线是候选路线，红色是障碍，蓝色是烛光；优先看顶部下一指令和距分流数值。</p></div></article>
+                <article data-guide-feature="straight-fork"><span aria-hidden="true">B</span><div><strong>直道选择岔路</strong><p>连接直道会以平滑曲线分成独立左右支路；中央无路区由暖金内边界和分流、合流鼻锥连续封边。提前横移到目标侧，路线只提交对应一支；未选支路上的障碍和烛光仍留在原路，直到自然驶离或退出视野，不会因选路瞬间消失。</p></div></article>
+                <article data-guide-feature="cloverleaf-routes"><span aria-hidden="true">C</span><div><strong>四入口、十二条路线</strong><p>每个入口都有直行、右转和左转：直行留在地上主路，2A 进入山体多孔廊道，2B 进入地下隧道；选路会先决定主线或集散道，再确认最终出口。</p></div></article>
+                <article data-guide-feature="tunnel-camera"><span aria-hidden="true">D</span><div><strong>隧道与净空相机</strong><p>山体廊道保留开放侧孔，地下路线具有真实顶棚碰撞；相机会沿已选路线收低并前视，不用弯道切线穿墙或贴住顶板。</p></div></article>
+              </div>
+              <aside class="guide-callout" data-guide-feature="speed-guidance"><b data-i18n="guide.feature.speedGuidance.title">速度仪表、挡位、限速与刹车</b><span data-i18n="guide.feature.speedGuidance.body">120 是 P 的普通巡航参考，不是 M 满油门的速度上限。</span></aside>
+              <aside class="guide-callout" data-guide-feature="autopilot-guidance"><b data-i18n="guide.feature.autopilot.title">P 自动领航</b><span data-i18n="guide.feature.autopilot.body">P 统一负责选路、转向、调油、滑行与制动；M 只保存退出 P 后的偏好。</span></aside>
+            </section>
+
+            <section class="guide-panel" id="guidePanelFairness" role="tabpanel" aria-labelledby="guideTabFairness" tabindex="0" data-guide-panel="fairness" hidden>
+              <div class="guide-section-heading"><span class="guide-section-index" aria-hidden="true">03</span><div><span class="guide-section-kicker" aria-hidden="true">FAIR FLIGHT CONTRACT</span><h3>目标、得分与公平合同</h3><p>躲避真实障碍、收集烛光并尽可能飞得更远；速度更高，规则也不会让路。</p></div></div>
+              <div class="guide-stat-grid">
+                <article data-guide-feature="fair-start-speed"><small>起步速度</small><strong>0</strong><span>km/h</span></article>
+                <article data-guide-feature="fair-target-speed"><small>自动巡航</small><strong>120</strong><span>km/h</span></article>
+                <article data-guide-feature="three-lives"><small>初始生命</small><strong>3</strong><span>次</span></article>
+              </div>
+              <ul class="guide-rules">
+                <li data-guide-feature="core-loop"><span>✓</span>距离会持续转化为得分；目标是在静态与动态障碍压力下存活、选对路线并收集烛光。</li>
+                <li data-guide-feature="score-and-candles"><span>✓</span>烛光增加收集数和单次得分；本局累计收集越多，后续单份奖励越高，漏掉烛光或间隔一段时间不会清零。烛光不会直接改写真实速度，手动油门仍需玩家给油。</li>
+                <li data-guide-feature="candle-handling"><span>✓</span>每份烛光都会继续提升成长仪表，让飞船颜色由暖金渐变至紫青，并增强横向操控、推进核心转速上限与升转速度；它不直接增加纵向最高速度或碰撞能力，增益会逐渐放缓。</li>
+                <li data-guide-feature="collision-rules"><span>✓</span>普通撞击扣一命；仍有生命时立即获得至少 1.3 秒有效玩法时间的无敌护盾，保护期间重复接触不扣血，暂停会冻结剩余保护，并且不会强制降速。三条生命耗尽后结算。跳台腾空后若未落在任一真实道路上，则属于坠毁并立即结束本局。</li>
+                <li data-guide-feature="obstacle-pressure"><span>✓</span>障碍、动态障碍和高速压力不会因为领航开启而减少，环境对向飞船则明确不参与碰撞。</li>
+                <li data-guide-feature="no-cheat"><span>✓</span><span data-i18n="guide.rule.noCheat">普通 P 领航不锁血；F 电影模式只换镜头并提供演出免伤，不接管驾驶。</span></li>
+                <li data-guide-feature="shared-controls"><span>✓</span>玩家与领航共用烛光强化后的横向操控与推进核心；满推力、降转和刹车能力不因烛光改变，高速光流、镜头体感和天气地表也不能改写真实速度、路线与碰撞。</li>
+              </ul>
+            </section>
+
+            <section class="guide-panel" id="guidePanelWorld" role="tabpanel" aria-labelledby="guideTabWorld" tabindex="0" data-guide-panel="world" hidden>
+              <div class="guide-section-heading"><span class="guide-section-index" aria-hidden="true">04</span><div><span class="guide-section-kicker" aria-hidden="true">LIVING SKY WORLD</span><h3>天气、生态与流动世界</h3><p>天空、地貌、地图、天气和地表反馈共享真实世界状态，并随时间连续变化。</p></div></div>
+              <div class="guide-world-grid">
+                <article data-guide-feature="realm-pairing">
+                  <span class="world-swatch realm" aria-hidden="true" data-world-preview="realm-pairing">
+                    <span class="world-realm-sun"></span>
+                    <span class="world-realm-cloud world-realm-cloud-left"></span>
+                    <span class="world-realm-cloud world-realm-cloud-right"></span>
+                    <span class="world-realm-ridge world-realm-ridge-far"></span>
+                    <span class="world-realm-ridge world-realm-ridge-near"></span>
+                    <span class="world-realm-road"></span>
+                    <span class="world-realm-route"></span>
+                  </span>
+                  <strong>天空与地面一一对应</strong>
+                  <p>晨岛云海↔海洋、云野花庭↔草地、雨林幽光↔湿地、霞谷暮光↔苔原、禁阁星穹↔星界浅滩、伊甸风眼↔火山荒地，共用同一当前区域、下一地区和混合进度。</p>
+                </article>
+                <article data-guide-feature="map-ecology" data-guide-world-feature="map-ecology">
+                  <span class="world-swatch ecology" aria-hidden="true" data-world-preview="map-ecology">
+                    <span class="ecology-tile ecology-tile-ocean"><span class="ecology-detail ecology-detail-wave"></span></span>
+                    <span class="ecology-tile ecology-tile-meadow ecology-tile-flora"><span class="ecology-detail ecology-detail-bloom"></span></span>
+                    <span class="ecology-tile ecology-tile-wetland"><span class="ecology-detail ecology-detail-reed"></span></span>
+                    <span class="ecology-tile ecology-tile-tundra"><span class="ecology-detail ecology-detail-ice"></span></span>
+                    <span class="ecology-tile ecology-tile-wasteland"><span class="ecology-detail ecology-detail-dune"></span></span>
+                    <span class="ecology-tile ecology-tile-eden ecology-tile-dragon"><span class="ecology-detail ecology-detail-ember"></span></span>
+                    <span class="world-ecology-road"></span>
+                    <span class="world-ecology-route"></span>
+                  </span>
+                  <strong>场景同源地图</strong>
+                  <p>小地图直接读取视野中的 96m 地形单元，以及当前可见的地标、环境造物与空中生物；对象 ID、绝对坐标和显隐状态与主场景同源，不再额外随机生成。道路、路线与导航始终显示在上层。</p>
+                </article>
+                <article data-guide-feature="world-landmarks">
+                  <span class="world-swatch landmark" aria-hidden="true" data-world-preview="world-landmarks">
+                    <span class="world-landmark-moon"></span>
+                    <span class="world-landmark-ridge world-landmark-ridge-far"></span>
+                    <span class="world-landmark-ridge world-landmark-ridge-near"></span>
+                    <span class="world-landmark-temple"></span>
+                    <span class="world-landmark-manta"></span>
+                    <span class="world-landmark-dragon"></span>
+                    <span class="world-landmark-candles"></span>
+                  </span>
+                  <strong>区域地标与生物</strong>
+                  <p>六个区域保留各自地标、环境造物、空中生物以及障碍和烛光造型，边界使用同一进度连续混合；所有环境生物只提供世界氛围，不参与玩家速度、路线或碰撞权威。</p>
+                </article>
+                <article data-guide-feature="covered-routes">
+                  <span class="world-swatch bridge" aria-hidden="true" data-world-preview="covered-routes">
+                    <span class="world-bridge-sky"></span>
+                    <span class="world-bridge-mountain"></span>
+                    <span class="world-bridge-deck"></span>
+                    <span class="world-bridge-portal world-bridge-portal-left"></span>
+                    <span class="world-bridge-portal world-bridge-portal-center"></span>
+                    <span class="world-bridge-portal world-bridge-portal-right"></span>
+                    <span class="world-bridge-road"></span>
+                    <span class="world-bridge-lights"></span>
+                  </span>
+                  <strong>山中多孔立交</strong>
+                  <p>山体廊桥以连续洞门、开放侧孔、顶棚和灯带包住真实道路，地下路线保留顶棚碰撞净空。</p>
+                </article>
+                <article data-guide-feature="ambient-traffic">
+                  <span class="world-swatch traffic" aria-hidden="true" data-world-preview="ambient-traffic">
+                    <span class="world-traffic-horizon"></span>
+                    <span class="world-traffic-road"></span>
+                    <span class="world-traffic-lane world-traffic-lane-left"></span>
+                    <span class="world-traffic-lane world-traffic-lane-right"></span>
+                    <span class="world-traffic-ship world-traffic-ship-player"><span class="world-traffic-thruster"></span></span>
+                    <span class="world-traffic-ship world-traffic-ship-inbound-a"><span class="world-traffic-thruster"></span></span>
+                    <span class="world-traffic-ship world-traffic-ship-inbound-b"><span class="world-traffic-thruster"></span></span>
+                    <span class="world-traffic-flow"></span>
+                  </span>
+                  <strong>对向道路与环境船流</strong>
+                  <p>贴地驾驶不能直接横穿中央隔离区；从跳台腾空后，可以完整落入对向道路，随后会接入平顺跨线回程并跳过当前互通。环境飞船使用完整三维造型营造交通感，只在地图留下低亮标记，不造成伤害。</p>
+                </article>
+              </div>
+              <div class="guide-feature-list guide-weather-list">
+                <article data-guide-feature="weather-lifecycle"><span aria-hidden="true">01</span><div><strong>完整天气谱系与缓冲</strong><p>晴朗、少云、阴天、雾霭、降雨、暴雨、雷暴、冰雹、飘雪、降雪、暴雪、薄霭、浮尘、扬沙和沙尘暴按常识转换；普通天气通常至少稳定 60 秒，形成和消散至少 12 秒，不会硬切或随速度加快。</p></div></article>
+                <article data-guide-feature="weather-forecast-clouds"><span aria-hidden="true">02</span><div><strong>预报、云量与强度同源</strong><p>预报显示当前、下一天气、到达时间、预计维持和增强/减弱趋势；高空薄云、中层主体云与低层降水云幕会按同一云量和降水浓度形成不同高度、厚度与明暗层次，降雨、降雪、暴雨、暴雪和冰雹会连续加强中低层、扩大覆盖并在道路与桥面安全高度之上压低云底；最低云底仍保持在最高桥面上方 36 米、当前世界高度 45 米。太阳、月亮和雷电会真实照亮不同云层；进入镜头中央视线或贴近相机的云叶会平滑退让，外围云幕密度保持不变，高视角不会钻入低云，沙尘遮蔽也不会伪装成厚云或低云。</p></div></article>
+                <article data-guide-feature="layered-precipitation"><span aria-hidden="true">03</span><div><strong>精细雨雪与世界运动</strong><p>雨滴具有不同长度、亮度和倾角；雪花使用六枝纹理与远近两层。雾与沙尘会在原天气能见度上继续叠加衰减并提前进入近雾；雨、雪、冰雹和沙尘共用近中远包络，镜头周围最低垂直跨度为 72 米，切到高视角也不会看穿顶面或前壁。全部粒子按世界坐标掠过飞船并在暂停时冻结；普通高架桥下只遮住近处雨线，桥外雨幕继续存在，封闭隧道则按已提交路线在洞门处平滑隐藏本地雨景，但户外天气状态不会停止。</p></div></article>
+                <article data-guide-feature="surface-weather"><span aria-hidden="true">04</span><div><strong>地表缓慢积累</strong><p>露天路面会随天气逐步形成积水、积雪、雪泥或积尘；隧道内保持干燥。水坑和积雪会改变接地反馈，因此高速时要提前留出转向与制动余量。</p></div></article>
+                <article data-guide-feature="ship-weather-interactions"><span aria-hidden="true">05</span><div><strong>飞船接地互动</strong><p>飞船压过露天积水会产生涟漪、水花与尾流，压过积雪会留下双沟和雪粉；这些接触会给手动和领航施加相同、有限的阻力与侧滑，但不改路线、碰撞或生命。</p></div></article>
+                <article data-guide-feature="weather-lighting"><span aria-hidden="true">06</span><div><strong>全物理光影与雷电</strong><p>太阳、月亮与雷电是真实投影光源，太阳始终是露天最主要、最亮的光源；道路之外的地貌与景物也接收真实投影阴影。普通开放桥下保留天空与 HDR 能量，由实体桥面自然投影，不再误按深隧道压黑；桥底灯具外观保留，只有高画质的桥底动态聚光会在桥影中心且自然光不足时渐亮，其合计路面照度始终低于太阳，晴朗白天保持关闭。山体廊道与地下隧道沿各自完整路线独立密排灯具；所有画质都让整段灯罩和扩散片始终可见发亮，并让道路、连续墙顶与肋架灯壳在原绘制批次内接收无距离门控的静态基础照度，结构壳、侧墙和道路本身仍不自发光。低和中画质不扫描、不选择也不预热任何动态隧道或桥底聚光，六个聚光槽全部隐藏且局部阴影开销为零。只有高画质启用六盏复用聚光，其中两盏投影阴影；动态隧道灯只选择路线边与隧道剖面同时匹配的原生发射记录，电影模式则完成摄影机最近灯组的平滑交接。接近洞门时只有高画质会根据相机前方路线预备动态灯，洞外照明交接随洞门距离渐入，但不得改变全档灯罩、扩散片和静态基础照度的固定常亮状态。找不到匹配记录时保持关闭，绝不生成跟随飞船的兜底灯。进入洞门后 HDR 环境光、天体直射与曝光连续衰减；仅高画质的匹配聚光在真实灯具下形成有限光池并投影阴影，远处、相邻路线或错误剖面不会串光。封闭隧道还会沿洞门连续移除室外暴雪、浓雾与沙尘造成的能见度衰减，深处恢复当前境界的正常基础雾距。飞船的引擎、烛芯和警示采用可见自发光材质，避免跟随飞船的点光源在道路上产生无灯具亮斑。1K / 2K / 8K 主太阳阴影随低 / 中 / 高画质切换，高画质在设备不支持时安全回退 4K；局部阴影目标只由高画质分配。HDR 天空反射和 ACES 色调映射继续照亮实际立交道路、地貌、景物、分层云与物理积水；雷暴采用主闪和回闪而不是单帧硬白。</p></div></article>
+                <article data-guide-feature="weather-launch-modes"><span aria-hidden="true">07</span><div><strong>开局天气分类</strong><p>开始页可选择无降水版、雨雪风暴版或混合版；选择会约束整局天气目标与预报，形成和消散仍经过常识缓冲，不会硬切。</p></div></article>
+              </div>
+              <aside class="guide-callout" data-guide-feature="weather-visual-only"><b>天气与地表公平合同</b><span>降水粒子、云雾和光影只改变呈现；真实积水、积雪与雪泥接触会对手动和领航施加相同的额外阻力，因此恶劣地表的稳定速度可能低于干地。路线、障碍、碰撞和生命始终不被天气模块改写。</span></aside>
+            </section>
+          </div>
+        </div>
+
+        <footer class="guide-footer">
+          <div class="guide-chapter-nav" role="group" aria-label="章节前后导航" data-i18n-aria-label="guide.footer.navigationAria">
+            <button class="guide-chapter-step" id="guidePreviousChapterBtn" type="button">
+              <span aria-hidden="true">←</span>
+              <small data-i18n="guide.footer.previous">上一章</small>
+              <b id="guidePreviousChapterLabel">天气与世界</b>
+            </button>
+            <div class="guide-chapter-progress" aria-hidden="true">
+              <small id="guideChapterProgress">01 / 04</small>
+              <b id="guideCurrentChapterLabel">操作</b>
+            </div>
+            <button class="guide-chapter-step is-next" id="guideNextChapterBtn" type="button">
+              <small data-i18n="guide.footer.next">下一章</small>
+              <b id="guideNextChapterLabel">导航</b>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <button class="guide-back" id="guideBackBtn" type="button"><span aria-hidden="true">↙</span> 返回上一界面</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- The music library is a presentation-only modal; its immutable catalog owns theme, source, and license metadata. -->
+    <section class="music-library-overlay" id="musicLibraryOverlay" role="dialog" aria-modal="true" aria-labelledby="musicLibraryTitle" aria-describedby="musicLibraryDescription musicThemeContract" hidden>
+      <div class="music-library-shell">
+        <header class="music-library-header">
+          <div>
+            <p class="music-library-eyebrow">SKY REALM NARRATIVE SCORE</p>
+            <h2 id="musicLibraryTitle">天空旅途音乐库</h2>
+            <p id="musicLibraryDescription" data-i18n="music.description">每境两章都按场景真实内涵重配；随境模式会沿当前地图叙事切换，不会把别处的情绪或鼓点串进来。</p>
+          </div>
+          <button class="language-toggle language-toggle-header" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+          <button class="music-library-close" id="musicLibraryCloseBtn" type="button" aria-label="关闭背景音乐库">×</button>
+        </header>
+
+        <div class="music-library-content">
+          <section class="music-now-playing" aria-labelledby="musicNowLabel">
+            <div class="music-now-orb" id="musicNowIcon" aria-hidden="true">☼</div>
+            <div class="music-now-copy">
+              <small id="musicNowLabel">正在守候</small>
+              <strong id="musicNowTitle">初光苏醒</strong>
+              <span id="musicNowRealm">晨岛云海 · 随境模式</span>
+            </div>
+            <div class="music-equalizer" id="musicEqualizer" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <span class="music-license-badge" id="musicLicenseBadge">CC0-1.0</span>
+          </section>
+
+          <section class="music-mode-section" aria-labelledby="musicModeTitle">
+            <div class="music-section-heading">
+              <div><small>PLAY MODE</small><h3 id="musicModeTitle">旅途方式</h3></div>
+              <p>切换方式只影响曲序，不触碰玩法随机数。</p>
+            </div>
+            <div class="music-mode-grid" role="group" aria-label="背景音乐播放方式">
+              <button type="button" data-music-mode="adaptive" aria-pressed="true"><span aria-hidden="true">◌</span><b>随境</b><small>跟随当前区域</small></button>
+              <button type="button" data-music-mode="sequential" aria-pressed="false"><span aria-hidden="true">↠</span><b>顺序</b><small>按六境旅程</small></button>
+              <button type="button" data-music-mode="shuffle" aria-pressed="false"><span aria-hidden="true">⌁</span><b>漫游</b><small>独立随机序列</small></button>
+              <button type="button" data-music-mode="manual" aria-pressed="false"><span aria-hidden="true">◇</span><b>自选</b><small>循环已选曲目</small></button>
+            </div>
+          </section>
+
+          <section class="music-track-section" aria-labelledby="musicTrackTitle">
+            <div class="music-section-heading">
+              <div><small>SIX REALMS</small><h3 id="musicTrackTitle">六境乐章</h3></div>
+              <p class="music-theme-contract" id="musicThemeContract"><span aria-hidden="true">✓</span> 六境叙事与响度合同已校验 · 待玩家试听签收</p>
+            </div>
+            <div class="music-track-list" id="musicTrackList"></div>
+          </section>
+        </div>
+
+        <footer class="music-library-footer">
+          <div class="music-transport" aria-label="背景音乐切换控制">
+            <button id="musicPreviousBtn" type="button" aria-label="播放上一首背景音乐">‹</button>
+            <button id="musicNextBtn" type="button" aria-label="播放下一首背景音乐">›</button>
+          </div>
+          <p id="musicLibraryStatus" role="status" aria-live="polite" aria-atomic="true">选择一首乐章即可预听；开始飞行后将按当前模式延续。</p>
+          <button class="music-library-done" id="musicLibraryDoneBtn" type="button">回到旅途</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Restart is the only destructive pause action; this sibling dialog can isolate the shared pause layer without inerting itself. -->
+    <section class="pause-restart-confirmation" id="pauseRestartConfirmation" data-testid="pause-restart-confirmation" role="alertdialog" aria-modal="true" aria-labelledby="pauseRestartConfirmationTitle" aria-describedby="pauseRestartConfirmationDescription" aria-hidden="true" hidden>
+      <div class="pause-restart-confirmation-card">
+        <button class="language-toggle language-toggle-dialog" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+        <p class="pause-restart-confirmation-eyebrow" data-i18n="launch.restartConfirm.eyebrow">航程重置确认</p>
+        <h2 id="pauseRestartConfirmationTitle" data-i18n="launch.restartConfirm.title">确认重新开始本局？</h2>
+        <p id="pauseRestartConfirmationDescription" data-i18n="launch.restartConfirm.description">当前航程的距离、得分、烛光和生命进度会被清除；本页已选画质与天气分类会保留。此操作无法撤销。</p>
+        <div class="pause-restart-confirmation-actions">
+          <button class="pause-restart-confirmation-cancel" id="pauseRestartCancelBtn" type="button" data-i18n="launch.restartConfirm.cancel">取消，返回暂停</button>
+          <button class="pause-restart-confirmation-confirm" id="pauseRestartConfirmBtn" type="button" data-i18n="launch.restartConfirm.confirm">确认重新开始</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="controls" id="controls" data-hud-zone="input" data-hud-contrast="on-light" role="group" aria-label="触控驾驶" data-i18n-aria-label="hud.mobile.touchControlsAria" inert>
+      <button class="touch-btn" id="leftBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="按住向左移动" data-camera-hud-occluder>◀</button>
+      <button class="touch-btn" id="jumpBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="起飞" data-camera-hud-occluder>⤴</button>
+      <button class="touch-btn" id="rightBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="按住向右移动" data-camera-hud-occluder>▶</button>
+      <button class="touch-btn touch-btn-throttle" id="throttleBtn" type="button" data-flight-deck-control tabindex="-1" data-control="throttle" aria-label="按住加速" data-camera-hud-occluder>↑</button>
+      <button class="touch-btn touch-btn-brake" id="brakeBtn" type="button" data-flight-deck-control tabindex="-1" data-control="brake" aria-label="按住刹车" data-camera-hud-occluder>↓</button>
+      <!-- MT exposes the two manual shift targets; AT removes them and compacts the remaining live gear/range rail. -->
+      <div class="mobile-transmission-selector" id="mobileTransmissionSelector" role="group" aria-labelledby="mobileGearSelectorLabel" aria-describedby="mobileGearHelp" data-current-gear="1" data-transmission-mode="manual" data-lugging="false" data-stalled="false" data-camera-hud-occluder>
+        <span class="sr-only" id="mobileGearSelectorLabel" data-i18n="gear.indicator">挡位</span>
+        <button class="mobile-gear-shift-button" id="mobileGearDownBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="降挡（Q）" data-i18n-aria-label="gear.downAria" data-shift-state="engaged" disabled><span aria-hidden="true">−</span></button>
+        <output class="mobile-gear-indicator" id="mobileGearIndicator" role="status" aria-live="polite" aria-atomic="true" aria-label="推进挡位，当前1挡，已接合" data-i18n-ignore data-gear="1" data-pending-gear="" data-shift-state="engaged">1挡</output>
+        <button class="mobile-gear-shift-button" id="mobileGearUpBtn" type="button" data-flight-deck-control tabindex="-1" aria-label="升挡（E）" data-i18n-aria-label="gear.upAria" data-shift-state="engaged"><span aria-hidden="true">+</span></button>
+        <button class="mobile-transmission-mode-toggle" id="mobileTransmissionModeBtn" type="button" data-flight-deck-control tabindex="-1" aria-pressed="false" aria-label="手动变速箱已启用，轻触切换自动挡" data-i18n-aria-label="gear.mode.mobileManualAria" data-transmission-mode="manual"><span aria-hidden="true">T</span><b id="mobileTransmissionModeState" data-i18n="gear.mode.manualShort">MT 手动</b></button>
+        <span class="mobile-gear-operating-range" id="mobileGearOperatingRange" data-i18n-ignore aria-label="1挡，推荐每小时0至90公里；每小时70公里以上可升入2挡">1挡 · 推荐 0–90 · E→2 ≥70</span>
+        <div class="mobile-gear-range-bands" role="img" aria-label="推荐工作带：1挡每小时0至90公里；2挡每小时70至140公里；3挡每小时140至280公里" data-i18n-aria-label="gear.rangeBandsAria">
+          <span data-gear-band="1"><b>1</b><em>0–90</em></span>
+          <span data-gear-band="2"><b>2</b><em>70–140</em></span>
+          <span data-gear-band="3"><b>3</b><em>140–280</em></span>
+        </div>
+      </div>
+      <p class="sr-only" id="mobileGearHelp" data-i18n="gear.help">T 独立切换手动挡与自动挡；MT 显示 Q / E 手动换挡键，AT 接管三挡并隐藏这些键以回收空间，同时保留当前挡、自动阈值与三挡工作带；电影模式只换镜头并服从当前 MT / AT 权限。</p>
+    </div>
+
+    <div class="fullscreen-notice" id="fullscreenNotice" role="status" aria-live="polite" aria-atomic="true" hidden data-camera-hud-occluder></div>
+
+    <!-- Updating is a reversible release state; it must never reuse the fatal recovery surface or its error semantics. -->
+    <section class="update-notice" id="updateNotice" data-testid="update-notice" role="dialog" aria-modal="true" aria-labelledby="updateNoticeTitle" aria-describedby="updateNoticeMessage updateNoticeStatus" aria-hidden="true" hidden>
+      <div class="update-notice-card">
+        <button class="language-toggle language-toggle-dialog" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+        <p class="update-notice-eyebrow">Neon LIVE UPDATE</p>
+        <h2 id="updateNoticeTitle">游戏正在更新</h2>
+        <p id="updateNoticeMessage">当前版本正在同步。检查通过后仍可进入；若核心文件或图形环境无法正常加载，将只提供重新加载。</p>
+        <p class="update-notice-status" id="updateNoticeStatus" role="status" aria-live="polite" aria-atomic="true">正在确认游戏是否可以正常运行……</p>
+        <code class="update-notice-details" id="updateNoticeDetails">update-status-pending</code>
+        <div class="update-notice-actions">
+          <button class="update-notice-continue" id="updateContinueBtn" type="button" disabled>仍要游玩</button>
+          <button class="update-notice-reload" id="updateReloadBtn" type="button">重新加载</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- This recovery surface is independent from the gameplay runtime, so failed initialization never leaves an inert start button. -->
+    <section class="startup-error" id="startupError" role="alertdialog" aria-modal="true" aria-labelledby="startupErrorTitle" aria-describedby="startupErrorMessage" aria-hidden="true" hidden>
+      <div class="startup-error-card">
+        <button class="language-toggle language-toggle-dialog" type="button" data-language-toggle data-language-compact aria-label="切换为英文">英</button>
+        <p class="startup-error-eyebrow">Neon STARTUP RECOVERY</p>
+        <h2 id="startupErrorTitle" tabindex="-1">游戏暂时无法启动</h2>
+        <p id="startupErrorMessage">请重新加载页面，或检查浏览器图形能力和游戏文件完整性。</p>
+        <details>
+          <summary>技术信息</summary>
+          <code id="startupErrorDetails">startup-failure</code>
+        </details>
+        <button id="startupRetryBtn" type="button">重新加载</button>
+      </div>
+    </section>
+
+    <div class="hint" data-i18n="hint.main" inert>
+      Neon 天际晨航：P 关闭时 M 为持续满油门且没有 120 km/h 目标上限；P 开启时领航统一调油、滑行和制动；F 只换电影镜头，不改变或屏蔽任何驾驶控制。
+    </div>
+
+    <!-- Startup recovery and the pinned local renderer remove network availability from the launch contract. -->
+    <script src="errors/startup.js?v=neon-ipad-road-residency-253"></script>
+    <!-- UI localization loads after the recovery boundary and before every catalog, Canvas, and runtime presenter. -->
+    <script src="src/ui/Neon_Autopilot_HighSpeed_DroneHeat.i18n.js?v=neon-ipad-road-residency-253"></script>
+    <script src="vendor/three-0.160.0.min.js?v=0.160.0"></script>
+    <script src="src/config/Neon_Autopilot_HighSpeed_DroneHeat.config.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Weather owns one pausable time schedule shared by forecast, lighting, cloud cover, surfaces, and particles. -->
+    <script src="src/weather/Neon_Autopilot_HighSpeed_DroneHeat.weather.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Shared watertight modeling primitives must load before every visual factory. -->
+    <script src="src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.modeling.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Realm-classified visual factories remain presentation-only and must precede world/runtime ownership. -->
+    <script src="src/entities/Neon_Autopilot_HighSpeed_DroneHeat.candlelight.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/entities/Neon_Autopilot_HighSpeed_DroneHeat.obstacles.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/world/Neon_Autopilot_HighSpeed_DroneHeat.creatures.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/world/Neon_Autopilot_HighSpeed_DroneHeat.region-scenery.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Physical lighting owns renderer units, HDR IBL, celestial/local lights, and every real shadow map. -->
+    <script src="src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.lighting.js?v=neon-ipad-road-residency-253"></script>
+    <!-- High-only post processing consumes lighting output but never creates or owns global lights. -->
+    <script src="src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.postprocessing.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.track.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js?v=neon-ipad-road-residency-253"></script>
+    <script src="errors/minimap.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-map.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/entities/Neon_Autopilot_HighSpeed_DroneHeat.ship.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/world/Neon_Autopilot_HighSpeed_DroneHeat.world.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/weather/Neon_Autopilot_HighSpeed_DroneHeat.surface-weather.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Pure gameplay contracts are shared by the browser runtime and deterministic Node regression tests. -->
+    <script src="src/gameplay/Neon_Autopilot_HighSpeed_DroneHeat.gameplay-core.js?v=neon-ipad-road-residency-253"></script>
+    <!-- The immutable catalog and source-derived rhythm profiles load before the effects and music transports. -->
+    <script src="src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-library.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-rhythm.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/audio/Neon_Autopilot_HighSpeed_DroneHeat.effect-assets.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/audio/Neon_Autopilot_HighSpeed_DroneHeat.audio.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-player.js?v=neon-ipad-road-residency-253"></script>
+    <!-- Fullscreen stays UI-only and includes the canvas, HUD, map, overlays, and touch controls as one page surface. -->
+    <script src="src/ui/Neon_Autopilot_HighSpeed_DroneHeat.fullscreen.js?v=neon-ipad-road-residency-253"></script>
+    <script src="src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js?v=neon-ipad-road-residency-253"></script>
+  </body>
+</html>

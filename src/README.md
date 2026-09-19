@@ -2,7 +2,7 @@
 
 ## 中文
 
-`src/` 保存全部第一方浏览器运行时。入口仍位于项目根目录，并按 `config → weather → rendering（lighting 后接 High-only postprocessing）→ navigation → entities → world → gameplay → audio → ui → runtime` 的既定脚本顺序加载；模块继续通过 `window.NeonV23*` 合同连接。Low/Medium 使用原直接渲染，High 的所有新增模块接口必须可逆并提供 `dispose`。
+`src/` 保存全部第一方浏览器运行时。入口仍位于项目根目录，并按 `config → weather → rendering（lighting 后接 High-only postprocessing）→ navigation → entities → world → gameplay → audio → ui → runtime` 的既定脚本顺序加载；模块继续通过 `window.Neon*` 合同连接。Low/Medium 使用原直接渲染，High 的所有新增模块接口必须可逆并提供 `dispose`。
 
 双语权威位于 `ui/`，但会在启动错误边界之后、Three.js 与其余第一方目录之前提前加载。后续模块保存语言中立的路线、天气、音乐与玩法状态，只在 DOM、无障碍属性、Canvas 或纹理呈现边界解析 `zh-CN` / `en` 文案。
 
@@ -16,7 +16,7 @@
 
 The tall-gear low-speed cross-module contract preserves one-way data flow. `gameplay` resolves linear loaded RPM, squared available torque, stall, and recovery gear; `runtime` remains the sole speed writer and distributes one read-only load packet to HUD, `audio`, and `entities/ship`; `ui`/`styles` only localize and emphasize discrete lugging/stall states. Audio and exhaust cannot infer or write physics, the central advisory cannot create a second gear authority, and complete stall still slows only through the existing rolling/aerodynamic resistance chain.
 
-`src/` contains all first-party browser runtime code. The entry remains at the project root and preserves `config → weather → rendering (High-only postprocessing after lighting) → navigation → entities → world → gameplay → audio → ui → runtime`; modules continue to connect through `window.NeonV23*` contracts. Low/Medium use the original direct path, and every new High interface must be reversible and disposable.
+`src/` contains all first-party browser runtime code. The entry remains at the project root and preserves `config → weather → rendering (High-only postprocessing after lighting) → navigation → entities → world → gameplay → audio → ui → runtime`; modules continue to connect through `window.Neon*` contracts. Low/Medium use the original direct path, and every new High interface must be reversible and disposable.
 
 The bilingual authority lives under `ui/` but loads early, immediately after the startup error boundary and before Three.js or any other first-party directory. Later modules retain language-neutral route, weather, music, and gameplay state and resolve `zh-CN` / `en` copy only at DOM, accessibility, Canvas, or texture presentation boundaries.
 

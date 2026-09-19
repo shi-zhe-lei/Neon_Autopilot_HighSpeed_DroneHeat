@@ -46,8 +46,8 @@ describe('LAN boundary contracts', () => {
   test('publishes production assets while keeping private material unavailable', () => {
     assert.equal(resolvePublicPath('/', config), config.entryPath);
     assert.equal(
-      resolvePublicPath('/src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js', config),
-      path.join(PROJECT_ROOT, 'src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js')
+      resolvePublicPath('/src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js', config),
+      path.join(PROJECT_ROOT, 'src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js')
     );
     assert.equal(resolvePublicPath('/README.md', config), null);
     assert.equal(resolvePublicPath('/docs/audits/AUDIT_REPORT_2026-07-16.md', config), null);
@@ -139,7 +139,7 @@ describe('HTTP behavior', () => {
     assert.equal(response.statusCode, 200);
     assert.match(response.headers['content-type'], /^text\/html/);
     assert.match(response.headers['content-security-policy'], /script-src 'self'/);
-    assert.match(response.body.toString('utf8'), /3D CC Runner · V23/);
+    assert.match(response.body.toString('utf8'), /3D CC Runner · Neon/);
   });
 
   test('supports native-media byte ranges', async () => {

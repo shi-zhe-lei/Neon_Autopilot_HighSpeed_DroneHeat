@@ -9,7 +9,7 @@ import { LanServerConfigurationError } from './errors/configuration.mjs';
 
 const SERVER_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SERVER_DIRECTORY, '..');
-const ENTRY_FILE = 'Neon_Autopilot_V23_HighSpeed_DroneHeat.html';
+const ENTRY_FILE = 'Neon_Autopilot_HighSpeed_DroneHeat.html';
 const DEFAULT_PORT = 8_088;
 const MAX_CONNECTIONS = 32;
 const MAX_REQUESTS_PER_SOCKET = 128;
@@ -144,11 +144,11 @@ function isWithinRoot(root, candidate) {
  * Parse and freeze the security boundary before listen(). The bind address must itself belong to the allowed subnet.
  */
 export function parseServerConfig(environment = process.env, overrides = {}) {
-  const host = overrides.host ?? environment.NEON_V23_LAN_HOST ?? '10.10.0.250';
-  const portText = overrides.port ?? environment.NEON_V23_LAN_PORT ?? DEFAULT_PORT;
-  const networkText = overrides.network ?? environment.NEON_V23_LAN_NETWORK ?? '10.10.0.0/24';
+  const host = overrides.host ?? environment.NEON_LAN_HOST ?? '10.10.0.250';
+  const portText = overrides.port ?? environment.NEON_LAN_PORT ?? DEFAULT_PORT;
+  const networkText = overrides.network ?? environment.NEON_LAN_NETWORK ?? '10.10.0.0/24';
   const deniedClientsText = overrides.deniedClients
-    ?? environment.NEON_V23_LAN_DENIED_CLIENTS
+    ?? environment.NEON_LAN_DENIED_CLIENTS
     ?? '10.10.0.1';
   const staticRootInput = overrides.staticRoot ?? PROJECT_ROOT;
   const port = Number(portText);
@@ -412,7 +412,7 @@ async function handleRequest(request, response, config) {
     const body = Buffer.from(JSON.stringify({
       allowedNetwork: config.network.text,
       bind: `${config.host}:${config.port}`,
-      service: 'neon-v23-lan',
+      service: 'neon-lan',
       status: 'ok'
     }), 'utf8');
     if (request.method === 'HEAD') {
@@ -455,7 +455,7 @@ export function createLanStaticServer(config, { logger = console } = {}) {
     });
 
     void handleRequest(request, response, config).catch((error) => {
-      logger.error?.('[neon-v23-lan] Unexpected request failure.', error);
+      logger.error?.('[neon-lan] Unexpected request failure.', error);
       if (!response.headersSent) sendText(response, 500, 'Internal server error.');
       else response.destroy();
       setImmediate(() => {
@@ -488,10 +488,10 @@ export async function startLanStaticServer(config, options = {}) {
 async function runMain() {
   const config = parseServerConfig();
   const server = await startLanStaticServer(config);
-  console.info(`[neon-v23-lan] Listening at http://${config.host}:${config.port}/ for ${config.network.text}`);
+  console.info(`[neon-lan] Listening at http://${config.host}:${config.port}/ for ${config.network.text}`);
 
   const shutdown = (signal) => {
-    console.info(`[neon-v23-lan] ${signal} received; closing.`);
+    console.info(`[neon-lan] ${signal} received; closing.`);
     server.close(() => process.exit(0));
     server.closeIdleConnections?.();
     setTimeout(() => process.exit(1), 5_000).unref();

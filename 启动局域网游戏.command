@@ -2,16 +2,16 @@
 
 set -u
 
-typeset -r service_label='com.gary.neon-v23-lan'
+typeset -r service_label='com.gary.neon-lan'
 typeset -r service_domain="gui/$(/usr/bin/id -u)"
 typeset -r service_target="${service_domain}/${service_label}"
 typeset -r launch_agent_path="${HOME}/Library/LaunchAgents/${service_label}.plist"
 typeset -r script_directory="${0:A:h}"
-typeset -r expected_entry_path="${script_directory}/Neon_Autopilot_V23_HighSpeed_DroneHeat.html"
+typeset -r expected_entry_path="${script_directory}/Neon_Autopilot_HighSpeed_DroneHeat.html"
 typeset -r expected_server_path="${script_directory}/server/lan-static-server.mjs"
 
 pause_if_interactive() {
-  if [[ -t 0 && "${NEON_V23_NO_PAUSE:-0}" != '1' ]]; then
+  if [[ -t 0 && "${NEON_NO_PAUSE:-0}" != '1' ]]; then
     printf '\n按任意键关闭此窗口…'
     read -k 1
     printf '\n'
@@ -38,10 +38,10 @@ typeset -r configured_node_path="$(
   /usr/bin/plutil -extract ProgramArguments.0 raw -o - "${launch_agent_path}" 2>/dev/null
 )"
 typeset -r lan_host="$(
-  /usr/bin/plutil -extract EnvironmentVariables.NEON_V23_LAN_HOST raw -o - "${launch_agent_path}" 2>/dev/null
+  /usr/bin/plutil -extract EnvironmentVariables.NEON_LAN_HOST raw -o - "${launch_agent_path}" 2>/dev/null
 )"
 typeset -r lan_port="$(
-  /usr/bin/plutil -extract EnvironmentVariables.NEON_V23_LAN_PORT raw -o - "${launch_agent_path}" 2>/dev/null
+  /usr/bin/plutil -extract EnvironmentVariables.NEON_LAN_PORT raw -o - "${launch_agent_path}" 2>/dev/null
 )"
 
 [[ "${configured_server_path}" == "${expected_server_path}" ]] \
@@ -58,7 +58,7 @@ typeset -r current_ethernet_ip="$(/usr/sbin/ipconfig getifaddr en0 2>/dev/null |
 
 typeset -r game_url="http://${lan_host}:${lan_port}/"
 typeset -r health_url="${game_url}__health"
-/bin/mkdir -p "${HOME}/Library/Logs/NeonV23LAN" \
+/bin/mkdir -p "${HOME}/Library/Logs/NeonLAN" \
   || fail '无法创建服务日志目录。'
 
 /bin/launchctl enable "${service_target}" \
@@ -84,12 +84,12 @@ done
 
 if [[ "${health_ready}" != '1' ]]; then
   printf '\n最近的错误日志：\n' >&2
-  /usr/bin/tail -n 20 "${HOME}/Library/Logs/NeonV23LAN/server-error.log" 2>/dev/null >&2 || true
+  /usr/bin/tail -n 20 "${HOME}/Library/Logs/NeonLAN/server-error.log" 2>/dev/null >&2 || true
   fail '服务未在 5 秒内通过健康检查。'
 fi
 
 printf '\n局域网宇宙飞船已启动：\n%s\n' "${game_url}"
-if [[ "${NEON_V23_SKIP_OPEN:-0}" != '1' ]]; then
+if [[ "${NEON_SKIP_OPEN:-0}" != '1' ]]; then
   /usr/bin/open "${game_url}" \
     || printf '服务已启动，但未能自动打开浏览器。\n' >&2
 fi

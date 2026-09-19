@@ -26,7 +26,7 @@ function assertCrlfOnly(bytes, label) {
 }
 
 describe('Windows local launcher contracts', () => {
-  const launcherBytes = readFileSync(join(PROJECT_DIRECTORY, 'Start-V23-Windows.cmd'));
+  const launcherBytes = readFileSync(join(PROJECT_DIRECTORY, 'Start-Neon-Windows.cmd'));
   const aliasBytes = readFileSync(join(PROJECT_DIRECTORY, '启动Windows本地游戏.cmd'));
   const serverBytes = readFileSync(join(PROJECT_DIRECTORY, 'server/windows-local-server.ps1'));
   const launcher = launcherBytes.toString('ascii');
@@ -46,10 +46,10 @@ describe('Windows local launcher contracts', () => {
   });
 
   test('uses a dependency-free loopback HTTP boundary without broad browser file permissions', () => {
-    assert.match(alias, /call "%V23_CANONICAL%"/);
-    assert.match(launcher, /V23_LAUNCHER=.*windows-local-server\.ps1/);
-    assert.match(launcher, /V23_POWERSHELL=%SystemRoot%\\System32\\WindowsPowerShell\\v1\.0\\powershell\.exe/);
-    assert.match(launcher, /"%V23_POWERSHELL%" .* -NonInteractive .* -File "%V23_LAUNCHER%"/);
+    assert.match(alias, /call "%Neon_CANONICAL%"/);
+    assert.match(launcher, /Neon_LAUNCHER=.*windows-local-server\.ps1/);
+    assert.match(launcher, /Neon_POWERSHELL=%SystemRoot%\\System32\\WindowsPowerShell\\v1\.0\\powershell\.exe/);
+    assert.match(launcher, /"%Neon_POWERSHELL%" .* -NonInteractive .* -File "%Neon_LAUNCHER%"/);
     assert.match(server, /System\.Net\.Sockets\.TcpListener/);
     assert.match(server, /System\.Net\.IPAddress\]::Loopback/);
     assert.match(server, /127\.0\.0\.1/);
@@ -57,11 +57,11 @@ describe('Windows local launcher contracts', () => {
   });
 
   test('keeps every launcher return visible and writes persistent diagnostics', () => {
-    assert.match(launcher, /set "V23_EXIT_CODE=%ERRORLEVEL%"[\s\S]*:finish/);
-    assert.match(launcher, /:finish[\s\S]*pause >nul[\s\S]*exit \/b %V23_EXIT_CODE%/);
-    assert.match(launcher, /V23_LAUNCH_LOG=%TEMP%\\NeonV23-Windows-launch\.log/);
-    assert.match(launcher, /echo V23 Windows local launcher preflight>"%V23_LAUNCH_LOG%"/);
-    assert.match(alias, /echo V23 Windows launcher alias preflight>"%V23_LAUNCH_LOG%"/);
+    assert.match(launcher, /set "Neon_EXIT_CODE=%ERRORLEVEL%"[\s\S]*:finish/);
+    assert.match(launcher, /:finish[\s\S]*pause >nul[\s\S]*exit \/b %Neon_EXIT_CODE%/);
+    assert.match(launcher, /Neon_LAUNCH_LOG=%TEMP%\\Neon-Windows-launch\.log/);
+    assert.match(launcher, /echo Neon Windows local launcher preflight>"%Neon_LAUNCH_LOG%"/);
+    assert.match(alias, /echo Neon Windows launcher alias preflight>"%Neon_LAUNCH_LOG%"/);
     assert.match(server, /Initialize-LaunchLog/);
     assert.match(server, /Write-LauncherDiagnostic/);
     assert.match(server, /Open-GameBrowser/);
@@ -86,8 +86,8 @@ describe('Windows local launcher contracts', () => {
     assert.ok(manifest.files.length >= 54);
     assert.ok(manifest.files.every((file) => /^[a-f\d]{64}$/.test(file.sha256)));
     for (const bootPath of [
-      'Neon_Autopilot_V23_HighSpeed_DroneHeat.html',
-      'Start-V23-Windows.cmd',
+      'Neon_Autopilot_HighSpeed_DroneHeat.html',
+      'Start-Neon-Windows.cmd',
       'server/windows-local-server.ps1',
       '启动Windows本地游戏.cmd'
     ]) {

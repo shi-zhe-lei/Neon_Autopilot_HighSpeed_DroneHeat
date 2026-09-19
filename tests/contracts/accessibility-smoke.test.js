@@ -10,10 +10,10 @@ const test = require('node:test');
 // Resolve authored UI contracts from the project root so test location and invocation cwd stay irrelevant.
 const PROJECT_ROOT = join(__dirname, '../..');
 const css = readFileSync(
-  join(PROJECT_ROOT, 'styles/Neon_Autopilot_V23_HighSpeed_DroneHeat.css'),
+  join(PROJECT_ROOT, 'styles/Neon_Autopilot_HighSpeed_DroneHeat.css'),
   'utf8'
 );
-const html = readFileSync(join(PROJECT_ROOT, 'Neon_Autopilot_V23_HighSpeed_DroneHeat.html'), 'utf8');
+const html = readFileSync(join(PROJECT_ROOT, 'Neon_Autopilot_HighSpeed_DroneHeat.html'), 'utf8');
 
 function ruleBody(selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1309,8 +1309,8 @@ test('tactical minimap keeps one atomic visual surface and one quiet accessible 
   assert.doesNotMatch(compassTag, /\baria-label=/);
 
   const minimapErrorsIndex = html.indexOf('<script src="errors/minimap.js');
-  const mapModuleIndex = html.indexOf('<script src="src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-map.js');
-  const runtimeIndex = html.indexOf('<script src="src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js');
+  const mapModuleIndex = html.indexOf('<script src="src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-map.js');
+  const runtimeIndex = html.indexOf('<script src="src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js');
   assert.ok(minimapErrorsIndex >= 0
     && minimapErrorsIndex < mapModuleIndex
     && mapModuleIndex < runtimeIndex,

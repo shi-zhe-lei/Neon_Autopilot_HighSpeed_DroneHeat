@@ -2,7 +2,7 @@
 
 ## 中文
 
-`lan-static-server.mjs` 只把 V23 生产入口和运行资源发布到指定局域网地址。默认合同为：
+`lan-static-server.mjs` 只把 Neon 生产入口和运行资源发布到指定局域网地址。默认合同为：
 
 - 监听 `10.10.0.250:8088`，不监听 `0.0.0.0`、回环地址、Wi-Fi、VPN 或雷雳网桥。
 - 仅接受来源于 `10.10.0.0/24` 的 IPv4 连接，显式拒绝网关 `10.10.0.1`，并只接受 `Host: 10.10.0.250[:8088]`；即使未来误设转发并由网关改写来源，也不能通过应用层检查。
@@ -10,7 +10,7 @@
 - 提供单段音频 Range、CSP、同源隔离、禁止嵌入、MIME 嗅探保护，以及关闭摄像头、麦克风、定位、USB、支付等无关浏览器权限。
 - 不提供账号、上传、目录列表、写接口、WebSocket 或反向代理，也不创建路由器端口映射。
 
-当前机器由用户级 LaunchAgent `com.gary.neon-v23-lan` 在登录后启动。局域网设备访问：
+登录后自动启动需要先安装用户级 LaunchAgent `com.gary.neon-lan`。局域网设备访问：
 
 ```text
 http://10.10.0.250:8088/
@@ -37,7 +37,7 @@ node --test server/lan-static-server.test.mjs
 
 ### Windows 本地启动
 
-Windows 玩家应双击项目根目录的 `Start-V23-Windows.cmd`；中文名 `启动Windows本地游戏.cmd` 是同一入口的轻量别名。不要直接在 Edge 打开 HTML，也不要直接打开 PS1。两个 CMD 均为纯 ASCII、无 BOM、CRLF，服务脚本为 Windows PowerShell 5.1 可解析的 UTF-8 BOM、CRLF。批处理固定调用系统 Windows PowerShell 并在任何退出码后保留结果窗口；服务把完整异常写入 Windows TEMP 下的 `NeonV23-Windows-launch.log`。`windows-local-server.ps1` 先按第 2 版清单校验主 HTML、两个 CMD、自身及全部生产资源的长度与 SHA-256，读不到 iCloud 占位文件、文件缺失、截断或混代时在打开浏览器前明确失败。通过后从 `48723–48732` 选择空闲端口，只绑定 `127.0.0.1`，只接受精确 Host、`GET / HEAD`、五个生产资源目录和单段 Range，并发送 CSP、同源、禁止嵌入和 MIME 防嗅探头。默认浏览器失败会尝试资源管理器并保留 URL。它不要求 Node/Python、管理员权限、Edge 扩展参数或网络连接；关闭启动窗口即释放服务。
+Windows 玩家应双击项目根目录的 `Start-Neon-Windows.cmd`；中文名 `启动Windows本地游戏.cmd` 是同一入口的轻量别名。不要直接在 Edge 打开 HTML，也不要直接打开 PS1。两个 CMD 均为纯 ASCII、无 BOM、CRLF，服务脚本为 Windows PowerShell 5.1 可解析的 UTF-8 BOM、CRLF。批处理固定调用系统 Windows PowerShell 并在任何退出码后保留结果窗口；服务把完整异常写入 Windows TEMP 下的 `Neon-Windows-launch.log`。`windows-local-server.ps1` 先按第 2 版清单校验主 HTML、两个 CMD、自身及全部生产资源的长度与 SHA-256，读不到 iCloud 占位文件、文件缺失、截断或混代时在打开浏览器前明确失败。通过后从 `48723–48732` 选择空闲端口，只绑定 `127.0.0.1`，只接受精确 Host、`GET / HEAD`、五个生产资源目录和单段 Range，并发送 CSP、同源、禁止嵌入和 MIME 防嗅探头。默认浏览器失败会尝试资源管理器并保留 URL。它不要求 Node/Python、管理员权限、Edge 扩展参数或网络连接；关闭启动窗口即释放服务。
 
 修改任何生产字节后运行：
 
@@ -48,7 +48,7 @@ node --test server/windows-local-server.test.mjs
 
 ## English
 
-`lan-static-server.mjs` publishes only the V23 production entry and runtime assets on one explicit LAN address. Its default contract is:
+`lan-static-server.mjs` publishes only the Neon production entry and runtime assets on one explicit LAN address. Its default contract is:
 
 - Listen on `10.10.0.250:8088`, never `0.0.0.0`, loopback, Wi-Fi, VPN, or Thunderbolt bridge addresses.
 - Accept IPv4 clients only from `10.10.0.0/24`, explicitly deny gateway `10.10.0.1`, and require `Host: 10.10.0.250[:8088]`. A future accidental forward whose source is rewritten by the gateway therefore still fails the application boundary.
@@ -56,7 +56,7 @@ node --test server/windows-local-server.test.mjs
 - Support one audio byte range and send CSP, same-origin isolation, anti-framing, MIME-sniffing protection, and denials for unrelated camera, microphone, location, USB, payment, and similar browser capabilities.
 - Expose no account, upload, directory-listing, write, WebSocket, or reverse-proxy surface, and create no router port forwarding.
 
-The current machine starts the service at login through the user LaunchAgent `com.gary.neon-v23-lan`. LAN devices use:
+Login autostart requires installing the user LaunchAgent `com.gary.neon-lan`. LAN devices use:
 
 ```text
 http://10.10.0.250:8088/
@@ -83,7 +83,7 @@ HTTP is acceptable on the current trusted LAN because the server handles no cred
 
 ### Windows local launch
 
-Windows players should double-click `Start-V23-Windows.cmd` at the project root; `启动Windows本地游戏.cmd` is a thin alias for the same entry. Do not open either the HTML or PS1 directly. Both CMD files are ASCII, BOM-free, and CRLF; the service script is UTF-8 BOM plus CRLF for Windows PowerShell 5.1. The batch pins the built-in Windows PowerShell path and keeps the result window visible for every exit code, while the service writes full failures to `NeonV23-Windows-launch.log` under Windows TEMP. `windows-local-server.ps1` checks the main HTML, both CMD files, itself, and all production resources against the schema-2 size/SHA-256 manifest before opening a browser. Unreadable iCloud placeholders, missing or truncated bytes, and mixed releases fail clearly. It then selects a free port from `48723–48732`, binds only `127.0.0.1`, accepts the exact Host plus `GET / HEAD`, five production directories, and one media range, and emits CSP, same-origin, anti-framing, and MIME-sniffing protections. Default-browser failure falls back through Explorer while leaving the URL visible. It needs no Node/Python, administrator rights, Edge file-access flag, or network connection. Closing the launcher window releases the service.
+Windows players should double-click `Start-Neon-Windows.cmd` at the project root; `启动Windows本地游戏.cmd` is a thin alias for the same entry. Do not open either the HTML or PS1 directly. Both CMD files are ASCII, BOM-free, and CRLF; the service script is UTF-8 BOM plus CRLF for Windows PowerShell 5.1. The batch pins the built-in Windows PowerShell path and keeps the result window visible for every exit code, while the service writes full failures to `Neon-Windows-launch.log` under Windows TEMP. `windows-local-server.ps1` checks the main HTML, both CMD files, itself, and all production resources against the schema-2 size/SHA-256 manifest before opening a browser. Unreadable iCloud placeholders, missing or truncated bytes, and mixed releases fail clearly. It then selects a free port from `48723–48732`, binds only `127.0.0.1`, accepts the exact Host plus `GET / HEAD`, five production directories, and one media range, and emits CSP, same-origin, anti-framing, and MIME-sniffing protections. Default-browser failure falls back through Explorer while leaving the URL visible. It needs no Node/Python, administrator rights, Edge file-access flag, or network connection. Closing the launcher window releases the service.
 
 After any production-byte change, run:
 

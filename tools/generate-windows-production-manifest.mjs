@@ -8,12 +8,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const TOOL_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 export const PROJECT_DIRECTORY = resolve(TOOL_DIRECTORY, '..');
 export const WINDOWS_MANIFEST_FILE = 'server/windows-production-manifest.json';
-export const WINDOWS_RELEASE = '23-ipad-road-residency-253';
+export const WINDOWS_RELEASE = 'neon-ipad-road-residency-253';
 const PRODUCTION_DIRECTORIES = Object.freeze(['assets', 'errors', 'src', 'styles', 'vendor']);
 const PRODUCTION_EXTENSIONS = new Set(['.css', '.js', '.mp3', '.ogg', '.png', '.wav']);
 const WINDOWS_BOOT_FILES = Object.freeze([
-  'Neon_Autopilot_V23_HighSpeed_DroneHeat.html',
-  'Start-V23-Windows.cmd',
+  'Neon_Autopilot_HighSpeed_DroneHeat.html',
+  'Start-Neon-Windows.cmd',
   'server/windows-local-server.ps1',
   '启动Windows本地游戏.cmd'
 ]);

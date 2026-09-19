@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Unified server-side verification for the V23 browser game.
- * V23 浏览器游戏统一服务端验证入口。
+ * Unified server-side verification for the Neon browser game.
+ * Neon 浏览器游戏统一服务端验证入口。
  *
  * This command intentionally excludes browser layout, WebGL rendering, trusted
  * gestures, and long-run gameplay. Those contracts require the real browser
@@ -15,16 +15,16 @@ import { fileURLToPath } from 'node:url';
 const toolDirectory = dirname(fileURLToPath(import.meta.url));
 // Verification resolves every deployment path from the project root, not from this tools module.
 const projectDirectory = join(toolDirectory, '..');
-const entryFile = 'Neon_Autopilot_V23_HighSpeed_DroneHeat.html';
-const layoutFixtureFile = 'tests/browser/Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html';
+const entryFile = 'Neon_Autopilot_HighSpeed_DroneHeat.html';
+const layoutFixtureFile = 'tests/browser/Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html';
 const postprocessingFixtureFile =
-  'tests/browser/Neon_Autopilot_V23_HighSpeed_DroneHeat.postprocessing-pixel-test.html';
+  'tests/browser/Neon_Autopilot_HighSpeed_DroneHeat.postprocessing-pixel-test.html';
 const collisionRenderFixtureFile =
-  'tests/browser/Neon_Autopilot_V23_HighSpeed_DroneHeat.collision-render-test.html';
+  'tests/browser/Neon_Autopilot_HighSpeed_DroneHeat.collision-render-test.html';
 const minimumNodeMajor = 20;
-const releaseCacheVersion = '23-ipad-road-residency-253';
+const releaseCacheVersion = 'neon-ipad-road-residency-253';
 const vendorCacheVersion = '0.160.0';
-const expectedStylesheet = 'styles/Neon_Autopilot_V23_HighSpeed_DroneHeat.css';
+const expectedStylesheet = 'styles/Neon_Autopilot_HighSpeed_DroneHeat.css';
 const expectedWeatherModes = Object.freeze(['dry', 'severe', 'mixed']);
 const expectedLayoutCases = Object.freeze([
   '1024x768',
@@ -57,33 +57,33 @@ const expectedLayoutCases = Object.freeze([
 ]);
 const expectedScriptOrder = Object.freeze([
   'errors/startup.js',
-  'src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js',
+  'src/ui/Neon_Autopilot_HighSpeed_DroneHeat.i18n.js',
   'vendor/three-0.160.0.min.js',
-  'src/config/Neon_Autopilot_V23_HighSpeed_DroneHeat.config.js',
-  'src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.weather.js',
-  'src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.modeling.js',
-  'src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.candlelight.js',
-  'src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.obstacles.js',
-  'src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.creatures.js',
-  'src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.region-scenery.js',
-  'src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.lighting.js',
-  'src/rendering/Neon_Autopilot_V23_HighSpeed_DroneHeat.postprocessing.js',
-  'src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.track.js',
-  'src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js',
-  'src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js',
+  'src/config/Neon_Autopilot_HighSpeed_DroneHeat.config.js',
+  'src/weather/Neon_Autopilot_HighSpeed_DroneHeat.weather.js',
+  'src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.modeling.js',
+  'src/entities/Neon_Autopilot_HighSpeed_DroneHeat.candlelight.js',
+  'src/entities/Neon_Autopilot_HighSpeed_DroneHeat.obstacles.js',
+  'src/world/Neon_Autopilot_HighSpeed_DroneHeat.creatures.js',
+  'src/world/Neon_Autopilot_HighSpeed_DroneHeat.region-scenery.js',
+  'src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.lighting.js',
+  'src/rendering/Neon_Autopilot_HighSpeed_DroneHeat.postprocessing.js',
+  'src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.track.js',
+  'src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js',
+  'src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js',
   'errors/minimap.js',
-  'src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-map.js',
-  'src/entities/Neon_Autopilot_V23_HighSpeed_DroneHeat.ship.js',
-  'src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.world.js',
-  'src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.surface-weather.js',
-  'src/gameplay/Neon_Autopilot_V23_HighSpeed_DroneHeat.gameplay-core.js',
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-library.js',
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-rhythm.js',
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.effect-assets.js',
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.audio.js',
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-player.js',
-  'src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.fullscreen.js',
-  'src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js'
+  'src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-map.js',
+  'src/entities/Neon_Autopilot_HighSpeed_DroneHeat.ship.js',
+  'src/world/Neon_Autopilot_HighSpeed_DroneHeat.world.js',
+  'src/weather/Neon_Autopilot_HighSpeed_DroneHeat.surface-weather.js',
+  'src/gameplay/Neon_Autopilot_HighSpeed_DroneHeat.gameplay-core.js',
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-library.js',
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-rhythm.js',
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.effect-assets.js',
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.audio.js',
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-player.js',
+  'src/ui/Neon_Autopilot_HighSpeed_DroneHeat.fullscreen.js',
+  'src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js'
 ]);
 // Every first-party runtime file belongs to one deployment generation; only
 // the pinned vendor filename/version follows its independent upstream version.
@@ -109,7 +109,7 @@ function collectJavaScriptFiles(directory) {
 
 /** Parse one relative production asset URL without coupling validation to a live server. */
 function parseAssetSource(source) {
-  const parsed = new URL(source, 'https://v23.local.invalid/');
+  const parsed = new URL(source, 'https://neon.local.invalid/');
   return {
     path: parsed.pathname.replace(/^\//, ''),
     version: parsed.searchParams.get('v')
@@ -265,7 +265,7 @@ function verifyEntryContract() {
     fail('flight manual must keep ambient creatures presentation-only without exposing legacy speed copy');
   }
   const i18nSource = readFileSync(
-    join(projectDirectory, 'src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js'),
+    join(projectDirectory, 'src/ui/Neon_Autopilot_HighSpeed_DroneHeat.i18n.js'),
     'utf8'
   );
   if (!html.includes('四驾驶视角、电影模式与全屏')
@@ -279,7 +279,7 @@ function verifyEntryContract() {
   }
   // Cloud safety belongs to world presentation and must remain exported for deterministic server-side tests.
   const worldSource = readFileSync(
-    join(projectDirectory, 'src/world/Neon_Autopilot_V23_HighSpeed_DroneHeat.world.js'),
+    join(projectDirectory, 'src/world/Neon_Autopilot_HighSpeed_DroneHeat.world.js'),
     'utf8'
   );
   for (const marker of [
@@ -328,9 +328,9 @@ function verifyEntryContract() {
     'transparent: false',
     'depthWrite: true',
     'morphAttributes[attributeName] = [nextAttribute]',
-    "setAttribute('neonV23NextHorizonColor', nextAttribute)",
-    'attribute vec3 neonV23NextHorizonColor',
-    'uniform float neonV23HorizonColorBlend',
+    "setAttribute('neonNextHorizonColor', nextAttribute)",
+    'attribute vec3 neonNextHorizonColor',
+    'uniform float neonHorizonColorBlend',
     'material.customProgramCacheKey',
     'colorBlendUniform.value = blend',
     'ultraHorizonAnchorWorldX - renderOriginX',
@@ -341,9 +341,9 @@ function verifyEntryContract() {
   }
   for (const forbidden of [
     'createUltraHorizonRibbon',
-    'V23.World.UltraHorizonFeatures',
+    'Neon.World.UltraHorizonFeatures',
     'ultraHorizonOpacityWeightSum',
-    'neonV23BaseOpacity'
+    'neonBaseOpacity'
   ]) {
     if (worldSource.includes(forbidden)) {
       fail(`world High horizon must not restore the flat/repeated implementation: ${forbidden}`);
@@ -376,7 +376,7 @@ function verifyEntryContract() {
     if (!html.includes(marker)) fail(`HUD candle handling meter is missing ${marker}`);
   }
   const gameplayCoreSource = readFileSync(
-    join(projectDirectory, 'src/gameplay/Neon_Autopilot_V23_HighSpeed_DroneHeat.gameplay-core.js'),
+    join(projectDirectory, 'src/gameplay/Neon_Autopilot_HighSpeed_DroneHeat.gameplay-core.js'),
     'utf8'
   );
   for (const marker of [
@@ -460,13 +460,13 @@ function verifyEntryContract() {
     if (!stylesheetSource.includes(marker)) fail(`HUD candle handling styles are missing ${marker}`);
   }
   const runtimeSource = readFileSync(
-    join(projectDirectory, 'src/runtime/Neon_Autopilot_V23_HighSpeed_DroneHeat.js'),
+    join(projectDirectory, 'src/runtime/Neon_Autopilot_HighSpeed_DroneHeat.js'),
     'utf8'
   );
   const cloverleafTilesSource = readFileSync(
     join(
       projectDirectory,
-      'src/navigation/Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js'
+      'src/navigation/Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js'
     ),
     'utf8'
   );
@@ -522,7 +522,7 @@ function verifyEntryContract() {
     if (!runtimeSource.includes(marker)) fail(`runtime hood-camera contract is missing ${marker}`);
   }
   const surfaceWeatherSource = readFileSync(
-    join(projectDirectory, 'src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.surface-weather.js'),
+    join(projectDirectory, 'src/weather/Neon_Autopilot_HighSpeed_DroneHeat.surface-weather.js'),
     'utf8'
   );
   for (const marker of [
@@ -557,7 +557,7 @@ function verifyEntryContract() {
     }
   }
   const weatherSource = readFileSync(
-    join(projectDirectory, 'src/weather/Neon_Autopilot_V23_HighSpeed_DroneHeat.weather.js'),
+    join(projectDirectory, 'src/weather/Neon_Autopilot_HighSpeed_DroneHeat.weather.js'),
     'utf8'
   );
   for (const marker of [
@@ -646,7 +646,7 @@ function verifyEntryContract() {
     ].join('\n'));
   }
   const startupIndex = actualScriptOrder.indexOf('errors/startup.js');
-  const i18nIndex = actualScriptOrder.indexOf('src/ui/Neon_Autopilot_V23_HighSpeed_DroneHeat.i18n.js');
+  const i18nIndex = actualScriptOrder.indexOf('src/ui/Neon_Autopilot_HighSpeed_DroneHeat.i18n.js');
   const threeIndex = actualScriptOrder.indexOf('vendor/three-0.160.0.min.js');
   if (i18nIndex !== startupIndex + 1 || threeIndex !== i18nIndex + 1) {
     fail('entry must load startup -> i18n -> local Three.js before the remaining runtime');

@@ -1,4 +1,4 @@
-# V23 音频资源 / V23 Audio Assets
+# Neon 音频资源 / Neon Audio Assets
 
 最终六境叙事重配 / Final six-realm narrative remap: `2026-07-29`
 
@@ -70,7 +70,7 @@
 
 `phaseJump3.ogg` 只服务手动、触控或领航避障明确触发的 SPACE 起飞，实体跳台坡唇自然失去支撑的 `jump-platform-release` 不调用该样本。加载成功的样本不再额外叠加高频合成强调音；缺失或解码失败时才使用克制的完整合成回退。左右转向、自动领航开/关以及近/中/远雷拥有独立合成声。雨、风/雪、冰雹、沙尘、推进、制动和水雪接触使用持久滤波声层，不需要额外文件；其中雨声由程序化轻雨、中雨与暴雨三层连续交叉淡化，不是缺失的录音资产。
 
-`V23-effect-assets-1` 由 `tools/generate-effect-audio-inline.mjs` 把上述九个 OGG 原始字节生成内联传输。`file://` 直接解码内联字节；HTTP(S) 请求绑定发布代号，并在传输失败或成功响应无法解码时使用同字节回退。两者进入同一 Web Audio 解码、增益、速率和总线。
+`Neon-effect-assets-1` 由 `tools/generate-effect-audio-inline.mjs` 把上述九个 OGG 原始字节生成内联传输。`file://` 直接解码内联字节；HTTP(S) 请求绑定发布代号，并在传输失败或成功响应无法解码时使用同字节回退。两者进入同一 Web Audio 解码、增益、速率和总线。
 
 ## English
 
@@ -138,4 +138,4 @@ The nine event samples come from the linked Kenney CC0 packs: [Sci-fi Sounds](ht
 
 `phaseJump3.ogg` serves only an active SPACE launch from manual, touch, or autopilot obstacle intent; passive `jump-platform-release` separation at a physical platform lip never requests it. A decoded sample is not doubled with a bright synthesized accent. Restrained full synthesis is used only when a sample is missing or undecodable. Left/right steering, autopilot on/off, and near/mid/far thunder have dedicated synthesis. Rain, wind/snow, hail, dust, propulsion, braking, and water/snow contact use persistent filtered layers and require no additional files; rain continuously crossfades programmatic light, steady, and downpour layers rather than relying on an absent recording asset.
 
-`V23-effect-assets-1` is generated from the unchanged bytes of these nine OGG files by `tools/generate-effect-audio-inline.mjs`. `file://` decodes inline directly; release-keyed HTTP(S) requests use the same bytes after transport failure or an undecodable successful response. Both enter the same Web Audio decode, gain, rate, and bus.
+`Neon-effect-assets-1` is generated from the unchanged bytes of these nine OGG files by `tools/generate-effect-audio-inline.mjs`. `file://` decodes inline directly; release-keyed HTTP(S) requests use the same bytes after transport failure or an undecodable successful response. Both enter the same Web Audio decode, gain, rate, and bus.

@@ -15,10 +15,10 @@ const TOOL_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(TOOL_DIRECTORY, '..');
 const OUTPUT_PATH = path.join(
   PROJECT_ROOT,
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.effect-assets.js'
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.effect-assets.js'
 );
-const RELEASE_GENERATION = '23-ipad-road-residency-253';
-const MODULE_VERSION = 'V23-effect-assets-1';
+const RELEASE_GENERATION = 'neon-ipad-road-residency-253';
+const MODULE_VERSION = 'Neon-effect-assets-1';
 const DATA_URL_PREFIX = 'data:audio/ogg;base64,';
 const ASSET_FILES = Object.freeze({
   impact: 'impactMetal_003.ogg',
@@ -46,7 +46,7 @@ function renderModule(dataUrls) {
     .join(',\n');
 
   return `/*
- * V23 exact-byte inline effect masters for direct-file audio parity.
+ * Neon exact-byte inline effect masters for direct-file audio parity.
  *
  * These data URLs contain the unchanged bytes of the nine redistributed OGG files. Runtime decodes them
  * through the same Web Audio graph used for HTTP-loaded assets; this module is transport, not a remix.
@@ -60,7 +60,7 @@ function renderModule(dataUrls) {
 ${dataUrlSource}
   });
 
-  window.NeonV23EffectAssets = Object.freeze({
+  window.NeonEffectAssets = Object.freeze({
     version: '${MODULE_VERSION}',
     releaseGeneration: '${RELEASE_GENERATION}',
     dataUrls

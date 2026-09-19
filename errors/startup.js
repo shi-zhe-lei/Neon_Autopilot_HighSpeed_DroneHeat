@@ -1,36 +1,36 @@
 /*
- * V23 startup and storage error boundary.
- * V23 启动与存储错误边界。
+ * Neon startup and storage error boundary.
+ * Neon 启动与存储错误边界。
  */
 (() => {
   'use strict';
 
-  class NeonV23StartupError extends Error {
+  class NeonStartupError extends Error {
     constructor(message, options = {}) {
       super(message, options.cause ? { cause: options.cause } : undefined);
-      this.name = 'NeonV23StartupError';
+      this.name = 'NeonStartupError';
       this.code = options.code || 'startup-failure';
     }
   }
 
-  class NeonV23DependencyError extends NeonV23StartupError {
+  class NeonDependencyError extends NeonStartupError {
     constructor(message, options = {}) {
       super(message, { ...options, code: options.code || 'dependency-unavailable' });
-      this.name = 'NeonV23DependencyError';
+      this.name = 'NeonDependencyError';
     }
   }
 
-  class NeonV23RenderingError extends NeonV23StartupError {
+  class NeonRenderingError extends NeonStartupError {
     constructor(message, options = {}) {
       super(message, { ...options, code: options.code || 'rendering-unavailable' });
-      this.name = 'NeonV23RenderingError';
+      this.name = 'NeonRenderingError';
     }
   }
 
-  class NeonV23StorageError extends NeonV23StartupError {
+  class NeonStorageError extends NeonStartupError {
     constructor(message, options = {}) {
       super(message, { ...options, code: options.code || 'storage-unavailable' });
-      this.name = 'NeonV23StorageError';
+      this.name = 'NeonStorageError';
     }
   }
 
@@ -117,7 +117,7 @@
     } else {
       element.removeAttribute?.('data-i18n-params');
     }
-    const i18n = window.NeonV23I18n;
+    const i18n = window.NeonI18n;
     element.textContent = typeof i18n?.t === 'function'
       ? i18n.t(key, normalizedParameters, { fallback })
       : fallback;
@@ -128,7 +128,7 @@
     if (!element) return;
     element.removeAttribute?.('data-i18n');
     element.removeAttribute?.('data-i18n-params');
-    const i18n = window.NeonV23I18n;
+    const i18n = window.NeonI18n;
     element.textContent = typeof i18n?.translateSource === 'function'
       ? i18n.translateSource(source)
       : String(source ?? '');
@@ -506,7 +506,7 @@
     const retryButton = document.getElementById('startupRetryBtn');
     const normalized = error instanceof Error
       ? error
-      : new NeonV23StartupError(errorMessage(error), { code: options.code });
+      : new NeonStartupError(errorMessage(error), { code: options.code });
     const code = options.code || normalized.code || 'startup-failure';
 
     diagnostics.fatalErrorCount++;
@@ -557,7 +557,7 @@
     } catch (error) {
       diagnostics.storageReadFailures++;
       diagnostics.lastStorageError = errorMessage(error);
-      console.warn('[V23 storage] Unable to read persistent data; session play remains available.', error);
+      console.warn('[Neon storage] Unable to read persistent data; session play remains available.', error);
       return fallback;
     }
   }
@@ -570,7 +570,7 @@
     } catch (error) {
       diagnostics.storageReadFailures++;
       diagnostics.lastStorageError = errorMessage(error);
-      console.warn('[V23 storage] Unable to read persistent data; session play remains available.', error);
+      console.warn('[Neon storage] Unable to read persistent data; session play remains available.', error);
       return fallback;
     }
   }
@@ -582,7 +582,7 @@
     } catch (error) {
       diagnostics.storageWriteFailures++;
       diagnostics.lastStorageError = errorMessage(error);
-      console.warn('[V23 storage] Unable to persist data; the current result remains visible.', error);
+      console.warn('[Neon storage] Unable to persist data; the current result remains visible.', error);
       return false;
     }
   }
@@ -614,7 +614,7 @@
       const handled = fatalHandler(error, options);
       return handled === false ? showError(error, options) : true;
     } catch (handlerError) {
-      console.error('[V23 startup] Fatal handler failed; falling back to the startup recovery surface.', handlerError);
+      console.error('[Neon startup] Fatal handler failed; falling back to the startup recovery surface.', handlerError);
       return showError(error, options);
     }
   }
@@ -628,7 +628,7 @@
     const activeScriptSource = resourceTarget?.src || document.currentScript?.src || '';
     if (resourceTarget) {
       return Object.freeze({
-        error: new NeonV23DependencyError(
+        error: new NeonDependencyError(
           `Script resource failed to load: ${activeScriptSource || 'unknown local script'}`,
           { code: 'script-resource-load-failed' }
         ),
@@ -641,7 +641,7 @@
       && /^Script error\.?$/i.test(String(event?.message || '').trim());
     if (sanitizedFileScriptError) {
       return Object.freeze({
-        error: new NeonV23StartupError(
+        error: new NeonStartupError(
           'Windows local-file script failure was hidden by browser origin isolation; use 启动Windows本地游戏.cmd.',
           { code: 'file-script-opaque-error' }
         ),
@@ -654,7 +654,7 @@
     if (Number.isFinite(event?.lineno) && event.lineno > 0) options.line = event.lineno;
     if (Number.isFinite(event?.colno) && event.colno > 0) options.column = event.colno;
     return Object.freeze({
-      error: event?.error || new NeonV23StartupError(event?.message || 'Uncaught startup error'),
+      error: event?.error || new NeonStartupError(event?.message || 'Uncaught startup error'),
       options
     });
   }
@@ -673,7 +673,7 @@
   }, true);
   window.addEventListener('unhandledrejection', (event) => {
     handleFatal(
-      event.reason || new NeonV23StartupError('Unhandled startup rejection'),
+      event.reason || new NeonStartupError('Unhandled startup rejection'),
       fatalHandler ? { code: 'runtime-unhandled-rejection' } : {}
     );
   });
@@ -699,13 +699,13 @@
   }
   document.getElementById('startupRetryBtn')?.addEventListener('click', () => window.location.reload());
 
-  window.NeonV23Errors = Object.freeze({
-    NeonV23StartupError,
-    NeonV23DependencyError,
-    NeonV23RenderingError,
-    NeonV23StorageError
+  window.NeonErrors = Object.freeze({
+    NeonStartupError,
+    NeonDependencyError,
+    NeonRenderingError,
+    NeonStorageError
   });
-  window.NeonV23Startup = Object.freeze({
+  window.NeonStartup = Object.freeze({
     showError,
     registerFatalHandler,
     registerUpdateContinueHandler,

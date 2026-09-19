@@ -1,4 +1,4 @@
-# V23 宇宙飞船整改计划
+# Neon 宇宙飞船整改计划
 
 - 日期：2026-07-16
 - 原则：先修公平和质量门禁，再做性能、可访问性和文档清理
@@ -10,8 +10,8 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
-- 新增建议：`Neon_Autopilot_V23_HighSpeed_DroneHeat.gameplay-core.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
+- 新增建议：`Neon_Autopilot_HighSpeed_DroneHeat.gameplay-core.test.js`
 
 修改：
 
@@ -31,8 +31,8 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.track.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.track.js`
 
 修改：
 
@@ -51,7 +51,7 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
 
 修改：
 
@@ -68,9 +68,9 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.track.test.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.track.test.js`
 
 修改：
 
@@ -90,9 +90,9 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.cloverleaf-tiles.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html`
+- `Neon_Autopilot_HighSpeed_DroneHeat.cloverleaf-tiles.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html`
 
 修改：
 
@@ -112,9 +112,9 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.html`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.js`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.fullscreen.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.html`
+- `Neon_Autopilot_HighSpeed_DroneHeat.js`
+- `Neon_Autopilot_HighSpeed_DroneHeat.fullscreen.js`
 - README
 
 修改：
@@ -137,8 +137,8 @@
 
 涉及文件：
 
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.css`
-- `Neon_Autopilot_V23_HighSpeed_DroneHeat.layout-test.html`
+- `Neon_Autopilot_HighSpeed_DroneHeat.css`
+- `Neon_Autopilot_HighSpeed_DroneHeat.layout-test.html`
 
 修改：
 

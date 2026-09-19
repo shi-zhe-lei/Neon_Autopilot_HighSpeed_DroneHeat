@@ -1,5 +1,5 @@
-﻿# V23 dependency-free Windows loopback launcher. It verifies copied production bytes before exposing them to this PC.
-# V23 零依赖 Windows 回环启动器：先校验搬移后的生产文件，再仅向本机提供游戏。
+﻿# Neon dependency-free Windows loopback launcher. It verifies copied production bytes before exposing them to this PC.
+# Neon 零依赖 Windows 回环启动器：先校验搬移后的生产文件，再仅向本机提供游戏。
 [CmdletBinding()]
 param()
 
@@ -7,7 +7,7 @@ Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$EntryName = 'Neon_Autopilot_V23_HighSpeed_DroneHeat.html'
+$EntryName = 'Neon_Autopilot_HighSpeed_DroneHeat.html'
 $EntryPath = Join-Path $ProjectRoot $EntryName
 $ManifestPath = Join-Path $PSScriptRoot 'windows-production-manifest.json'
 $AllowedDirectories = @('assets', 'errors', 'src', 'styles', 'vendor')
@@ -16,9 +16,9 @@ $LastPort = 48732
 $Utf8 = [System.Text.UTF8Encoding]::new($false)
 $Utf8WithBom = [System.Text.UTF8Encoding]::new($true)
 $Ascii = [System.Text.Encoding]::ASCII
-$script:LaunchLogPath = [System.Environment]::GetEnvironmentVariable('V23_LAUNCH_LOG')
+$script:LaunchLogPath = [System.Environment]::GetEnvironmentVariable('Neon_LAUNCH_LOG')
 if ([string]::IsNullOrWhiteSpace($script:LaunchLogPath)) {
-  $script:LaunchLogPath = Join-Path ([System.IO.Path]::GetTempPath()) 'NeonV23-Windows-launch.log'
+  $script:LaunchLogPath = Join-Path ([System.IO.Path]::GetTempPath()) 'Neon-Windows-launch.log'
 }
 $script:LaunchLogReady = $false
 
@@ -28,7 +28,7 @@ function Initialize-LaunchLog {
     if (-not [System.IO.Directory]::Exists($logDirectory)) {
       [void][System.IO.Directory]::CreateDirectory($logDirectory)
     }
-    $header = "V23 Windows local launcher log - $(Get-Date -Format 'o')`r`n"
+    $header = "Neon Windows local launcher log - $(Get-Date -Format 'o')`r`n"
     [System.IO.File]::WriteAllText($script:LaunchLogPath, $header, $Utf8WithBom)
     $script:LaunchLogReady = $true
   } catch {
@@ -42,10 +42,10 @@ function Write-LauncherMessage {
     [string]$Message,
     [System.ConsoleColor]$ForegroundColor = [System.ConsoleColor]::Gray
   )
-  Write-Host "[V23] $Message" -ForegroundColor $ForegroundColor
+  Write-Host "[Neon] $Message" -ForegroundColor $ForegroundColor
   if (-not $script:LaunchLogReady) { return }
   try {
-    $line = "$(Get-Date -Format 'o') [V23] $Message`r`n"
+    $line = "$(Get-Date -Format 'o') [Neon] $Message`r`n"
     [System.IO.File]::AppendAllText($script:LaunchLogPath, $line, $Utf8)
   } catch {
     # Stop retrying after a diagnostic-log failure so gameplay startup remains independent of TEMP.
@@ -69,7 +69,7 @@ function Write-LauncherDiagnostic {
 function Stop-WithFailure {
   param([string]$Message, [int]$ExitCode = 1)
   $failure = [System.InvalidOperationException]::new($Message)
-  $failure.Data['V23ExitCode'] = $ExitCode
+  $failure.Data['NeonExitCode'] = $ExitCode
   throw $failure
 }
 
@@ -150,7 +150,7 @@ function New-LoopbackListener {
       $listener.Stop()
     }
   }
-  Stop-WithFailure "本机端口 $FirstPort-$LastPort 均被占用。请关闭旧的 V23 启动窗口后重试。" 4
+  Stop-WithFailure "本机端口 $FirstPort-$LastPort 均被占用。请关闭旧的 Neon 启动窗口后重试。" 4
 }
 
 function Get-MimeType {
@@ -418,8 +418,8 @@ try {
   $exitCode = 0
   Write-LauncherMessage '本地服务已由用户停止。' Yellow
 } catch {
-  $exitCode = if ($_.Exception.Data.Contains('V23ExitCode')) {
-    [int]$_.Exception.Data['V23ExitCode']
+  $exitCode = if ($_.Exception.Data.Contains('NeonExitCode')) {
+    [int]$_.Exception.Data['NeonExitCode']
   } else {
     5
   }

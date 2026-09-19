@@ -2,13 +2,13 @@
 
 set -u
 
-typeset -r service_label='com.gary.neon-v23-lan'
+typeset -r service_label='com.gary.neon-lan'
 typeset -r service_domain="gui/$(/usr/bin/id -u)"
 typeset -r service_target="${service_domain}/${service_label}"
 typeset -r launch_agent_path="${HOME}/Library/LaunchAgents/${service_label}.plist"
 
 pause_if_interactive() {
-  if [[ -t 0 && "${NEON_V23_NO_PAUSE:-0}" != '1' ]]; then
+  if [[ -t 0 && "${NEON_NO_PAUSE:-0}" != '1' ]]; then
     printf '\n按任意键关闭此窗口…'
     read -k 1
     printf '\n'
@@ -26,10 +26,10 @@ fail() {
   || fail '自动启动配置格式无效。'
 
 typeset -r lan_host="$(
-  /usr/bin/plutil -extract EnvironmentVariables.NEON_V23_LAN_HOST raw -o - "${launch_agent_path}" 2>/dev/null
+  /usr/bin/plutil -extract EnvironmentVariables.NEON_LAN_HOST raw -o - "${launch_agent_path}" 2>/dev/null
 )"
 typeset -r lan_port="$(
-  /usr/bin/plutil -extract EnvironmentVariables.NEON_V23_LAN_PORT raw -o - "${launch_agent_path}" 2>/dev/null
+  /usr/bin/plutil -extract EnvironmentVariables.NEON_LAN_PORT raw -o - "${launch_agent_path}" 2>/dev/null
 )"
 [[ "${lan_port}" == <-> ]] \
   || fail '自动启动配置中的端口不是有效整数。'

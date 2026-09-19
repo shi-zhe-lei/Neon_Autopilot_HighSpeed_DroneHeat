@@ -1,4 +1,4 @@
-# V23 六境背景音乐库审查 / V23 Six-Realm Music Library Audit
+# Neon 六境背景音乐库审查 / Neon Six-Realm Music Library Audit
 
 初审 / Initial review: `2026-07-21`  
 双曲扩展 / Two-score expansion: `2026-07-26`  

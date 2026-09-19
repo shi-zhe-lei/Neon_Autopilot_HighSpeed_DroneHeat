@@ -18,11 +18,11 @@ const TOOL_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(TOOL_DIRECTORY, '..');
 const LIBRARY_PATH = path.join(
   PROJECT_ROOT,
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-library.js'
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-library.js'
 );
 const OUTPUT_PATH = path.join(
   PROJECT_ROOT,
-  'src/audio/Neon_Autopilot_V23_HighSpeed_DroneHeat.music-rhythm.js'
+  'src/audio/Neon_Autopilot_HighSpeed_DroneHeat.music-rhythm.js'
 );
 const FFMPEG_PATH = process.env.FFMPEG_PATH || 'ffmpeg';
 const SAMPLE_RATE_HZ = 12;
@@ -51,7 +51,7 @@ function runFfmpeg(argumentsList, options = {}) {
 function loadLibrary() {
   const context = vm.createContext({ window: {} });
   vm.runInContext(fs.readFileSync(LIBRARY_PATH, 'utf8'), context, { filename: LIBRARY_PATH });
-  return context.window.NeonV23MusicLibrary;
+  return context.window.NeonMusicLibrary;
 }
 
 function sha256(filePath) {
@@ -225,7 +225,7 @@ function renderModule(profiles) {
     })`).join(',\n');
 
   return `/*
- * V23 score-synchronized rhythm and loudness profiles.
+ * Neon score-synchronized rhythm and loudness profiles.
  *
  * The exact redistributed masters are decoded at 22_050 Hz. Continuous second-order filters reduce them
  * to source-derived five-band envelopes at 12 Hz, while ffmpeg loudnorm records ITU-R BS.1770 / EBU R128
@@ -236,8 +236,8 @@ function renderModule(profiles) {
 (() => {
   'use strict';
 
-  const library = window.NeonV23MusicLibrary;
-  if (!library) throw new Error('V23 music library dependency missing for rhythm profiles');
+  const library = window.NeonMusicLibrary;
+  if (!library) throw new Error('Neon music library dependency missing for rhythm profiles');
 
   const SAMPLE_RATE_HZ = ${formatInteger(SAMPLE_RATE_HZ)};
   const ANALYSIS_SAMPLE_RATE_HZ = ${formatInteger(ANALYSIS_SAMPLE_RATE_HZ)};
@@ -369,8 +369,8 @@ ${profileSource}
     });
   }
 
-  window.NeonV23MusicRhythm = Object.freeze({
-    version: 'V23-music-rhythm-4',
+  window.NeonMusicRhythm = Object.freeze({
+    version: 'Neon-music-rhythm-4',
     SAMPLE_RATE_HZ,
     ANALYSIS_SAMPLE_RATE_HZ,
     ANALYSIS_FILTER_ORDER,

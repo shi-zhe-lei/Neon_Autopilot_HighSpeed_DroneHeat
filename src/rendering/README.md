@@ -4,7 +4,7 @@
 
 保存程序化建模与物理光影。此层拥有材质、HDR、真实灯光和阴影合同，不拥有玩法权威。
 
-rig 在道路池之前建立场景级 `scene.userData.neonV23TunnelLightingUniforms`，以三个稳定 uniform 公布实际环境光、已缓存 HDR、方向光的全局洞内/室外强度比例。道路/墙顶/肋架只读共享它们，把局部目标透射除以已有全局透射并限制不超过 `1`，避免洞内二次压暗，也不把室外表面提亮。关闭光影时比例复位 `1`，销毁仅归还自己仍持有的场景槽；无需逐帧重建材质或着色器。
+rig 在道路池之前建立场景级 `scene.userData.neonTunnelLightingUniforms`，以三个稳定 uniform 公布实际环境光、已缓存 HDR、方向光的全局洞内/室外强度比例。道路/墙顶/肋架只读共享它们，把局部目标透射除以已有全局透射并限制不超过 `1`，避免洞内二次压暗，也不把室外表面提亮。关闭光影时比例复位 `1`，销毁仅归还自己仍持有的场景槽；无需逐帧重建材质或着色器。
 
 物理光影合同 v13 修复 Three r160 对普通 `DataTexture` 忽略 `needsPMREMUpdate` 的缓存行为：仅当既有 `0.025` 量化环境签名改变时，rig 对自己独占的 HDR source 发送 `dispose` 生命周期事件，释放旧的 source/PMREM GPU 缓存，再用 `needsUpdate` 更新相同的 Float 存储；下一次实际绘制才生成新 PMREM。稳定环境、重复暂停绘制及关闭光影时不触发重新滤波。`environmentCacheInvalidationCount` 统计缓存失效次数，不等同于 GPU 实际构建次数。HDR 仍为 `64×32` Float、线性过滤及原辐射值，曝光、灯数、阴影分辨率和画质档位均保持既有规格。
 
@@ -18,7 +18,7 @@ rig 在道路池之前建立场景级 `scene.userData.neonV23TunnelLightingUnifo
 
 Owns procedural modeling and physical lighting. This layer controls materials, HDR, real lights, and shadows, but never gameplay authority.
 
-Before road-pool construction, the rig installs `scene.userData.neonV23TunnelLightingUniforms`: three stable uniforms carrying actual ambient, cached-HDR, and directional indoor/outdoor intensity ratios. Road, shell, and rib receivers share these values read-only, dividing local target transmission by existing global transmission and capping the multiplier at `1`. This avoids double-darkening interiors without brightening outdoor surfaces. Disabled lighting resets the ratios to `1`; disposal restores only the scene slot still owned by this rig. No per-frame material or shader rebuild is needed.
+Before road-pool construction, the rig installs `scene.userData.neonTunnelLightingUniforms`: three stable uniforms carrying actual ambient, cached-HDR, and directional indoor/outdoor intensity ratios. Road, shell, and rib receivers share these values read-only, dividing local target transmission by existing global transmission and capping the multiplier at `1`. This avoids double-darkening interiors without brightening outdoor surfaces. Disabled lighting resets the ratios to `1`; disposal restores only the scene slot still owned by this rig. No per-frame material or shader rebuild is needed.
 
 Physical-lighting contract v13 fixes the Three r160 cache path that ignores `needsPMREMUpdate` for ordinary `DataTexture` sources. Only a change to the existing `0.025` quantized environment signature sends a `dispose` lifecycle event on the rig's exclusively owned HDR source, releasing its old source/PMREM GPU cache. `needsUpdate` then refreshes the same Float storage, and the next actual render lazily filters the new PMREM. Stable environments, repeated paused renders, and disabled lighting do not refilter. `environmentCacheInvalidationCount` counts invalidations rather than actual GPU builds. The `64×32` Float source, linear filters, authored radiance, exposure, light counts, shadow resolutions, and quality tiers retain their existing specifications.
 
