@@ -4,16 +4,26 @@
 
 | Field / 字段 | Value / 内容 |
 | :--- | :--- |
-| Status / 状态 | M0 in progress / 工具已盘点，当前 Unity 编译受 Windows 应用控制策略阻止 |
+| Status / 状态 | Stopped at user request / 已按用户要求停止环境修复与迁移操作；M0/M1 未验收 |
 | Reminder | pending |
-| Updated / 更新日期 | 2026-09-30 |
-| Next action / 下一步 | 处理 Bee.DotNet.dll 的应用控制拦截后重跑编译检查，并补齐 C# 工具集成 / Resolve the application-control block on Bee.DotNet.dll, recheck compilation and prepare C# editor integration |
+| Updated / 更新日期 | 2026-10-16 |
+| Next action / 下一步 | 等待用户重新选择并授权方案；不自动下载、安装或创建虚拟环境 / Await a new user-selected approach and authorization; no automatic downloads, installations or virtual environments |
 | Guide / 教程 | [Windows 环境与 Unity 迁移教程](docs/UNITY_WINDOWS_MIGRATION.md) |
 | Browser baseline / 浏览器基线 | 候选 `9abe72f66776d20bfb8005376f210adf48b5025e`；Windows 检查尚未全通过 / Candidate baseline; Windows checks are not all passing |
 
 **目标 / Goal：** 在 Windows 上由 Codex 辅助，将现有 Three.js 浏览器游戏逐阶段迁移为可构建、可运行、可验证的 Unity 项目。保留浏览器版作为行为对照，先完成 Windows 桌面版本，再决定其他发布平台。
 
-**当前实况 / Current evidence：** 2026-09-30 全程使用系统命令复查，无鼠标或界面自动操作。Hub 已更新为 3.22.0，Editor 6000.6.3f1 当前安装于本地系统程序目录，Unity Personal 许可更新成功。独立教程恢复工程在 2026-09-25 的创建及脚本编译已成功（退出码 0）；但今天用当前 Editor 再次批处理打开时，Windows 代码完整性策略阻止加载 `Bee.DotNet.dll`（`0x800711C7`，事件 3033/3077），编译检查以 1 退出。Windows x64 Mono 与 WebGL 模块文件存在，IL2CPP 模块及外部 C# 工具链尚不齐备。尚无本仓库迁移工程、Unity 测试或 Windows Player 构建运行证据。浏览器基线仍为 9 月 25 日的 464 通过、3 失败，本次未重跑。 / Command-only recheck, without UI automation: Hub 3.22.0 and Editor 6000.6.3f1 are installed; Unity Personal licensing succeeds. The separate tutorial recovery project compiled successfully on September 25, but today's batch reopen failed because Code Integrity blocked Bee.DotNet.dll. Mono and WebGL module files exist; IL2CPP and external C# tooling remain incomplete. Repository migration, Unity tests, Player validation and browser baseline acceptance remain pending.
+**当前实况 / Current evidence：** 2026-10-16 按用户要求停止修复尝试。未安装新的 Editor，未创建虚拟机或仓库内 Unity 工程，浏览器源码未改动；原有 Editor 6000.6.3f1 保留，Smart App Control、Defender 实时杀毒均确认开启。最近一次编译验证是 10 月 11 日：许可成功，但 `Bee.TundraBackend.dll` 被 `VerifiedAndReputableDesktop` 策略拦截（`0x800711C7`，事件 3033/3077），退出码 1。LTS 6000.3.26f1 仅下载了部分安装包，未安装、未验证；清理请求被自动审批以“策略阻止”拒绝，约 2.08 GiB 的安装包残片和小型探测文件仍留在本机，不入库。M0/M1 保持未完成；本次未重跑浏览器测试、Unity 编译或 Player。 / Repair attempts stopped at the user request. No new Editor, VM or repository Unity project was created; browser source is unchanged. The existing Editor and host protections remain in place. The last compile attempt on October 11 exited 1 because Smart App Control blocked Bee.TundraBackend.dll. The LTS installer download is incomplete and unvalidated. Automatic approval rejected temporary-file cleanup with a policy-block message; approximately 2.08 GiB remains locally, outside Git. Environment gates remain unaccepted; no tests or Player were rerun today.
+
+### 停止后的可行方案 / Options after stopping
+
+以下仅为建议，不授权继续执行。保留主机安全保护、不使用虚拟环境是当前约束。 / These are recommendations only. Retaining host protection and avoiding virtual environments remain the active constraints.
+
+1. **优先复用可用的 Windows 实体开发机。** 在另一台已有、能实际通过 Unity 编译、EditMode/PlayMode 测试和 Windows Player 构建运行的电脑上继续迁移。先完成这些检查，再搬迁工程；不必先购买设备。 / Prefer an existing physical Windows development machine. Verify real compilation, tests and a native Player before moving migration work there.
+2. **若只能用当前主机且保留保护：等待或取得针对被拦组件的官方修复。** 要核对 Bee 构建组件的可信签名/信誉及实际编译；目前没有已验证的快速修复。微软说明 Smart App Control 不支持单独放行某个应用。普通杀毒排除项、反复复制模板或重装相同文件不能据此视为解决方案。 / On this host with protection retained, obtain an official fix for the blocked components and verify it. No quick fix has been demonstrated; Smart App Control has no per-app exception. [Microsoft FAQ](https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions).
+3. **只有以后接受改变安全设置时，才考虑本机直接解除这一拦截。** 由用户在 Windows 安全中心关闭 Smart App Control、保留实时杀毒后复测，是针对已确认拦截的直接处理路径，但会移除整机的该项保护，且不等于全部环境验收通过。用户已选择保留开启，因此未执行，之后也须重新明确授权。 / Disabling Smart App Control is a direct way to address this specific block, but removes that protection system-wide. It is not authorized under the current preference and would still require compilation, test and Player validation.
+
+**更正 / Correction：** Unity 6000.3.15f1 的签名修复记录针对 IL2CPP 相关文件，不能据此证明本机 Bee 构建组件问题已修复；撤回将“换 LTS”视为高把握修复的推断。 / The cited LTS signing fix concerns IL2CPP-related files; it does not establish a fix for these Bee components. Switching versions is not a verified remedy. [Unity release notes](https://unity.com/releases/editor/whats-new/6000.3.15f1).
 
 ### 已准备 / Prepared
 
@@ -85,6 +95,8 @@ Record actual outcomes separately. Keep private paths and raw logs local; public
 | 2026-09-25 | M0 recovery-project result / 恢复工程结果（9 月 30 日补查日志） | Editor 6000.6.3f1; URP 17.6.0; template 4.0.1 | 模板与独立教程工程置于普通本地磁盘目录后，创建、包解析及脚本编译成功；日志明确退出码 0，存在 66 个脚本程序集。此为仓库外教程工程，不计作迁移工程或 Player 验收 / A separate local-disk tutorial project was created and compiled successfully, exit 0; this is not the repository migration or Player acceptance | 继续验证当前安装 / Recheck the current installation |
 | 2026-09-30 | M0 environment recheck / 环境复查 | Hub 3.22.0 (MSIX 3.22.0.65535); Editor 6000.6.3f1; embedded .NET SDK 8.0.318; Git 2.55.0.windows.5; Node v24.19.0; VS Code 1.139.0 | Windows 11 x64、15.7 GiB RAM、RTX 3070 Laptop；本地卷剩余约 157.5 / 182.0 GiB。当前无 Editor 运行后启动一次隐藏批处理检查，Personal 许可成功；编译被 `Bee.DotNet.dll` 代码完整性事件 3033/3077 阻止，退出码 1。Unity.exe 签名有效；未更改安全设置 / License update succeeded, but compilation was blocked by Code Integrity, exit 1; no security settings changed | 处理拦截后重新验证 / Resolve the block and revalidate |
 | 2026-09-30 | M0 modules and tooling / 模块与开发工具 | Windows x64 Mono + WebGL files present; IL2CPP absent; standalone .NET SDK absent | 未检测到 Visual Studio Installer、Windows SDK 或默认 VS Code 的 C#/Unity 扩展。Unity 内置 SDK 存在，外部 SDK 缺失不是本次已确认的编译拦截原因。Unity 测试、图形模式与 Player 均未执行；本次未使用界面自动化 / External IDE integration remains incomplete; the embedded compiler exists. No tests, graphics-mode check or Player run was performed; no UI automation used | 补齐所选开发工具，并保持 M0/M1 未验收 / Prepare the selected tooling; M0/M1 remain unaccepted |
+| 2026-10-11 | M0 compile recheck / 编译复查 | Windows 11 10.0.26300; Hub 3.22.0; Editor 6000.6.3f1 | 教程工程编译退出 1，Bee.TundraBackend.dll 被 Smart App Control 阻止（0x800711C7；3033/3077）；许可成功。用户保留主机保护并撤销虚拟环境方案。LTS 6000.3.26f1 下载未完成，未安装或验证；原始日志仅留 `<local evidence>` / Compile blocked; host protections retained; VM approach cancelled; LTS download incomplete, not installed or validated | 后续尝试已于 10 月 16 日停止 / Further attempts stopped on October 16 |
+| 2026-10-16 | Stop and restoration review / 停止与恢复核对 | Existing Editor 6000.6.3f1; Smart App Control On; Defender real-time protection On | 未发现本次安装的新 Editor、创建的虚拟机或仍在运行的对应下载进程；源码未改动。自动审批阻止清理部分安装包和探测文件，未尝试绕过；残留仅在本机。撤回进行中的安装计划，仅记录事实及可行方案 / No new installation, VM or active matching download; source unchanged. Cleanup was policy-blocked and was not bypassed; local remnants remain. Active setup plans withdrawn | 等待新的明确授权；M0/M1 不勾选 / Await new authorization; M0/M1 remain incomplete |
 
 安装方案来源（2026-09-25 核对） / Setup references checked on 2026-09-25: [Unity 6 support](https://unity.com/releases/unity-6/support), [Editor 6000.3.25f1](https://unity.com/releases/editor/whats-new/6000.3.25f1), [Unity system requirements](https://docs.unity3d.com/6000.3/Documentation/Manual/system-requirements.html), [Node.js release schedule](https://github.com/nodejs/Release). 首次 Windows 闭环采用 Mono；若改用 IL2CPP，另补构建模块、C++ 工具与 Windows SDK 并重新验证。 / Start with Mono; IL2CPP requires its module and native toolchain plus separate build validation.
 
